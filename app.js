@@ -4,19 +4,10 @@ var logger = require('morgan');
 var mongoose = require('mongoose');
 var cors = require('cors');
 var chalk = require('chalk');
+var bodyParser = require('body-parser');
 
 
-var whitelist = ['http://localhost:3000']
-var corsOptions = {
-  origin: (origin, callback) => {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    }
-    else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
-}
+require('dotenv').config();
 
 var mongooseOptions = {
   useNewUrlParser: true,
@@ -27,7 +18,11 @@ var mongooseOptions = {
 
 
 
-require('dotenv').config();
+const testRouter = require('./routes/testRouter');
+const usersRouter = require('./routes/usersRouter');
+
+
+
 
 
 
@@ -43,7 +38,27 @@ mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
   });
 
 
-app.use(cors(corsOptions));
+app.use(cors());
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
+
+
+
+
+
+
+
+app.use('/test', testRouter);
+app.use('/users', usersRouter);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -57,12 +72,13 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
+  console.log(err);
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.json({ Status: 'error' });
 });
 
 module.exports = app;
