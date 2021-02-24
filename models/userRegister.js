@@ -1,27 +1,24 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 
-const UserRegisterSchema = new Schema({
-    firstname: {
+const UserRegisterSchema = new mongoose.Schema({
+    fullname: {
         type: String,
         required: true
     },
-    lastname: {
-        type: String,
-        required: true
-    },
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true,
-        lowecase: true,
-        trim: true
+    mobile_number: {
+        country_code: {
+            type: String,
+            required: true,
+            default: "+91"
+        },
+        number: {
+            type: String,
+            required: true
+        }
     },
     email: {
         type: String,
-        required: true,
         unique: true,
         lowecase: true,
         trim: true
@@ -29,6 +26,16 @@ const UserRegisterSchema = new Schema({
     hash: {
         type: String,
         required: true
+    },
+    is_verified: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    is_blocked: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 }, { timestamps: true });
 

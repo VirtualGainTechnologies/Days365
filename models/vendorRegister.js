@@ -1,30 +1,27 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 
-const VendorRegisterSchema = new Schema({
-    firstname: {
+const VendorRegisterSchema = new mongoose.Schema({
+    fullname: {
         type: String,
         required: true
     },
-    lastname: {
-        type: String,
-        required: true
-    },
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        index: true,
-        lowecase: true,
-        trim: true
+    mobile_number: {
+        country_code: {
+            type: String,
+            required: true
+        },
+        number: {
+            type: String,
+            required: true
+        }
     },
     email: {
         type: String,
-        required: true,
         unique: true,
         lowecase: true,
-        trim: true
+        trim: true,
+        required: true
     },
     hash: {
         type: String,

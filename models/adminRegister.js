@@ -1,13 +1,8 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 
-const AdminRegisterSchema = new Schema({
-    firstname: {
-        type: String,
-        required: true
-    },
-    lastname: {
+const AdminRegisterSchema = new mongoose.Schema({
+    fullname: {
         type: String,
         required: true
     },
