@@ -1,5 +1,8 @@
 const argon2 = require('argon2');
-
+const { generateTokens, compareUserAgents } = require('../services/jwtServices');
+const { refreshTokenModel } = require("../models/refreshTokenModel");
+const chalk = require('chalk');
+const { token } = require('morgan');
 
 
 /** 
@@ -95,6 +98,70 @@ async function isMobileOrEmail(loginCredential, callback) {
 }
 
 
+/**
+ * Generate Tokens and login user.
+ */
 
-module.exports = { encryptPassword, verifyPassword, verifyEmail, verifyMobile, isMobileOrEmail }
+async function userLogin(userid, useragent, callback) {
+    return new Promise(async (resolve, reject) => {
+        await generateTokens(userid, async (err, tokens) => {
+            if (err) {
+                return callback ? callback(err) : reject(err);
+            }
+            else {
+                await refreshTokenModel.findOne({ userid: userid }, async (err, record) => {
+                    if (err) {
+                        return callback ? callback(err) : reject(err);
+                    }
+                    else {
+                        try {
+                            var refreshTokenRecord;
+                            if (record) {
+                                refreshTokenRecord = new refreshTokenModel(record);
+                            }
+                            else {
+                                refreshTokenRecord = new refreshTokenModel({ userid: userid, refresh_tokens: [] });
+                            }
+                            var refreshTokens = refreshTokenRecord.refresh_tokens, tokenIndex = -1;
+                            for (let i in refreshTokens) {
+                                let isEqual = await compareUserAgents(refreshTokens[i].useragent, useragent);
+                                if (isEqual) {
+                                    tokenIndex = i;
+                                    break;
+                                }
+                            }
+                            let latestRefreshToken = {
+                                refresh_token: tokens.refreshToken,
+                                useragent: useragent
+                            };
+                            if (tokenIndex == -1) {
+                                refreshTokens.push(latestRefreshToken);
+                            }
+                            else {
+                                refreshTokens[tokenIndex] = latestRefreshToken;
+                            }
+                            refreshTokenRecord.refresh_tokens = refreshTokens;
+                            await refreshTokenRecord.save((err, tokenRecord) => {
+                                if (err) {
+                                    return callback ? callback(err) : reject(err);
+                                }
+                                else {
+                                    return callback ? callback(null, tokens) : resolve(tokens);
+                                }
+                            });
+                        }
+                        catch (err) {
+                            return callback ? callback(err) : reject(err);
+                        }
+                    }
+                });
+            }
+        });
+    });
+}
+
+
+
+
+module.exports = { encryptPassword, verifyPassword, verifyEmail, verifyMobile, isMobileOrEmail, userLogin };
 

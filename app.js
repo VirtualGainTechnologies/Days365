@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var cors = require('cors');
 var chalk = require('chalk');
 var bodyParser = require('body-parser');
+var useragent = require('express-useragent');
 
 
 require('dotenv').config();
@@ -42,7 +43,7 @@ mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
 app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
-
+app.use(useragent.express());
 
 
 
@@ -75,7 +76,7 @@ app.use(function (err, req, res, next) {
   console.log("ERROR========================>", chalk.red(err.message));
   res.status(err.status || 500);
   res.setHeader('Content-Type', 'application/json');
-  res.json({ message: 'Error', error: true, data: {} });
+  res.json({ message: err.message || "Internal Server Error.", error: true, data: {} });
 });
 
 module.exports = app;
