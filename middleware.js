@@ -11,11 +11,18 @@ const createError = require('http-errors');
 
 async function getTokenFromHeaders(req) {
     return new Promise(async (resolve, reject) => {
-        const { headers: { authorization } } = req;
-        if (authorization && authorization.split(' ')[0] === "Bearer") {
-            return resolve(authorization.split(' ')[1]);
+        try {
+            const { headers: { authorization } } = req;
+            if (authorization && authorization.split(' ')[0] === "Bearer") {
+                return resolve(authorization.split(' ')[1]);
+            }
+            else {
+                return reject(createError(401, "Invalid Header"));
+            }
         }
-        return reject(createError(401, "Invalid Header"));
+        catch (err) {
+            return reject(createError(401, "Invalid Header"));
+        }
     });
 }
 
@@ -28,7 +35,7 @@ async function verifyAccessJwt(req, res, next) {
     try {
         //Extract Token
         const accessToken = await getTokenFromHeaders(req);
-        await verifyAccessToken(accessToken, async (err, decoded) => {
+        await verifyAccessToken(accessToken, { ignoreExpiration: false }, async (err, decoded) => {
             if (err) {
                 return next(createError(401, "Access-Token expired"));
             }
@@ -46,26 +53,34 @@ async function verifyAccessJwt(req, res, next) {
 
 
 /**
- * Jwt refresh Token middleware, token in body.
+ * Jwt refresh Token middleware, old refresh token in body and access token in header.
  */
 
 async function verifyRefreshJwt(req, res, next) {
     try {
         //Extract Tokens
+        const accessToken = await getTokenFromHeaders(req);
         const refreshToken = req.body.refreshToken;
-        await verifyRefreshToken(refreshToken, async (err, decoded) => {
+        await verifyRefreshToken(refreshToken, async (err, refreshTokenDecoded) => {
             if (err) {
                 return next(createError(401, "Refresh-Token expired"));
             }
             else {
-                // console.log(decoded);
-                req['user'] = { id: decoded.key };
-                return next();
+                //Verify and decode Access Token and compare payloads.
+                await verifyAccessToken(accessToken, { ignoreExpiration: true }, async (err, accessTokenDecoded) => {
+                    if (err || (accessTokenDecoded.key !== refreshTokenDecoded.key)) {
+                        return next(createError(401, "Unauthorized"));
+                    }
+                    else {
+                        req['user'] = { id: refreshTokenDecoded.key };
+                        return next();
+                    }
+                });
             }
         });
     }
     catch (err) {
-        return next(createError(400, "No token found in the body."));
+        return next(err);
     }
 }
 
@@ -74,8 +89,24 @@ async function verifyRefreshJwt(req, res, next) {
  * Verify User
  */
 
-async function verifyUser() {
-
+async function verifyUser(req, res, next) {
+    try {
+        var userId = req.user.id;
+        await UserRegisterModel.findById(userId, async (err, user) => {
+            if (err) {
+                return next({});
+            }
+            else if (!user || user.is_blocked) {
+                return next(createHttpError(401, "Unauthorized"));
+            }
+            else {
+                return next();
+            }
+        });
+    }
+    catch (err) {
+        return next({});
+    }
 }
 
 

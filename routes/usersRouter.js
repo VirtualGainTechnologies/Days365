@@ -1,21 +1,24 @@
 const express = require('express');
 const usersRouter = express.Router();
-const { verifyPassword, encryptPassword, verifyEmail, verifyMobile, isMobileOrEmail, userLogin } = require('../services/loginService');
+const { verifyPassword, encryptPassword, verifyEmail, verifyMobile, isMobileOrEmail, userLogin, sendOTP } = require('../services/loginService');
 const { generateTokens, compareUserAgents } = require('../services/jwtServices');
 const { adminRegisterModel } = require('../models/adminRegister');
 const { vendorRegisterModel } = require('../models/vendorRegister');
 const { UserRegisterModel } = require('../models/userRegister');
 const { refreshTokenModel } = require("../models/refreshTokenModel");
 const chalk = require('chalk');
-
+const { verifyAccessJwt, verifyRefreshJwt, verifyUser } = require('../middleware');
+const createHttpError = require('http-errors');
+const { preSignUpModel } = require('../models/preSignUPModel');
+const otpGenerator = require('otp-generator');
 
 
 
 /** 
- * Sign up users
+ * Pre Signup users
  */
 
-usersRouter.post('/signup/user', async (req, res, next) => {
+usersRouter.post('/presignup/user', async (req, res, next) => {
     try {
         var data = req.body;
         var email = data.email ? data.email.trim().toLowerCase() : null;
@@ -27,7 +30,6 @@ usersRouter.post('/signup/user', async (req, res, next) => {
             res.setHeader('Content-Type', 'application/json');
             return res.json({ message: 'Please provide a valid Mobile Number.', error: true, data: {} });
         }
-
         if (email && !await verifyEmail(email)) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -40,36 +42,64 @@ usersRouter.post('/signup/user', async (req, res, next) => {
         else {
             filter = { $and: [{ 'mobile_number.country_code': countryCode }, { 'mobile_number.number': number }] };
         }
-
-        await UserRegisterModel.find(filter, async (err, users) => {
+        await UserRegisterModel.findOne(filter, async (err, account) => {
             if (err) {
+                // console.log(err);
                 next({});
             }
-            else if (users.length) {
+            else if (account) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'User already exists.', error: true, data: {} });
+                res.json({ message: "Account already exists.", error: true, data: {} });
             }
             else {
                 await encryptPassword(data.password, async (err, hash) => {
                     if (err) {
+                        // console.log(err);
                         next({});
                     }
                     else {
-                        var user = new UserRegisterModel();
-                        user.email = email;
-                        user.mobile_number.country_code = countryCode;
-                        user.mobile_number.number = number;
-                        user.hash = hash;
-                        user.fullname = data.fullname;
-                        await user.save(async (err, user) => {
+                        var user = {
+                            email: email,
+                            countryCode: countryCode,
+                            number: number,
+                            hash: hash,
+                            fullname: data.fullname
+                        }
+                        //  store user data temporarly and  send otp .
+                        var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
+                        var userData = JSON.stringify(user);
+                        var presignupRecord = new preSignUpModel();
+                        presignupRecord.mobile = number;
+                        presignupRecord.otp = otp;
+                        presignupRecord.data = userData;
+                        presignupRecord.user_type = "user";
+                        presignupRecord.date = Date.now();
+                        await presignupRecord.save(async (err, otpData) => {
                             if (err) {
+                                // console.log(err);
                                 next({});
                             }
                             else {
                                 res.statusCode = 200;
                                 res.setHeader('Content-Type', 'application/json');
-                                res.json({ message: 'Registration successful.', error: false, data: {} });
+                                res.json({ message: 'OTP has been sent to your mobile number.', error: false, data: { id: otpData._id, otp: otp } });
+                                // await sendOTP(number, otp)
+                                //     .then(async (response) => {
+                                //         //verify response
+                                //         if (response) {
+                                //             res.statusCode = 200;
+                                //             res.setHeader('Content-Type', 'application/json');
+                                //             res.json({ message: 'OTP has been sent to your mobile number.', error: false, data: { id: otpData._id, otp: otp } });
+                                //         }
+                                //         else {
+                                //             next({});
+                                //         }
+                                //     })
+                                //     .catch((err) => {
+                                //         next({});
+                                //     });
+
                             }
                         });
                     }
@@ -77,12 +107,13 @@ usersRouter.post('/signup/user', async (req, res, next) => {
             }
         });
     } catch (err) {
+        // console.log(err);
         next({});
     }
 });
 
 
-// usersRouter.post('/signup/vendor', async (req, res, next) => {
+// usersRouter.post('/presignup/vendor', async (req, res, next) => {
 //     try {
 //         var data = req.body;
 //         var username = data.username.trim().toLowerCase();
@@ -133,7 +164,7 @@ usersRouter.post('/signup/user', async (req, res, next) => {
 // });
 
 
-// usersRouter.post('/signup/admin', async (req, res, next) => {
+// usersRouter.post('/presignup/admin', async (req, res, next) => {
 //     try {
 //         var data = req.body;
 //         var username = data.username.trim().toLowerCase();
@@ -177,10 +208,78 @@ usersRouter.post('/signup/user', async (req, res, next) => {
 // });
 
 
+/**
+ * Signup user on mobile verification success
+ */
+
+
+usersRouter.post('/signup/user', async (req, res, next) => {
+    try {
+        var otp = req.body.otp;
+        var presignupId = req.body.id;
+        await preSignUpModel.findById(presignupId, async (err, userData) => {
+            if (err) {
+                next({});
+            }
+            else if ((!userData) || (userData.user_type !== "user")) {
+                next(createHttpError(400, "Bad request"));
+            }
+            else {
+                var date = Date.now();
+                date -= 10 * 60 * 1000;
+                var recordDate = userData.date.getTime();
+                if ((date > recordDate) || (otp !== userData.otp)) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    return res.json({ message: 'Mobile verification failed.', error: true, data: {} });
+                }
+                else {
+                    var user = JSON.parse(userData.data);
+                    var userRecord = new UserRegisterModel({
+                        fullname: user.fullname,
+                        mobile_number: {
+                            country_code: user.countryCode,
+                            number: user.number,
+                        },
+                        email: user.email,
+                        hash: user.hash
+                    });
+                    await userRecord.save(async (err, newUser) => {
+                        if (err) {
+                            next({});
+                        }
+                        else {
+                            await preSignUpModel.deleteMany({ mobile: user.number }, async (err, deletedRecord) => {
+                                res.statusCode = 201;
+                                res.setHeader('Content-Type', 'application/json');
+                                return res.json({ message: 'Account successfully registered.', error: false, data: {} });
+                            });
+                        }
+                    });
+                }
+
+            }
+        });
+
+    } catch (err) {
+        next({});
+    }
+});
+
+
+
+usersRouter.post('/signup/vendor', async (req, res, next) => {
+
+});
+
+
+usersRouter.post('/signup/admin', async (req, res, next) => {
+
+});
 
 
 /**
- *Login users
+ *Signin users
  */
 
 usersRouter.post('/signin/user', async (req, res, next) => {
@@ -189,6 +288,7 @@ usersRouter.post('/signin/user', async (req, res, next) => {
         var value = req.body.value;
         var password = req.body.password;
         var useragent = req.useragent;
+        var filter = {};
         if (type === "EMAIL") {
             filter = { email: value };
         }
@@ -205,33 +305,40 @@ usersRouter.post('/signin/user', async (req, res, next) => {
                 res.json({ message: 'Invalid Account.', error: true, data: {} });
             }
             else {
-                await verifyPassword(user.hash, password, async (err, flag) => {
-                    if (err) {
-                        next({});
-                    }
-                    else if (flag) {
-                        await userLogin(user._id, useragent, async (err, tokens) => {
-                            if (err) {
-                                next({});
-                            }
-                            else {
-                                let response = {
-                                    accessToken: tokens.accessToken,
-                                    refreshToken: tokens.refreshToken,
-                                    fullname: user.fullname
+                if (user.is_blocked) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: "Account Blocked, Please contact our team for recovery.", error: true, data: {} });
+                }
+                else {
+                    await verifyPassword(user.hash, password, async (err, flag) => {
+                        if (err) {
+                            next({});
+                        }
+                        else if (flag) {
+                            await userLogin(user._id, useragent, async (err, tokens) => {
+                                if (err) {
+                                    next({});
                                 }
-                                res.statusCode = 200;
-                                res.setHeader('Content-Type', 'application/json');
-                                res.json({ message: 'Login successful.', error: false, data: response });
-                            }
-                        });
-                    }
-                    else {
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.json({ message: 'Login failed.', error: true, data: {} });
-                    }
-                });
+                                else {
+                                    let response = {
+                                        accessToken: tokens.accessToken,
+                                        refreshToken: tokens.refreshToken,
+                                        fullname: user.fullname
+                                    }
+                                    res.statusCode = 200;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.json({ message: 'Login successful.', error: false, data: response });
+                                }
+                            });
+                        }
+                        else {
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json({ message: 'Login failed.', error: true, data: {} });
+                        }
+                    });
+                }
             }
         });
     }
@@ -344,8 +451,75 @@ usersRouter.post('/signin/user', async (req, res, next) => {
 // });
 
 
+
 /**
- * Check entered email or password exists or not.
+ * Signout Users.
+ */
+
+usersRouter.post('/signout/user', verifyRefreshJwt, verifyUser, async (req, res, next) => {
+    try {
+        var userId = req.user.id;
+        var oldRefreshToken = req.body.refreshToken;
+        var useragent = req.useragent;
+        await refreshTokenModel.findOne({ userid: userId }, async (err, record) => {
+            if (err) {
+                return next({});
+            }
+            else if (!record) {
+                return next(createHttpError(401, "Unauthorized"));
+            }
+            else {
+                try {
+                    var refreshTokenRecord = new refreshTokenModel(record);
+                    var refreshTokens = refreshTokenRecord.refresh_tokens, tokenIndex = -1;
+                    for (let i in refreshTokens) {
+                        let isEqual = await compareUserAgents(refreshTokens[i].useragent, useragent);
+                        if ((isEqual) && (refreshTokens[i].refresh_token === oldRefreshToken)) {
+                            tokenIndex = i;
+                            break;
+                        }
+                    }
+                    if (tokenIndex === -1) {
+                        return next(createHttpError(401, "Unauthorized"));
+                    }
+                    refreshTokens.splice(tokenIndex, 1);
+                    refreshTokenRecord.refresh_tokens = refreshTokens;
+                    await refreshTokenRecord.save((err, tokenRecord) => {
+                        if (err) {
+                            return next({});
+                        }
+                        else {
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json({ message: 'Signout Successful.', error: false, data: {} });
+                        }
+                    });
+                }
+                catch (err) {
+                    next({});
+                }
+            }
+        });
+    }
+    catch (err) {
+        next({});
+    }
+});
+
+
+usersRouter.post('/signout/vendor', async (req, res, next) => {
+
+});
+
+
+usersRouter.post('/signout/admin', async (req, res, next) => {
+
+});
+
+
+
+/**
+ * Check entered email or mobile exists or not.
  */
 
 usersRouter.get('/verifyCredential/user/:loginCredential', async (req, res, next) => {
@@ -384,6 +558,71 @@ usersRouter.get('/verifyCredential/user/:loginCredential', async (req, res, next
         }
     });
 });
+
+
+
+/**
+ * Resend otp to mobile number during registration if required.
+ */
+
+usersRouter.post('/resendOtp/user', async (req, res, next) => {
+    try {
+        var presignupId = req.body.id;
+        await preSignUpModel.findById(presignupId, async (err, userData) => {
+            if (err) {
+                return next({});
+            }
+            else if ((!userData) || (userData.user_type !== "user")) {
+                next(createHttpError(400, "Bad request"));
+            }
+            else {
+                var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
+                userData.otp = otp;
+                userData.date = Date.now();
+                await userData.save(async (err, otpData) => {
+                    if (err) {
+                        next({});
+                    }
+                    else {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({ message: 'OTP has been sent to your mobile number.', error: false, data: { otp: otp } });
+                        // await sendOTP(number, otp)
+                        //     .then(async (response) => {
+                        //         //verify response
+                        //         if (response) {
+                        //             res.statusCode = 200;
+                        //             res.setHeader('Content-Type', 'application/json');
+                        //             res.json({ message: 'OTP has been sent to your mobile number.', error: false, data: { otp: otp } });
+                        //         }
+                        //         else {
+                        //             next({});
+                        //         }
+                        //     })
+                        //     .catch((err) => {
+                        //         next({});
+                        //     });
+                    }
+                });
+
+            }
+        });
+    } catch (err) {
+        next({});
+    }
+});
+
+
+usersRouter.post('/resendOtp/vendor', async (req, res, next) => {
+
+});
+
+
+usersRouter.post('/resendOtp/admin', async (req, res, next) => {
+
+});
+
+
 
 
 

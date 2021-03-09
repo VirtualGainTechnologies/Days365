@@ -11,7 +11,7 @@ require('dotenv').config();
 async function generateAccessToken(key, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_ACCESS_TOKEN_SECRET;
-        await jwt.sign({ key: key }, jwtSecret, { expiresIn: 1200 }, async (err, accessToken) => {
+        await jwt.sign({ key: key }, jwtSecret, { expiresIn: 1800 }, async (err, accessToken) => {
             if (err || !accessToken) {
                 return callback ? callback(new Error("Error.")) : reject(new Error("Error"));
             }
@@ -80,10 +80,10 @@ async function updateTokens(tokens, callback) {
  */
 
 
-async function verifyAccessToken(token, callback) {
+async function verifyAccessToken(token, options, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_ACCESS_TOKEN_SECRET;
-        await jwt.verify(token, jwtSecret, async (err, decoded) => {
+        await jwt.verify(token, jwtSecret, options, async (err, decoded) => {
             if (err) {
                 return callback ? callback(err) : reject(err);
             }
@@ -115,7 +115,7 @@ async function verifyRefreshToken(token, callback) {
 
 
 /**
- * Verify useragnet
+ * Verify useragent
  */
 
 async function compareUserAgents(firstAgent, secondAgent) {

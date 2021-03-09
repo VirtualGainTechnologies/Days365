@@ -20,7 +20,7 @@ tokenRouter
                 next({});
             }
             else if (!record) {
-                next(createHttpError(401, "Refresh-Token expired"));
+                next(createHttpError(401, "Unauthorized"));
             }
             else {
                 try {
@@ -34,7 +34,7 @@ tokenRouter
                         }
                     }
                     if (tokenIndex === -1) {
-                        return next(createHttpError(401, "Refresh-Token expired"));
+                        return next(createHttpError(401, "Unauthorized"));
                     }
                     await generateTokens(userId, async (err, tokens) => {
                         if (err) {

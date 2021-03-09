@@ -14,7 +14,9 @@ const UserRegisterSchema = new mongoose.Schema({
         },
         number: {
             type: String,
-            required: true
+            unique: true,
+            required: true,
+            index: true
         }
     },
     email: {
@@ -26,11 +28,6 @@ const UserRegisterSchema = new mongoose.Schema({
     hash: {
         type: String,
         required: true
-    },
-    is_verified: {
-        type: Boolean,
-        required: true,
-        default: false
     },
     is_blocked: {
         type: Boolean,

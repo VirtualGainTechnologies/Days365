@@ -3,6 +3,12 @@ const { generateTokens, compareUserAgents } = require('../services/jwtServices')
 const { refreshTokenModel } = require("../models/refreshTokenModel");
 const chalk = require('chalk');
 const { token } = require('morgan');
+const createHttpError = require('http-errors');
+const queryString = require('querystring');
+const http = require('http');
+require('dotenv').config();
+
+
 
 
 /** 
@@ -86,7 +92,7 @@ async function isMobileOrEmail(loginCredential, callback) {
                 if (await verifyMobile(number)) {
                     field.isValid = true;
                     field.type = "MOBILE";
-                    field.value = loginCredential;
+                    field.value = number;
                 }
             }
             return callback ? callback(null, field) : resolve(field);
@@ -102,14 +108,14 @@ async function isMobileOrEmail(loginCredential, callback) {
  * Generate Tokens and login user.
  */
 
-async function userLogin(userid, useragent, callback) {
+async function userLogin(userId, useragent, callback) {
     return new Promise(async (resolve, reject) => {
-        await generateTokens(userid, async (err, tokens) => {
+        await generateTokens(userId, async (err, tokens) => {
             if (err) {
                 return callback ? callback(err) : reject(err);
             }
             else {
-                await refreshTokenModel.findOne({ userid: userid }, async (err, record) => {
+                await refreshTokenModel.findOne({ userid: userId }, async (err, record) => {
                     if (err) {
                         return callback ? callback(err) : reject(err);
                     }
@@ -120,7 +126,7 @@ async function userLogin(userid, useragent, callback) {
                                 refreshTokenRecord = new refreshTokenModel(record);
                             }
                             else {
-                                refreshTokenRecord = new refreshTokenModel({ userid: userid, refresh_tokens: [] });
+                                refreshTokenRecord = new refreshTokenModel({ userid: userId, refresh_tokens: [] });
                             }
                             var refreshTokens = refreshTokenRecord.refresh_tokens, tokenIndex = -1;
                             for (let i in refreshTokens) {
@@ -135,7 +141,10 @@ async function userLogin(userid, useragent, callback) {
                                 useragent: useragent
                             };
                             if (tokenIndex == -1) {
-                                refreshTokens.push(latestRefreshToken);
+                                if (refreshTokens.length == 10) {  //Max 10 devices allowed to login simultaneously.
+                                    refreshTokens.pop();
+                                }
+                                refreshTokens.unshift(latestRefreshToken);
                             }
                             else {
                                 refreshTokens[tokenIndex] = latestRefreshToken;
@@ -163,5 +172,53 @@ async function userLogin(userid, useragent, callback) {
 
 
 
-module.exports = { encryptPassword, verifyPassword, verifyEmail, verifyMobile, isMobileOrEmail, userLogin };
+
+
+/**
+ * Send OTP
+ */
+
+async function sendOTP(mobile, otp) {
+    return new Promise(async (resolve, reject) => {
+        const message = `Your OTP for Days365 is: ${otp}`;
+        const authKey = process.env.OTP_AUTH_KEY;
+        const senderId = process.env.OTP_SENDER_ID;
+
+        var requestParams = queryString.stringify({ AUTH_KEY: authKey, message: message, senderId: senderId, routeId: 1, mobileNos: mobile, smsContentType: "english" });
+
+        var path = "/rest/services/sendSMS/sendGroupSms?" + requestParams;
+        var options = {
+            "hostname": "msg.msgclub.net",
+            "path": path,
+            "method": "GET",
+            "headers": {
+                "Cache_Control": "no-cache"
+            }
+        }
+
+        var sendOTP = await http.request(options, async (response) => {
+            var chunks = [];
+            response.on('data', async (chunk) => {
+                chunks.push(chunk);
+            });
+            response.on('end', async () => {
+                // console.log("End", chunks);
+                var data = JSON.parse(await Buffer.concat(chunks).toString());
+                // console.log(data);
+                resolve(data);
+            });
+        });
+
+        sendOTP.on('error', async (err) => {
+            console.log(`problem with request: ${err.message}`);
+            reject(err);
+        });
+        await sendOTP.end();
+    });
+}
+
+
+
+
+module.exports = { encryptPassword, verifyPassword, verifyEmail, verifyMobile, isMobileOrEmail, userLogin, sendOTP };
 
