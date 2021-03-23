@@ -7,38 +7,30 @@ var chalk = require('chalk');
 var bodyParser = require('body-parser');
 var useragent = require('express-useragent');
 
+var i = 33;
 
 require('dotenv').config();
 
 var mongooseOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
 }
-
-
 
 const testRouter = require('./routes/testRouter');
 const usersRouter = require('./routes/usersRouter');
 const tokenRouter = require('./routes/tokenRouter');
 
-
-
-
-
-
 var app = express();
-
 
 //MongoDB connect
 mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
-  .then(() => {
-    console.log(chalk.green("Connected Successfully to port 27017"));
-  }).catch((error) => {
-    console.log(chalk.red(error));
-  });
-
+    .then(() => {
+        console.log(chalk.green("Connected Successfully to port 27017"));
+    }).catch((error) => {
+        console.log(chalk.red(error));
+    });
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '100mb' }));
@@ -54,21 +46,9 @@ app.use('/test', testRouter);
 app.use('/account', usersRouter);
 app.use('/token', tokenRouter);
 
-
-
-
-
-
-
-
-
-
-
-
-
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
+app.use(function(req, res, next) {
+    next(createError(404));
 });
 
 // error handler
