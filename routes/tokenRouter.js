@@ -1,9 +1,10 @@
 const express = require('express');
-const createHttpError = require('http-errors');
 const tokenRouter = express.Router();
 const { refreshTokenModel } = require('../models/refreshTokenModel');
 const { verifyRefreshJwt } = require('../middleware');
-const { generateTokens, compareUserAgents } = require('../services/jwtServices');
+const { generateTokens } = require('../services/jwtServices');
+const { compareUserAgents } = require('../services/commonAccountService');
+const { ErrorBody } = require('../utils/ErrorBody');
 
 
 /**
@@ -20,7 +21,7 @@ tokenRouter
                 next({});
             }
             else if (!record) {
-                next(createHttpError(401, "Unauthorized"));
+                next(new ErrorBody(401, "Unauthorized", []));
             }
             else {
                 try {
@@ -34,7 +35,7 @@ tokenRouter
                         }
                     }
                     if (tokenIndex === -1) {
-                        return next(createHttpError(401, "Unauthorized"));
+                        return next(new ErrorBody(401, "Unauthorized", []));
                     }
                     await generateTokens(userId, async (err, tokens) => {
                         if (err) {

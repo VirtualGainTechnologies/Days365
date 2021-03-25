@@ -1,5 +1,5 @@
 const argon2 = require('argon2');
-const { generateTokens, compareUserAgents } = require('../services/jwtServices');
+const { generateTokens } = require('./jwtServices');
 const { refreshTokenModel } = require("../models/refreshTokenModel");
 const chalk = require('chalk');
 const { token } = require('morgan');
@@ -99,6 +99,35 @@ async function isMobileOrEmail(loginCredential, callback) {
         }
         catch (err) {
             return callback ? callback(err) : reject(err);
+        }
+    });
+}
+
+
+/**
+ * Verify useragent
+ */
+
+async function compareUserAgents(firstAgent, secondAgent) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            var isEqual = true;
+            for (let key of Object.keys(firstAgent)) {
+                if ((key === 'version') || (key === 'geoIp') || (key === 'source')) {
+                    // console.log(chalk.yellow("hai"));
+                    continue;
+                }
+                // console.log(key);
+                if (firstAgent[key] !== secondAgent[key]) {
+                    isEqual = false;
+                    break;
+                }
+            }
+            // console.log("done");
+            return resolve(isEqual);
+        }
+        catch (err) {
+            return reject(err);
         }
     });
 }
@@ -220,5 +249,14 @@ async function sendOTP(mobile, otp) {
 
 
 
-module.exports = { encryptPassword, verifyPassword, verifyEmail, verifyMobile, isMobileOrEmail, userLogin, sendOTP };
+module.exports = {
+    encryptPassword,
+    verifyPassword,
+    verifyEmail,
+    verifyMobile,
+    isMobileOrEmail,
+    userLogin,
+    sendOTP,
+    compareUserAgents
+};
 

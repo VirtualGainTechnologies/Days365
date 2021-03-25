@@ -7,7 +7,6 @@ var chalk = require('chalk');
 var bodyParser = require('body-parser');
 var useragent = require('express-useragent');
 
-var i = 33;
 
 require('dotenv').config();
 
@@ -18,9 +17,22 @@ var mongooseOptions = {
     useCreateIndex: true
 }
 
+
+
 const testRouter = require('./routes/testRouter');
-const usersRouter = require('./routes/usersRouter');
+
+
 const tokenRouter = require('./routes/tokenRouter');
+const signupRouter = require('./routes/signupRouter');
+const signinRouter = require('./routes/signinRouter');
+const signoutRouter = require('./routes/signoutRouter');
+
+
+
+
+
+
+
 
 var app = express();
 
@@ -43,20 +55,35 @@ app.use(useragent.express());
 
 
 app.use('/test', testRouter);
-app.use('/account', usersRouter);
+
+
 app.use('/token', tokenRouter);
+app.use('/signup', signupRouter);
+app.use('/signin', signinRouter);
+app.use('/signout', signoutRouter);
+
+
+
+
+
+
+
+
+
+
+
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     next(createError(404));
 });
 
 // error handler
 app.use(function (err, req, res, next) {
-  console.log("ERROR========================>", chalk.red(err.message));
-  res.status(err.status || 500);
-  res.setHeader('Content-Type', 'application/json');
-  res.json({ message: err.message || "Internal Server Error.", error: true, data: {} });
+    console.log("ERROR========================>", chalk.red(err.message));
+    res.status(err.status || 500);
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ message: err.message || "Internal Server Error.", error: true, errors: err.errors || [] });
 });
 
 module.exports = app;

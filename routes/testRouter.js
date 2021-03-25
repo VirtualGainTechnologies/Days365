@@ -1,7 +1,8 @@
 const express = require('express');
 const testRouter = express.Router();
-const { compareUserAgents, verifyAccessToken } = require('../services/jwtServices');
+const { verifyAccessToken } = require('../services/jwtServices');
 const { verifyAccessJwt, verifyRefreshJwt } = require('../middleware');
+const { compareUserAgents } = require('../services/commonAccountService');
 
 
 

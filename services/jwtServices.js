@@ -63,16 +63,16 @@ async function generateTokens(key, callback) {
  * Update Tokens
  */
 
-async function updateTokens(tokens, callback) {
-    return new Promise(async (resolve, reject) => {
-        try {
+// async function updateTokens(tokens, callback) {
+//     return new Promise(async (resolve, reject) => {
+//         try {
 
-        }
-        catch (err) {
-            return callback ? callback(err) : reject(err);
-        }
-    });
-}
+//         }
+//         catch (err) {
+//             return callback ? callback(err) : reject(err);
+//         }
+//     });
+// }
 
 
 /**
@@ -114,35 +114,14 @@ async function verifyRefreshToken(token, callback) {
 }
 
 
-/**
- * Verify useragent
- */
-
-async function compareUserAgents(firstAgent, secondAgent) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            var isEqual = true;
-            for (let key of Object.keys(firstAgent)) {
-                if ((key === 'version') || (key === 'geoIp') || (key === 'source')) {
-                    // console.log(chalk.yellow("hai"));
-                    continue;
-                }
-                // console.log(key);
-                if (firstAgent[key] !== secondAgent[key]) {
-                    isEqual = false;
-                    break;
-                }
-            }
-            // console.log("done");
-            return resolve(isEqual);
-        }
-        catch (err) {
-            return reject(err);
-        }
-    });
-}
 
 
 
 
-module.exports = { generateAccessToken, generateRefreshToken, updateTokens, generateTokens, compareUserAgents, verifyAccessToken, verifyRefreshToken };
+module.exports = {
+    generateAccessToken,
+    generateRefreshToken,
+    generateTokens,
+    verifyAccessToken,
+    verifyRefreshToken
+};

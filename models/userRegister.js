@@ -23,7 +23,8 @@ const UserRegisterSchema = new mongoose.Schema({
         type: String,
         unique: true,
         lowecase: true,
-        trim: true
+        trim: true,
+        sparse: true
     },
     hash: {
         type: String,
@@ -40,8 +41,8 @@ const UserRegisterSchema = new mongoose.Schema({
 
 
 
-const UserRegisterModel = mongoose.model('user_registers', UserRegisterSchema);
-module.exports = { UserRegisterModel };
+const userRegisterModel = mongoose.model('user_registers', UserRegisterSchema);
+module.exports = { userRegisterModel };
 
 
 
