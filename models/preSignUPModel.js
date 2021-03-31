@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const preSignUpSchema = new mongoose.Schema({
     mobile: {
         type: String,
-        required: true,
+    },
+    email: {
+        type: String
     },
     data: {
         type: String,
@@ -26,5 +28,5 @@ const preSignUpSchema = new mongoose.Schema({
 });
 
 
-const preSignUpModel = mongoose.model('presignup_records', preSignUpSchema);
+const preSignUpModel = mongoose.model('presignup_documents', preSignUpSchema);
 module.exports = { preSignUpModel };

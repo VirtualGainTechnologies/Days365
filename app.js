@@ -6,6 +6,8 @@ var cors = require('cors');
 var chalk = require('chalk');
 var bodyParser = require('body-parser');
 var useragent = require('express-useragent');
+var cron = require('node-cron');
+const cronSchedulerService = require('./services/cronSchedulerService');
 
 
 require('dotenv').config();
@@ -18,6 +20,9 @@ var mongooseOptions = {
 }
 
 
+/**
+ * Routers
+ */
 
 const testRouter = require('./routes/testRouter');
 
@@ -26,7 +31,7 @@ const tokenRouter = require('./routes/tokenRouter');
 const signupRouter = require('./routes/signupRouter');
 const signinRouter = require('./routes/signinRouter');
 const signoutRouter = require('./routes/signoutRouter');
-
+const forgetPasswordRouter = require('./routes/forgetPasswordRouter');
 
 
 
@@ -51,8 +56,9 @@ app.use(useragent.express());
 
 
 
-
-
+/**
+ * Routes
+ */
 
 app.use('/test', testRouter);
 
@@ -61,6 +67,7 @@ app.use('/token', tokenRouter);
 app.use('/signup', signupRouter);
 app.use('/signin', signinRouter);
 app.use('/signout', signoutRouter);
+app.use('/resetPassword', forgetPasswordRouter);
 
 
 
@@ -68,10 +75,23 @@ app.use('/signout', signoutRouter);
 
 
 
+/**
+ * Schedulers
+ */
+
+//Expired OTP records delete. Run twice in a day.
+
+cron.schedule('0 */12 * * *', async () => {
+    console.log("OTP DELETION STARTED");
+    await cronSchedulerService.deleteExpiredOtpRecords();
+});
 
 
 
 
+/**
+ * Error Handlers
+ */
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

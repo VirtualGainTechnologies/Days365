@@ -1,6 +1,7 @@
 const { userRegisterModel } = require('../models/userRegister');
+const { vendorRegisterModel } = require('../models/venodrRegister');
+const { adminRegisterModel } = require('../models/adminRegister');
 const { preSignUpModel } = require('../models/preSignUPModel');
-
 
 
 exports.createPreSignupRecord = async (record) => {
@@ -18,10 +19,14 @@ exports.deleteAllUserPreSignupRecords = async (mobileNumber) => {
 }
 
 
+exports.deleteAllVendorPreSignupRecords = async (email) => {
+    return await preSignUpModel.deleteMany({ email: email });
+}
+
+
 exports.isUserExists = async (filters) => {
     return await userRegisterModel.findOne(filters);
 }
-
 
 exports.registerUser = async (record) => {
     return await userRegisterModel.create(record);
@@ -29,3 +34,19 @@ exports.registerUser = async (record) => {
 
 
 
+exports.isVendorExists = async (filters) => {
+    return await vendorRegisterModel.findOne(filters);
+}
+
+exports.registerVendor = async (record) => {
+    return await vendorRegisterModel.create(record);
+}
+
+
+exports.isAdminExists = async (filters) => {
+    return await adminRegisterModel.findOne(filters);
+}
+
+exports.registerAdmin = async (record) => {
+    return await adminRegisterModel.create(record);
+}

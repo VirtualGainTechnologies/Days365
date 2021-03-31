@@ -22,7 +22,7 @@ const UserRegisterSchema = new mongoose.Schema({
     email: {
         type: String,
         unique: true,
-        lowecase: true,
+        lowercase: true,
         trim: true,
         sparse: true
     },

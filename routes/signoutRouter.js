@@ -1,16 +1,40 @@
 const router = require('express').Router();
 const signoutController = require('../controllers/signoutController');
 const { body } = require('express-validator');
-const { verifyAccessJwt, verifyRefreshJwt, verifyUser } = require('../middleware');
+const { verifyAccessJwt, verifyRefreshJwt, verifyUser, verifyAdmin, verifyVendor } = require('../middleware');
 
 
-const userSignoutValidator = [
+const signoutValidator = [
     body('refreshToken').notEmpty()
 ];
 
 
+//Signout from a single device.
 
-router.post('/user', verifyRefreshJwt, verifyUser, userSignoutValidator, signoutController.signoutUser);
+router.post('/user', verifyRefreshJwt, verifyUser, signoutValidator, signoutController.signoutUser);
+
+
+router.post('/vendor', verifyRefreshJwt, verifyVendor, signoutValidator, signoutController.signoutUser);
+
+
+router.post('/admin', verifyRefreshJwt, verifyAdmin, signoutValidator, signoutController.signoutUser);
+
+
+
+
+
+//Signout from all devices.
+
+router.post('/user/all', verifyRefreshJwt, verifyUser, signoutValidator, signoutController.signoutFromAllDevices);
+
+
+router.post('/vendor/all', verifyRefreshJwt, verifyVendor, signoutValidator, signoutController.signoutFromAllDevices);
+
+
+router.post('/admin/all', verifyRefreshJwt, verifyAdmin, signoutValidator, signoutController.signoutFromAllDevices);
+
+
+
 
 
 module.exports = router;

@@ -4,6 +4,7 @@ const { verifyPassword, isMobileOrEmail, userLogin } = require('../services/comm
 const { ErrorBody } = require('../utils/ErrorBody');
 
 
+// USER 
 
 exports.preSigninUser = async (req, res, next) => {
     try {
@@ -78,7 +79,8 @@ exports.signinUser = async (req, res, next) => {
                     let response = {
                         accessToken: tokens.accessToken,
                         refreshToken: tokens.refreshToken,
-                        fullname: user.fullname
+                        fullname: user.fullname,
+                        type: "User"
                     }
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
@@ -88,6 +90,106 @@ exports.signinUser = async (req, res, next) => {
         }
     } catch (error) {
         // console.log(error);
+        next({});
+    }
+}
+
+
+
+//VENDOR
+
+
+exports.signinVendor = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Request", errors.array()));
+        }
+        else {
+            var email = req.body.email.trim().toLowerCase();
+            var password = req.body.password;
+            var useragent = req.useragent;
+            var filters = { email: email };
+            const vendor = await signinService.getVendorAccount(filters);
+            if (!vendor) {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({ message: 'Invalid Account.', error: true, data: {} });
+            }
+            else if (vendor.is_blocked) {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({ message: "Account Blocked, Please contact our team for recovery.", error: true, data: {} });
+            }
+            else {
+                const flag = await verifyPassword(vendor.hash, password);
+                if (!flag) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Login failed.', error: true, data: {} });
+                }
+                else {
+                    const tokens = await userLogin(vendor._id, useragent);
+                    let response = {
+                        accessToken: tokens.accessToken,
+                        refreshToken: tokens.refreshToken,
+                        fullname: user.fullname,
+                        type: "Vendor"
+                    }
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Login successful.', error: false, data: response });
+                }
+            }
+        }
+    } catch (error) {
+        // console.log(error);
+        next({});
+    }
+}
+
+
+//ADMIN
+
+exports.signinAdmin = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Request", errors.array()));
+        }
+        else {
+            var password = req.body.password;
+            var useragent = req.useragent;
+            var username = req.body.username.trim().toLowerCase();
+            var filters = { username: username };
+            const admin = await signinService.getAdminAccount(filters);
+            if (!admin) {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({ message: 'Invalid Account.', error: true, data: {} });
+            }
+            else {
+                const flag = await verifyPassword(admin.hash, password);
+                if (!flag) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Login failed.', error: true, data: {} });
+                }
+                else {
+                    const tokens = await userLogin(admin._id, useragent);
+                    let response = {
+                        accessToken: tokens.accessToken,
+                        refreshToken: tokens.refreshToken,
+                        fullname: admin.fullname,
+                        type: "Admin"
+                    }
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Login successful.', error: false, data: response });
+                }
+            }
+        }
+    } catch (error) {
         next({});
     }
 }

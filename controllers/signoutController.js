@@ -46,3 +46,23 @@ exports.signoutUser = async (req, res, next) => {
         next({});
     }
 }
+
+
+exports.signoutFromAllDevices = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Request", errors.array()));
+        }
+        else {
+            var userId = req.user.id;
+            var updateQuery = { refresh_tokens: [] };
+            const record = await signoutService.updateRefreshTokenRecord(userId, updateQuery);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ message: 'Signout Successful.', error: false, data: {} });
+        }
+    } catch (error) {
+        next({});
+    }
+}
