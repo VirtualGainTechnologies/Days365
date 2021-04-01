@@ -14,6 +14,12 @@ const VendorRegisterSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    mobile: {
+        type: String,
+        unique: true,
+        index: true,
+        sparse: true
+    },
     hash: {
         type: String,
         required: true

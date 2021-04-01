@@ -113,7 +113,7 @@ async function verifyUser(req, res, next) {
  * Verify Admin
  */
 
-async function verifyAdmin() {
+async function verifyAdmin(req, res, next) {
     try {
         var adminId = req.user.id;
         await adminRegisterModel.findById(adminId, async (err, admin) => {
@@ -137,7 +137,7 @@ async function verifyAdmin() {
  * verify Vendor
  */
 
-async function verifyVendor() {
+async function verifyVendor(req, res, next) {
     try {
         var vendorId = req.user.id;
         await vendorRegisterModel.findById(vendorId, async (err, vendor) => {

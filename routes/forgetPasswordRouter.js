@@ -33,7 +33,7 @@ router.post('/user/sendOTP', userAccountValidator, forgetPasswordController.send
 router.post('/user/verifyOTP', otpValidator, forgetPasswordController.verifyUserOTP);
 
 
-router.post('/user/resetPassword', resetPasswordValidator, forgetPasswordController.resetUserPassword);
+router.post('/user', resetPasswordValidator, forgetPasswordController.resetUserPassword);
 
 
 
@@ -45,7 +45,7 @@ router.post('/vendor/sendOTP', vendorAccountValidator, forgetPasswordController.
 router.post('/vendor/verifyOTP', otpValidator, forgetPasswordController.verifyVendorOTP);
 
 
-router.post('/vendor/resetPassword', resetPasswordValidator, forgetPasswordController.resetVendorPassword);
+router.post('/vendor', resetPasswordValidator, forgetPasswordController.resetVendorPassword);
 
 
 

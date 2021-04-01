@@ -98,6 +98,36 @@ exports.signinUser = async (req, res, next) => {
 
 //VENDOR
 
+exports.preSigninVendor = async (req, res, next) => {
+    try {
+        const field = await isMobileOrEmail(req.params.loginCredential);
+        if (!field.isValid) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ message: 'Invalid Account.', error: true, data: {} });
+        }
+        else {
+            var filters = {};
+            if (field.type === "EMAIL") {
+                filters = { email: field.value };
+            }
+            else {
+                filters = { mobile: field.value };
+            }
+            const account = await signinService.getVendorAccount(filters);
+            var response = { message: `Invalid Account`, error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (account) {
+                response = { message: 'Account exists.', error: false, data: field };
+            }
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
 
 exports.signinVendor = async (req, res, next) => {
     try {
@@ -106,10 +136,17 @@ exports.signinVendor = async (req, res, next) => {
             next(new ErrorBody(400, "Bad Request", errors.array()));
         }
         else {
-            var email = req.body.email.trim().toLowerCase();
+            var type = req.body.type;
+            var value = req.body.value;
             var password = req.body.password;
             var useragent = req.useragent;
-            var filters = { email: email };
+            var filters = {};
+            if (type === "EMAIL") {
+                filters = { email: value };
+            }
+            else {
+                filters = { mobile: value };
+            }
             const vendor = await signinService.getVendorAccount(filters);
             if (!vendor) {
                 res.statusCode = 200;
@@ -133,7 +170,7 @@ exports.signinVendor = async (req, res, next) => {
                     let response = {
                         accessToken: tokens.accessToken,
                         refreshToken: tokens.refreshToken,
-                        fullname: user.fullname,
+                        fullname: vendor.fullname,
                         type: "Vendor"
                     }
                     res.statusCode = 200;

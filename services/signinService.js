@@ -16,3 +16,4 @@ exports.getAdminAccount = async (filters) => {
 exports.getVendorAccount = async (filters) => {
     return await vendorRegisterModel.findOne(filters);
 }
+

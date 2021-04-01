@@ -289,7 +289,7 @@ exports.resendVendorOTP = async (req, res, next) => {
                 vendorData.date = Date.now();
                 await vendorData.save();
 
-                // Send otp to mail TODO
+                // Send otp to email TODO
 
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
