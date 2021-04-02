@@ -63,7 +63,7 @@ async function verifyEmail(email) {
  */
 
 async function verifyMobile(mobile) {
-    const regEx = /^[6-9]{1}[0-9]{9}$/;
+    const regEx = /^(\+?91)?([6-9][0-9]{9})$/;
     return await regEx.test(mobile);
 }
 
@@ -88,11 +88,11 @@ async function isMobileOrEmail(loginCredential, callback) {
             }
             else {
                 //transform data to a valid mobile number
-                let number = loginCredential.slice(-10);
+                let number = loginCredential.replace(/\s/g, '');
                 if (await verifyMobile(number)) {
                     field.isValid = true;
                     field.type = "MOBILE";
-                    field.value = number;
+                    field.value = number.slice(-10);
                 }
             }
             return callback ? callback(null, field) : resolve(field);

@@ -16,6 +16,11 @@ const otpSchema = new Schema({
         required: true,
         enum: ["Reset Password"]
     },
+    is_verified: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     time_stamp: {
         type: Date,
         default: Date.now(),

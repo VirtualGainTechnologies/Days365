@@ -79,6 +79,8 @@ exports.verifyUserOTP = async (req, res, next) => {
                 res.json({ message: 'OTP verification failed.', error: true, data: {} });
             }
             else {
+                let updateQuery = { is_verified: true };
+                await forgetPasswordService.updateOtpRecord(otpRecordId, updateQuery);
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Successfully verified OTP.', error: false, data: { id: otpRecordId } });
@@ -105,7 +107,7 @@ exports.resetUserPassword = async (req, res, next) => {
             if (!record) {
                 next(new ErrorBody(400, "Bad Inputs", []));
             }
-            else if ((record.time_stamp < date) || record.purpose !== "Reset Password") {
+            else if ((record.time_stamp < date) || record.purpose !== "Reset Password" || !record.is_verified) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} });
@@ -201,6 +203,8 @@ exports.verifyVendorOTP = async (req, res, next) => {
                 res.json({ message: 'OTP verification failed.', error: true, data: {} });
             }
             else {
+                let updateQuery = { is_verified: true };
+                await forgetPasswordService.updateOtpRecord(otpRecordId, updateQuery);
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Successfully verified OTP.', error: false, data: { id: otpRecordId } });
@@ -227,7 +231,7 @@ exports.resetVendorPassword = async (req, res, next) => {
             if (!record) {
                 next(new ErrorBody(400, "Bad Inputs", []));
             }
-            else if ((record.time_stamp < date) || record.purpose !== "Reset Password") {
+            else if ((record.time_stamp < date) || record.purpose !== "Reset Password" || !record.is_verified) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} });

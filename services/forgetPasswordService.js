@@ -35,6 +35,10 @@ exports.getOtpRecord = async (id) => {
     return await optModel.findById(id);
 }
 
+exports.updateOtpRecord = async (id, updateQuery) => {
+    return await optModel.findByIdAndUpdate(id, updateQuery);
+}
+
 exports.deleteOtpRecord = async (id) => {
     return await optModel.findByIdAndDelete(id);
 }
