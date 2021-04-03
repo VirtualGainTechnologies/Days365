@@ -1,8 +1,9 @@
 const { validationResult } = require('express-validator');
 const signupService = require('../services/signupService');
 const { ErrorBody } = require('../utils/ErrorBody');
-const { encryptPassword, verifyEmail, sendOTP } = require('../services/commonAccountService');
+const { verifyPassword, encryptPassword, verifyEmail, sendOTP } = require('../services/commonAccountService');
 const otpGenerator = require('otp-generator');
+const router = require('../routes/signupRouter');
 
 
 // USER & VENDOR
@@ -25,7 +26,7 @@ exports.preSignupUser = async (req, res, next) => {
             if (email && !await verifyEmail(email)) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                return res.json({ message: 'Please provide a valid Email.', error: true, data: {} });
+                return res.json({ message: 'Please provide a valid Email.', error: true, data: { isVendor: null, isMobile: null } });
             }
             if (email) {
                 filters = { $or: [{ email: email }, { $and: [{ 'mobile_number.country_code': countryCode }, { 'mobile_number.number': number }] }] };
@@ -35,9 +36,10 @@ exports.preSignupUser = async (req, res, next) => {
             }
             const account = await signupService.isUserExists(filters);
             if (account) {
+                let isMobile = account.mobile_number.number === number;
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Account already exists.", error: true, data: { isVendor: account.is_vendor } });
+                res.json({ message: "Account already exists.", error: true, data: { isVendor: account.is_vendor, isMobile: isMobile } });
             }
             else {
                 const hash = await encryptPassword(password);
@@ -164,7 +166,49 @@ exports.resendUserOTP = async (req, res, next) => {
 
 
 
-
+exports.upgradeToVendor = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var type = req.body.type;
+            var value = req.body.value;
+            var password = req.body.password;
+            var filters = {};
+            if (type === "EMAIL") {
+                filters = { email: value };
+            }
+            else {
+                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value }] };
+            }
+            const account = await signupService.isUserExists(filters);
+            if (!account) {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({ message: "Account doesn't exists.", error: true, data: {} });
+            }
+            else {
+                const flag = await verifyPassword(account.hash, password);
+                if (!flag) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Invalid Password.', error: true, data: {} });
+                }
+                else {
+                    let updateQuery = { is_vendor: true };
+                    await signupService.upgradeTovendor(account._id, updateQuery);
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    return res.json({ message: 'Account upgraded to seller account.', error: false, data: {} });
+                }
+            }
+        }
+    } catch (error) {
+        next({});
+    }
+}
 
 
 

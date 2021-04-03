@@ -23,6 +23,10 @@ exports.registerUser = async (record) => {
     return await userRegisterModel.create(record);
 }
 
+exports.upgradeTovendor = async (id, updateQuery) => {
+    return await userRegisterModel.findByIdAndUpdate(id, updateQuery);
+}
+
 exports.isAdminExists = async (filters) => {
     return await adminRegisterModel.findOne(filters);
 }

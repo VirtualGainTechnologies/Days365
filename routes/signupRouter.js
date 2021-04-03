@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
 const signupController = require('../controllers/signupController');
+const { verifyUser, verifyAccessJwt } = require('../middleware');
 
 const preSignupValidator = [
     body('fullname').notEmpty(),
@@ -29,6 +30,13 @@ const adminSignupValidator = [
 ];
 
 
+const upgradeValidator = [
+    body('type').custom(val => val === "EMAIL" || val === "MOBILE"),
+    body('value').notEmpty(),
+    body('password').isLength({ min: 6, max: 50 })
+];
+
+
 //USER && VENDOR
 
 router.post('/user/presignup', preSignupValidator, signupController.preSignupUser);
@@ -37,6 +45,7 @@ router.post('/user', signupValidator, signupController.signupUser);
 
 router.post('/user/resendOtp', resendOtpValidator, signupController.resendUserOTP);
 
+router.put('/user/upgrade', upgradeValidator, signupController.upgradeToVendor);
 
 //ADMIN
 
