@@ -5,7 +5,7 @@ const { encryptPassword, verifyEmail, sendOTP } = require('../services/commonAcc
 const otpGenerator = require('otp-generator');
 
 
-//USER
+// USER & VENDOR
 
 exports.preSignupUser = async (req, res, next) => {
     try {
@@ -20,6 +20,7 @@ exports.preSignupUser = async (req, res, next) => {
             var number = data.mobile.number;
             var fullname = data.fullname;
             var password = data.password;
+            var userType = data.userType;
             var filters = {};
             if (email && !await verifyEmail(email)) {
                 res.statusCode = 200;
@@ -36,7 +37,7 @@ exports.preSignupUser = async (req, res, next) => {
             if (account) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Account already exists.", error: true, data: {} });
+                res.json({ message: "Account already exists.", error: true, data: { isVendor: account.is_vendor } });
             }
             else {
                 const hash = await encryptPassword(password);
@@ -53,19 +54,13 @@ exports.preSignupUser = async (req, res, next) => {
                     mobile: number,
                     otp: otp,
                     data: userData,
-                    user_type: "user",
+                    user_type: userType,
                     date: Date.now()
                 }
                 const otpData = await signupService.createPreSignupRecord(presignupRecord);
-                // const result = await sendOTP(number, otp);
-                // var response ={ message: 'Unable to send OTP at this moment, Please try after sometimes.', error: true, data: {} };
-                // res.statusCode = 200;
-                // res.setHeader('Content-Type', 'application/json');
-                // //verify result
-                // if (result) {
-                //     response = { message: 'OTP has been sent to your mobile number.', error: false, data: { id: otpData._id, otp: otp } };
-                // }
-                // res.json(response);
+
+                // Send Mobile OTP
+
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'OTP has been sent to your mobile number.', error: false, data: { id: otpData._id, otp: otp } });
@@ -88,7 +83,7 @@ exports.signupUser = async (req, res, next) => {
             var otp = req.body.otp;
             var presignupId = req.body.id;
             const userData = await signupService.getPreSignupRecord(presignupId);
-            if ((!userData) || (userData.user_type !== "user")) {
+            if ((!userData) || !(userData.user_type === "user" || userData.user_type === "vendor")) {
                 next(new ErrorBody(400, "Bad Request", []));
             }
             else {
@@ -113,10 +108,13 @@ exports.signupUser = async (req, res, next) => {
                     if (user.email) {
                         userRecord['email'] = user.email;
                     }
-
+                    if (userData.user_type === "vendor") {
+                        userRecord['is_vendor'] = true;
+                    }
                     const result = await signupService.registerUser(userRecord);
                     try {
-                        await signupService.deleteAllUserPreSignupRecords(user.number);
+                        let filters = { mobile: user.number, user_type: userData.user_type };
+                        await signupService.deleteAllUserPreSignupRecords(filters);
                     } catch (error) {
                         //Nothing to do.
                     }
@@ -143,7 +141,7 @@ exports.resendUserOTP = async (req, res, next) => {
         else {
             var presignupId = req.body.id;
             const userData = await signupService.getPreSignupRecord(presignupId);
-            if ((!userData) || (userData.user_type !== "user")) {
+            if ((!userData) || !(userData.user_type === "user" || userData.user_type === "vendor")) {
                 next(new ErrorBody(400, "Bad Request", []));
             }
             else {
@@ -151,149 +149,12 @@ exports.resendUserOTP = async (req, res, next) => {
                 userData.otp = otp;
                 userData.date = Date.now();
                 await userData.save();
-                // const result = await sendOTP(userData.mobile, userData.otp);
-                // var response = { message: 'Unable to send OTP at this moment, Please try after sometimes.', error: true, data: {} };
-                // res.statusCode = 200;
-                // res.setHeader('Content-Type', 'application/json');
-                // // verify result
-                // if (result) {
-                //     response = { message: 'OTP has been sent to your mobile number.', error: false, data: { otp: userData.otp } };
-                // }
-                // res.json(response);
+
+                // Send OTP to mobile.
+
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'OTP has been sent to your mobile number.', error: false, data: { otp: userData.otp } });
-            }
-        }
-    } catch (error) {
-        next({});
-    }
-}
-
-
-
-//VENDOR
-
-exports.preSignupVendor = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            next(new ErrorBody(400, "Bad Request", errors.array()));
-        }
-        else {
-            var data = req.body;
-            var email = data.email.trim().toLowerCase();
-            var fullname = data.fullname;
-            var password = data.password;
-            var filters = { email: email };
-            const account = await signupService.isVendorExists(filters);
-            if (account) {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Account already exists.", error: true, data: {} });
-            }
-            else {
-                const hash = await encryptPassword(password);
-                var vendor = {
-                    email: email,
-                    fullname: fullname,
-                    hash: hash
-                }
-                var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-                var vendorData = JSON.stringify(vendor);
-                var presignupRecord = {
-                    email: email,
-                    otp: otp,
-                    data: vendorData,
-                    user_type: "vendor",
-                    date: Date.now()
-                }
-                const otpData = await signupService.createPreSignupRecord(presignupRecord);
-                // Send otp to mail TODO
-
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'OTP has been sent to your email.', error: false, data: { id: otpData._id, otp: otp } });
-            }
-        }
-    } catch (error) {
-        next({});
-    }
-}
-
-
-exports.signupVendor = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            next(new ErrorBody(400, "Bad Inputs", errors.array()));
-        }
-        else {
-            var otp = req.body.otp;
-            var presignupId = req.body.id;
-            const vendorData = await signupService.getPreSignupRecord(presignupId);
-            if ((!vendorData) || (vendorData.user_type !== "vendor")) {
-                next(new ErrorBody(400, "Bad Request", []));
-            }
-            else {
-                var date = Date.now();
-                date -= 30 * 60 * 1000;
-                var recordDate = vendorData.date.getTime();
-                if ((date > recordDate) || (otp !== vendorData.otp)) {
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json({ message: 'Email verification failed.', error: true, data: {} });
-                }
-                else {
-                    var vendor = JSON.parse(vendorData.data);
-                    var vendorRecord = {
-                        fullname: vendor.fullname,
-                        email: vendor.email,
-                        hash: vendor.hash
-                    }
-                    const result = await signupService.registerVendor(vendorRecord);
-                    try {
-                        await signupService.deleteAllVendorPreSignupRecords(vendor.email);
-                    } catch (error) {
-                        //Nothing to do.
-                    }
-                    res.statusCode = 201;
-                    res.setHeader('Content-Type', 'application/json');
-                    return res.json({ message: 'Account successfully registered.', error: false, data: {} });
-                }
-            }
-        }
-    } catch (error) {
-        // console.log(error);
-        next({});
-    }
-}
-
-
-
-exports.resendVendorOTP = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            next(new ErrorBody(400, "Bad Inputs", errors.array()));
-        }
-        else {
-            var presignupId = req.body.id;
-            const vendorData = await signupService.getPreSignupRecord(presignupId);
-            if ((!vendorData) || (vendorData.user_type !== "vendor")) {
-                next(new ErrorBody(400, "Bad Request", []));
-            }
-            else {
-                var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-                vendorData.otp = otp;
-                vendorData.date = Date.now();
-                await vendorData.save();
-
-                // Send otp to email TODO
-
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'OTP has been sent to your email.', error: false, data: { otp: vendorData.otp } });
             }
         }
     } catch (error) {

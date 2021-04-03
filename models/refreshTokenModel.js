@@ -15,7 +15,7 @@ const RefreshToken = new mongoose.Schema({
 
 
 const RefreshTokenSchema = new mongoose.Schema({
-    userid: {
+    user_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },

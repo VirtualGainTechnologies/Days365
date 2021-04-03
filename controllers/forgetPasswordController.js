@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const { encryptPassword, sendOTP } = require('../services/commonAccountService');
 
 
-// USER
+// USER & VENDOR
 
 exports.sendUserOTP = async (req, res, next) => {
     try {
@@ -40,7 +40,7 @@ exports.sendUserOTP = async (req, res, next) => {
                 var reqBody = {
                     otp: otp,
                     purpose: "Reset Password",
-                    userid: user._id
+                    user_id: user._id
                 };
                 const optRecord = await forgetPasswordService.createOtpRecord(reqBody);
 
@@ -115,7 +115,7 @@ exports.resetUserPassword = async (req, res, next) => {
             else {
                 const hash = await encryptPassword(newPassword);
                 var updateQuery = { hash: hash };
-                const result = await forgetPasswordService.updateUserPassword(record.userid, updateQuery);
+                const result = await forgetPasswordService.updateUserPassword(record.user_id, updateQuery);
                 var response = { message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} };
                 if (result) {
                     response = { message: 'Password updated successfully.', error: false, data: {} };
@@ -136,125 +136,3 @@ exports.resetUserPassword = async (req, res, next) => {
 }
 
 
-
-// VENDOR
-
-
-exports.sendVendorOTP = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            next(new ErrorBody(400, "Bad Inputs", errors.array()));
-        }
-        else {
-            var type = req.body.email;
-            var value = req.body.value;
-            var filters = { email: email };
-            const vendor = await forgetPasswordService.getVendorAccount(filters);
-            if (!vendor) {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'Invalid Account.', error: true, data: {} });
-            }
-            else if (vendor.is_blocked) {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Account Blocked, Please contact our team for recovery.", error: true, data: {} });
-            }
-            else {
-                var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-                var reqBody = {
-                    otp: otp,
-                    purpose: "Reset Password",
-                    userid: vendor._id
-                };
-                const optRecord = await forgetPasswordService.createOtpRecord(reqBody);
-
-                // Send OTP to email TODO
-
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: `OTP has been sent to your Email.`, error: false, data: { otp: optRecord.otp, id: optRecord._id } });
-            }
-        }
-    } catch (error) {
-        next({});
-    }
-}
-
-exports.verifyVendorOTP = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            next(new ErrorBody(400, "Bad Inputs", errors.array()));
-        }
-        else {
-            var otpRecordId = mongoose.Types.ObjectId(req.body.id);
-            var otp = req.body.otp;
-            var date = Date.now();
-            date -= 30 * 60 * 1000;
-            const record = await forgetPasswordService.getOtpRecord(otpRecordId);
-            if (!record) {
-                next(new ErrorBody(400, "Bad Inputs", []));
-            }
-            else if ((record.time_stamp < date) || record.otp !== otp || record.purpose !== "Reset Password") {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'OTP verification failed.', error: true, data: {} });
-            }
-            else {
-                let updateQuery = { is_verified: true };
-                await forgetPasswordService.updateOtpRecord(otpRecordId, updateQuery);
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'Successfully verified OTP.', error: false, data: { id: otpRecordId } });
-            }
-        }
-    } catch (error) {
-        next({});
-    }
-}
-
-
-exports.resetVendorPassword = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            next(new ErrorBody(400, "Bad Inputs", errors.array()));
-        }
-        else {
-            var newPassword = req.body.password;
-            var otpRecordId = mongoose.Types.ObjectId(req.body.id);
-            var date = Date.now();
-            date -= 1 * 60 * 60 * 1000;
-            const record = await forgetPasswordService.getOtpRecord(otpRecordId);
-            if (!record) {
-                next(new ErrorBody(400, "Bad Inputs", []));
-            }
-            else if ((record.time_stamp < date) || record.purpose !== "Reset Password" || !record.is_verified) {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} });
-            }
-            else {
-                const hash = await encryptPassword(newPassword);
-                var updateQuery = { hash: hash };
-                const result = await forgetPasswordService.updateVendorPassword(record.userid, updateQuery);
-                var response = { message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} };
-                if (result) {
-                    response = { message: 'Password updated successfully.', error: false, data: {} };
-                }
-                try {
-                    await forgetPasswordService.deleteOtpRecord(record._id);
-                } catch (error) {
-                    // Everything is fine.
-                }
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(response);
-            }
-        }
-    } catch (error) {
-        next({});
-    }
-}

@@ -4,17 +4,12 @@ const signinController = require('../controllers/signinController');
 
 
 
-const userSigninValidator = [
+const signinValidator = [
     body('type').custom(val => val === "EMAIL" || val === "MOBILE"),
     body('value').notEmpty(),
     body('password').isLength({ min: 6, max: 50 })
 ];
 
-const vendorSigninValidator = [
-    body('type').custom(val => val === "EMAIL" || val === "MOBILE"),
-    body('value').notEmpty(),
-    body('password').isLength({ min: 6, max: 50 })
-];
 
 const adminSigninValidator = [
     body('username').notEmpty(),
@@ -22,14 +17,12 @@ const adminSigninValidator = [
 ];
 
 
+// USER & VENDOR
+
+
 router.get('/user/:loginCredential', signinController.preSigninUser);
 
-router.post('/user', userSigninValidator, signinController.signinUser);
-
-
-router.get('/vendor/:loginCredential', signinController.preSigninVendor);
-
-router.post('/vendor', vendorSigninValidator, signinController.signinVendor);
+router.post('/user', signinValidator, signinController.signinUser);
 
 
 router.post('/admin', adminSigninValidator, signinController.signinAdmin);

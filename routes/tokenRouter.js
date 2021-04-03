@@ -16,7 +16,7 @@ tokenRouter
         var userId = req.user.id;
         var useragent = req.useragent;
         var oldRefreshToken = req.body.refreshToken;
-        await refreshTokenModel.findOne({ userid: userId }, async (err, record) => {
+        await refreshTokenModel.findOne({ user_id: userId }, async (err, record) => {
             if (err) {
                 next({});
             }

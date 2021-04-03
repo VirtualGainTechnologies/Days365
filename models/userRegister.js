@@ -30,6 +30,11 @@ const UserRegisterSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    is_vendor: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     is_blocked: {
         type: Boolean,
         required: true,

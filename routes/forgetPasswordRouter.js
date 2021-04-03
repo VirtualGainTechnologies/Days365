@@ -9,10 +9,6 @@ const userAccountValidator = [
     body('value').notEmpty()
 ];
 
-const vendorAccountValidator = [
-    body('email').isEmail()
-];
-
 const otpValidator = [
     body('id').notEmpty(),
     body('otp').isLength({ min: 6, max: 6 })
@@ -25,7 +21,7 @@ const resetPasswordValidator = [
 
 
 
-// USER
+// USER && VENDOR
 
 router.post('/user/sendOTP', userAccountValidator, forgetPasswordController.sendUserOTP);
 
@@ -35,17 +31,6 @@ router.post('/user/verifyOTP', otpValidator, forgetPasswordController.verifyUser
 
 router.post('/user', resetPasswordValidator, forgetPasswordController.resetUserPassword);
 
-
-
-// VENDOR
-
-router.post('/vendor/sendOTP', vendorAccountValidator, forgetPasswordController.sendVendorOTP);
-
-
-router.post('/vendor/verifyOTP', otpValidator, forgetPasswordController.verifyVendorOTP);
-
-
-router.post('/vendor', resetPasswordValidator, forgetPasswordController.resetVendorPassword);
 
 
 

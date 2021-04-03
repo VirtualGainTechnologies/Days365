@@ -144,7 +144,7 @@ async function userLogin(userId, useragent, callback) {
                 return callback ? callback(err) : reject(err);
             }
             else {
-                await refreshTokenModel.findOne({ userid: userId }, async (err, record) => {
+                await refreshTokenModel.findOne({ user_id: userId }, async (err, record) => {
                     if (err) {
                         return callback ? callback(err) : reject(err);
                     }
@@ -155,7 +155,7 @@ async function userLogin(userId, useragent, callback) {
                                 refreshTokenRecord = new refreshTokenModel(record);
                             }
                             else {
-                                refreshTokenRecord = new refreshTokenModel({ userid: userId, refresh_tokens: [] });
+                                refreshTokenRecord = new refreshTokenModel({ user_id: userId, refresh_tokens: [] });
                             }
                             var refreshTokens = refreshTokenRecord.refresh_tokens, tokenIndex = -1;
                             for (let i in refreshTokens) {

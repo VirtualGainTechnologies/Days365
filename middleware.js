@@ -1,5 +1,4 @@
 const { userRegisterModel } = require('./models/userRegister');
-const { vendorRegisterModel } = require('./models/venodrRegister');
 const { adminRegisterModel } = require('./models/adminRegister');
 const { verifyAccessToken, verifyRefreshToken } = require('./services/jwtServices');
 const { ErrorBody } = require('./utils/ErrorBody');
@@ -139,19 +138,20 @@ async function verifyAdmin(req, res, next) {
 
 async function verifyVendor(req, res, next) {
     try {
-        var vendorId = req.user.id;
-        await vendorRegisterModel.findById(vendorId, async (err, vendor) => {
+        var userId = req.user.id;
+        await userRegisterModel.findById(userId, async (err, user) => {
             if (err) {
                 return next({});
             }
-            else if (!vendor) {
+            else if (!user || user.is_blocked || !user.is_vendor) {
                 return next(new ErrorBody(401, "Unauthorized", []));
             }
             else {
                 return next();
             }
         });
-    } catch (error) {
+    }
+    catch (err) {
         return next({});
     }
 }

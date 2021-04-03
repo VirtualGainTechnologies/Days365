@@ -2,11 +2,12 @@ const router = require('express').Router();
 const { body } = require('express-validator');
 const signupController = require('../controllers/signupController');
 
-const userPreSignupValidator = [
+const preSignupValidator = [
     body('fullname').notEmpty(),
     body('mobile.countryCode').notEmpty(),
     body('mobile.number').custom(val => (val) => /^[6-9]{1}[0-9]{9}$/.test(val)),
-    body('password').isLength({ min: 6, max: 50 })
+    body('password').isLength({ min: 6, max: 50 }),
+    body('userType').custom(val => val === "user" || val === "vendor")
 ];
 
 const signupValidator = [
@@ -19,14 +20,6 @@ const resendOtpValidator = [
 ];
 
 
-const vendorPreSignupValidator = [
-    body('fullname').notEmpty(),
-    body('email').isEmail(),
-    body('password').isLength({ min: 6, max: 50 })
-];
-
-
-
 const adminSignupValidator = [
     body('fullname').notEmpty(),
     body('mobile').custom(val => (val) => /^[6-9]{1}[0-9]{9}$/.test(val)),
@@ -36,23 +29,13 @@ const adminSignupValidator = [
 ];
 
 
-//USER
+//USER && VENDOR
 
-router.post('/user/presignup', userPreSignupValidator, signupController.preSignupUser);
+router.post('/user/presignup', preSignupValidator, signupController.preSignupUser);
 
 router.post('/user', signupValidator, signupController.signupUser);
 
 router.post('/user/resendOtp', resendOtpValidator, signupController.resendUserOTP);
-
-
-//VENDOR
-
-router.post('/vendor/presignup', vendorPreSignupValidator, signupController.preSignupVendor);
-
-router.post('/vendor', signupValidator, signupController.signupVendor);
-
-router.post('/vendor/resendOtp', resendOtpValidator, signupController.resendVendorOTP);
-
 
 
 //ADMIN

@@ -13,10 +13,6 @@ const signoutValidator = [
 
 router.post('/user', verifyRefreshJwt, verifyUser, signoutValidator, signoutController.signoutUser);
 
-
-router.post('/vendor', verifyRefreshJwt, verifyVendor, signoutValidator, signoutController.signoutUser);
-
-
 router.post('/admin', verifyRefreshJwt, verifyAdmin, signoutValidator, signoutController.signoutUser);
 
 
@@ -27,8 +23,6 @@ router.post('/admin', verifyRefreshJwt, verifyAdmin, signoutValidator, signoutCo
 
 router.post('/user/all', verifyRefreshJwt, verifyUser, signoutValidator, signoutController.signoutFromAllDevices);
 
-
-router.post('/vendor/all', verifyRefreshJwt, verifyVendor, signoutValidator, signoutController.signoutFromAllDevices);
 
 
 router.post('/admin/all', verifyRefreshJwt, verifyAdmin, signoutValidator, signoutController.signoutFromAllDevices);
