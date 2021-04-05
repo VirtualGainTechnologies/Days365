@@ -109,8 +109,8 @@ exports.signinAdmin = async (req, res, next) => {
         else {
             var password = req.body.password;
             var useragent = req.useragent;
-            var username = req.body.username.trim().toLowerCase();
-            var filters = { username: username };
+            var email = req.body.email.trim().toLowerCase();
+            var filters = { email: email };
             const admin = await signinService.getAdminAccount(filters);
             if (!admin) {
                 res.statusCode = 200;

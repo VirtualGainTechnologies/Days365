@@ -12,7 +12,8 @@ const adminSchema = new Schema({
         unique: true,
         lowercase: true,
         trim: true,
-        required: true
+        required: true,
+        index: true
     },
     mobile_number: {
         type: String,

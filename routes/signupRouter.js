@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const { body } = require('express-validator');
 const signupController = require('../controllers/signupController');
-const { verifyUser, verifyAccessJwt, verifyVendor } = require('../middleware');
+const { verifyUser, verifyAccessJwt, verifyVendor, verifyAdmin, verifySuperAdmin } = require('../middleware');
+
 
 const preSignupValidator = [
     body('fullname').notEmpty(),
@@ -48,11 +49,13 @@ router.put('/user/upgrade', upgradeValidator, signupController.upgradeToVendor);
 
 router.put('/user/directUpgrade', verifyAccessJwt, verifyVendor, signupController.directUpgradeToVendor);
 
+
+
 //ADMIN
 
-router.post('/admin', adminSignupValidator, signupController.signupAdmin);
+router.post('/superAdmin/9fca617fb050e6f86cbe45fef67cbc37', adminSignupValidator, signupController.signupSuperAdmin);
 
-
+router.post('/subAdmin', verifyAccessJwt, verifySuperAdmin, adminSignupValidator, signupController.signupAdmin);
 
 
 

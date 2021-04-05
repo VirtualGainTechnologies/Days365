@@ -12,7 +12,7 @@ const signinValidator = [
 
 
 const adminSigninValidator = [
-    body('username').notEmpty(),
+    body('email').isEmail(),
     body('password').isLength({ min: 6, max: 50 })
 ];
 
@@ -24,6 +24,9 @@ router.get('/user/:loginCredential', signinController.preSigninUser);
 
 router.post('/user', signinValidator, signinController.signinUser);
 
+
+
+// ADMIN
 
 router.post('/admin', adminSigninValidator, signinController.signinAdmin);
 

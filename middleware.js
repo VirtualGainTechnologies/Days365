@@ -109,30 +109,6 @@ async function verifyUser(req, res, next) {
 
 
 /**
- * Verify Admin
- */
-
-async function verifyAdmin(req, res, next) {
-    try {
-        var adminId = req.user.id;
-        await adminRegisterModel.findById(adminId, async (err, admin) => {
-            if (err) {
-                return next({});
-            }
-            else if (!admin) {
-                return next(new ErrorBody(401, "Unauthorized", []));
-            }
-            else {
-                return next();
-            }
-        });
-    } catch (err) {
-        return next({});
-    }
-}
-
-
-/**
  * verify Vendor
  */
 
@@ -157,5 +133,62 @@ async function verifyVendor(req, res, next) {
 }
 
 
+/**
+ * Verify Admin
+ */
 
-module.exports = { verifyAccessJwt, verifyRefreshJwt, verifyUser, verifyAdmin, verifyVendor };
+async function verifyAdmin(req, res, next) {
+    try {
+        var adminId = req.user.id;
+        await adminRegisterModel.findById(adminId, async (err, admin) => {
+            if (err) {
+                return next({});
+            }
+            else if (!admin) {
+                return next(new ErrorBody(401, "Unauthorized", []));
+            }
+            else {
+                return next();
+            }
+        });
+    } catch (err) {
+        return next({});
+    }
+}
+
+
+/**
+ *  Verify super admin
+ */
+
+async function verifySuperAdmin(req, res, next) {
+    try {
+        var adminId = req.user.id;
+        await adminRegisterModel.findById(adminId, async (err, admin) => {
+            if (err) {
+                return next({});
+            }
+            else if (!admin || admin.admin_rank !== "Super Admin") {
+                return next(new ErrorBody(401, "Unauthorized", []));
+            }
+            else {
+                return next();
+            }
+        });
+    } catch (err) {
+        return next({});
+    }
+}
+
+
+
+
+
+module.exports = {
+    verifyAccessJwt,
+    verifyRefreshJwt,
+    verifyUser,
+    verifyAdmin,
+    verifyVendor,
+    verifySuperAdmin
+};

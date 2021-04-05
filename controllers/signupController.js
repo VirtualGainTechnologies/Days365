@@ -267,7 +267,47 @@ exports.signupAdmin = async (req, res, next) => {
                     fullname: data.fullname,
                     email: email,
                     mobile_number: mobile,
-                    admin_rank: data.admin_rank || "Sub Admin",
+                    admin_rank: "Sub Admin",
+                    username: username,
+                    hash: hash
+                }
+                const result = await signupService.registerAdmin(reqBody);
+                res.statusCode = 201;
+                res.setHeader('Content-Type', 'application/json');
+                return res.json({ message: 'Account successfully registered.', error: false, data: {} });
+            }
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+exports.signupSuperAdmin = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var data = req.body;
+            var email = data.email.trim().toLowerCase();
+            var username = data.username.trim().toLowerCase();
+            var mobile = data.mobile;
+            filters = { $or: [{ email: email }, { username: username }, { mobile_number: mobile }] };
+            const account = await signupService.isAdminExists(filters);
+            if (account) {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({ message: "Account already exists.", error: true, data: {} });
+            }
+            else {
+                const hash = await encryptPassword(data.password);
+                var reqBody = {
+                    fullname: data.fullname,
+                    email: email,
+                    mobile_number: mobile,
+                    admin_rank: "Super Admin",
                     username: username,
                     hash: hash
                 }
