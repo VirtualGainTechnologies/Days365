@@ -1,9 +1,10 @@
 const { validationResult } = require('express-validator');
 const signupService = require('../services/signupService');
 const { ErrorBody } = require('../utils/ErrorBody');
-const { verifyPassword, encryptPassword, verifyEmail, sendOTP } = require('../services/commonAccountService');
+const { verifyPassword, encryptPassword, verifyEmail, sendOTP, isMobileOrEmail } = require('../services/commonAccountService');
 const otpGenerator = require('otp-generator');
 const router = require('../routes/signupRouter');
+const mongoose = require('mongoose');
 
 
 // USER & VENDOR
@@ -173,38 +174,66 @@ exports.upgradeToVendor = async (req, res, next) => {
             next(new ErrorBody(400, "Bad Inputs", errors.array()));
         }
         else {
-            var type = req.body.type;
-            var value = req.body.value;
+            var username = req.body.username;
             var password = req.body.password;
-            var filters = {};
-            if (type === "EMAIL") {
-                filters = { email: value };
-            }
-            else {
-                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value }] };
-            }
-            const account = await signupService.isUserExists(filters);
-            if (!account) {
+            const field = await isMobileOrEmail(username);
+            if (!field.isValid) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Account doesn't exists.", error: true, data: {} });
+                res.json({ message: 'Invalid Account.', error: true, data: {} });
             }
             else {
-                const flag = await verifyPassword(account.hash, password);
-                if (!flag) {
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json({ message: 'Invalid Password.', error: true, data: {} });
+                var filters = {};
+                if (field.type === "EMAIL") {
+                    filters = { email: field.value };
                 }
                 else {
-                    let updateQuery = { is_vendor: true };
-                    await signupService.upgradeTovendor(account._id, updateQuery);
+                    filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': field.value }] };
+                }
+                const account = await signupService.isUserExists(filters);
+                if (!account) {
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
-                    return res.json({ message: 'Account upgraded to seller account.', error: false, data: {} });
+                    res.json({ message: "Invalid Account.", error: true, data: {} });
+                }
+                else if (account.is_vendor) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: "You can't upgrade a seller account.", error: true, data: {} });
+                }
+                else {
+                    const flag = await verifyPassword(account.hash, password);
+                    if (!flag) {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({ message: 'Invalid Password.', error: true, data: {} });
+                    }
+                    else {
+                        let updateQuery = { is_vendor: true };
+                        await signupService.upgradeTovendor(account._id, updateQuery);
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        return res.json({ message: 'Account upgraded to seller account.', error: false, data: {} });
+                    }
                 }
             }
         }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+
+exports.directUpgradeToVendor = async (req, res, next) => {
+    try {
+        var vendorId = mongoose.Types.ObjectId(req.user.id);
+        let updateQuery = { is_vendor: true };
+        await signupService.upgradeTovendor(vendorId, updateQuery);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        return res.json({ message: 'Account upgraded to seller account.', error: false, data: {} });
+
     } catch (error) {
         next({});
     }
