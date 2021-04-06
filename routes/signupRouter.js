@@ -47,7 +47,7 @@ router.post('/user/resendOtp', resendOtpValidator, signupController.resendUserOT
 
 router.put('/user/upgrade', upgradeValidator, signupController.upgradeToVendor);
 
-router.put('/user/directUpgrade', verifyAccessJwt, verifyVendor, signupController.directUpgradeToVendor);
+router.put('/user/directUpgrade', verifyAccessJwt, verifyUser, signupController.directUpgradeToVendor);
 
 
 

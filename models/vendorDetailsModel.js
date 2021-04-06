@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const statusSchema = new Schema({
     is_mobile_verified: {
         type: Boolean,
-        default: false,
+        default: true,
         required: true
     },
     is_seller_details_collected: {
@@ -22,17 +22,51 @@ const statusSchema = new Schema({
 });
 
 
-
+const companyAddressSchema = new Schema({
+    _id: false,
+    country: {
+        type: String,
+        required: true,
+        default: "India"
+    },
+    state: {
+        type: String,
+    },
+    city: {
+        type: String,
+    },
+    pincode: {
+        type: Number,
+    },
+    address_line1: {
+        type: String,
+    },
+    address_line2: {
+        type: String,
+    }
+});
 
 
 const VendorDetailSchema = new Schema({
     vendor_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        unique: true
+        unique: true,
+        ref: 'user_registers'
     },
-    status_list: statusSchema
-
+    status_list: statusSchema,
+    company_name: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true
+    },
+    company_address: companyAddressSchema,
+    store_name: {
+        type: String,
+        lowercase: true,
+        unique: true
+    }
 }, { timestamps: true });
 
 
