@@ -196,6 +196,11 @@ exports.upgradeToVendor = async (req, res, next) => {
                     res.setHeader('Content-Type', 'application/json');
                     res.json({ message: "Invalid Account.", error: true, data: {} });
                 }
+                else if (account.is_blocked) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: "Account Blocked, Please contact our team for recovery.", error: true, data: {} });
+                }
                 else if (account.is_vendor) {
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');

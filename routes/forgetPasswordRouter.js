@@ -5,8 +5,7 @@ const { body } = require('express-validator');
 
 
 const userAccountValidator = [
-    body('type').custom(val => val === "EMAIL" || val === "MOBILE"),
-    body('value').notEmpty()
+    body('username').notEmpty()
 ];
 
 const otpValidator = [

@@ -26,6 +26,35 @@ const companyNameValidator = [
     body('companyName').notEmpty()
 ];
 
+const taxDetailsValidator = [
+    body('state').notEmpty(),
+    body('sellerName').notEmpty(),
+    body('gstNumber').notEmpty(),
+    body('panNumber').notEmpty()
+];
+
+const sellerDetailsValidator = [
+    body('storeName').notEmpty(),
+    body('state').notEmpty(),
+    body('city').notEmpty(),
+    body('pincode').custom(val => /^[1-9][0-9]{5}$/.test(val)),
+    body('shippingMethod').custom(val => ["Fulfillment by Days365"].includes(val))
+];
+
+const shippingFeeValidator = [
+    body('shippingFee').custom(val => val >= 0)
+];
+
+const bankDetailsValidator = [
+    body('accountHolderName').notEmpty(),
+    body('accountType').custom(val => ["Savings Account", "Current Account"].includes(val)),
+    body('accountNumber').notEmpty()
+];
+
+const productTaxCodeValidator = [
+    body('productTaxCode').notEmpty()
+];
+
 
 
 router.get('/', verifyAccessJwt, verifyVendor, vendorDetailsController.getVendorDetails);
@@ -40,9 +69,17 @@ router.put('/storeName', verifyAccessJwt, verifyVendor, storeNameValidator, vend
 
 router.put('/companyAddress', verifyAccessJwt, verifyVendor, companyAddressValidator, vendorDetailsController.updateCompanyAddress);
 
+router.put('/taxDetails', verifyAccessJwt, verifyVendor, taxDetailsValidator, vendorDetailsController.updateTaxDetails);
 
+router.put('/sellerDetails', verifyAccessJwt, verifyVendor, sellerDetailsValidator, vendorDetailsController.updateSellerInfo);
 
+router.put('/shippingFee', verifyAccessJwt, verifyVendor, shippingFeeValidator, vendorDetailsController.updateShippingFee);
 
+router.put('/bankDetails', verifyAccessJwt, verifyVendor, bankDetailsValidator, vendorDetailsController.updateBankDetails);
+
+router.put('/productTaxCode', verifyAccessJwt, verifyVendor, productTaxCodeValidator, vendorDetailsController.updateProductTaxCode);
+
+router.put('/signature'); // TODO file upload required.
 
 
 module.exports = router;

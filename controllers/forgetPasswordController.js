@@ -3,7 +3,7 @@ const forgetPasswordService = require('../services/forgetPasswordService');
 const { ErrorBody } = require('../utils/ErrorBody');
 const otpGenerator = require('otp-generator');
 const mongoose = require('mongoose');
-const { encryptPassword, sendOTP } = require('../services/commonAccountService');
+const { encryptPassword, sendOTP, isMobileOrEmail } = require('../services/commonAccountService');
 
 
 // USER & VENDOR
@@ -15,41 +15,48 @@ exports.sendUserOTP = async (req, res, next) => {
             next(new ErrorBody(400, "Bad Inputs", errors.array()));
         }
         else {
-            var type = req.body.type;
-            var value = req.body.value;
-            var filters = {};
-            if (type === "EMAIL") {
-                filters = { email: value };
-            }
-            else {
-                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value }] };
-            }
-            const user = await forgetPasswordService.getUserAccount(filters);
-            if (!user) {
+            var username = req.body.username;
+            const field = await isMobileOrEmail(username);
+            if (!field.isValid) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Invalid Account.', error: true, data: {} });
             }
-            else if (user.is_blocked) {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Account Blocked, Please contact our team for recovery.", error: true, data: {} });
-            }
             else {
-                var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
-                var reqBody = {
-                    otp: otp,
-                    purpose: "Reset Password",
-                    user_id: user._id
-                };
-                const optRecord = await forgetPasswordService.createOtpRecord(reqBody);
+                var filters = {};
+                if (field.type === "EMAIL") {
+                    filters = { email: field.value };
+                }
+                else {
+                    filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': field.value }] };
+                }
+                const user = await forgetPasswordService.getUserAccount(filters);
+                if (!user) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Invalid Account.', error: true, data: {} });
+                }
+                else if (user.is_blocked) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: "Account Blocked, Please contact our team for recovery.", error: true, data: {} });
+                }
+                else {
+                    var otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
+                    var reqBody = {
+                        otp: otp,
+                        purpose: "Reset Password",
+                        user_id: user._id
+                    };
+                    const optRecord = await forgetPasswordService.createOtpRecord(reqBody);
 
-                // Send OTP to email or mobile TODO
+                    // Send OTP to email or mobile TODO
 
 
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: `OTP has been sent to your ${type}.`, error: false, data: { otp: optRecord.otp, id: optRecord._id } });
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: `OTP has been sent to your ${field.type}.`, error: false, data: { otp: optRecord.otp, id: optRecord._id } });
+                }
             }
         }
     } catch (error) {

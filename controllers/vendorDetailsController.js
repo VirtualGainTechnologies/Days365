@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const vendorDetailsService = require('../services/vendorDetailsService');
 const { ErrorBody } = require('../utils/ErrorBody');
 
@@ -112,7 +113,6 @@ exports.updateStoreName = async (req, res, next) => {
 }
 
 
-
 /**
  *  Add/Update company address
  */
@@ -124,7 +124,22 @@ exports.updateCompanyAddress = async (req, res, next) => {
             next(new ErrorBody(400, "Bad Inputs", errors.array()));
         }
         else {
-            var companyAddress = req.body.companyAddress;
+            let state = req.body.state;
+            let pincode = req.body.pincode;
+            let city = req.body.city;
+            let addressLine1 = req.body.addressLine1;
+            let addressLine2 = req.body.addressLine2;
+            var companyAddress = {
+                state: state,
+                pincode: pincode,
+                city: city
+            };
+            if (addressLine1) {
+                companyAddress["address_line1"] = addressLine1;
+            }
+            if (addressLine2) {
+                companyAddress["address_line2"] = addressLine2;
+            }
             var vendorId = req.user.id;
             var updateQuery = { company_address: companyAddress };
             const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
@@ -155,9 +170,225 @@ exports.getVendorDetails = async (req, res, next) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         if (record) {
-            response = { message: 'Successfully retrieved status record.', error: false, data: record };
+            response = { message: 'Successfully retrieved vendor details.', error: false, data: record };
         }
         res.json(response);
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Add or Update tax details
+ */
+
+exports.updateTaxDetails = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var gstNumber = req.body.gstNumber;
+            var state = req.body.state;
+            var panNumber = req.body.panNumber;
+            var sellerName = req.body.sellerName;
+            var vendorId = req.user.id;
+            var updateQuery = {
+                tax_details: {
+                    state: state,
+                    seller_name: sellerName,
+                    GST_number: gstNumber,
+                    PAN_number: panNumber
+                },
+                'status_list.is_tax_details_collected': true
+            };
+            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (record) {
+                response = { message: 'Successfully updated tax details.', error: false, data: {} };
+            }
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ *  Get status of detail collection pahses.
+ */
+
+exports.getStatus = async (req, res, next) => {
+    try {
+        var vendorId = mongoose.Types.ObjectId(req.user.id);
+        const record = await vendorDetailsService.getVendorDetailsRecord({ _id: vendorId });
+        var response = { message: 'No record found.', error: true, data: {} };
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        if (record) {
+            response = { message: 'Successfully retrieved status.', error: false, data: { statusList: record.status_list } };
+        }
+        res.json(response);
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Update seller details
+ */
+
+exports.updateSellerInfo = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            let storeName = req.body.storeName;
+            let shippingMethod = req.body.shippingMethod;
+            let state = req.body.state;
+            let pincode = req.body.pincode;
+            let city = req.body.city;
+            let addressLine1 = req.body.addressLine1;
+            let addressLine2 = req.body.addressLine2;
+            var companyAddress = {
+                state: state,
+                pincode: pincode,
+                city: city
+            };
+            if (addressLine1) {
+                companyAddress["address_line1"] = addressLine1;
+            }
+            if (addressLine2) {
+                companyAddress["address_line2"] = addressLine2;
+            }
+            var vendorId = req.user.id;
+            var updateQuery = {
+                company_address: companyAddress,
+                store_name: storeName,
+                shipping_method: shippingMethod,
+                'status_list.is_seller_info_collected': true
+            };
+            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (record) {
+                response = { message: 'Successfully updated seller details.', error: false, data: {} };
+            }
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Update Shipping Fee
+ */
+
+exports.updateShippingFee = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var shippingFee = req.body.shippingFee;
+            var vendorId = req.user.id;
+            var updateQuery = {
+                shipping_fee: shippingFee
+            };
+            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (record) {
+                response = { message: 'Successfully updated shipping fee.', error: false, data: {} };
+            }
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ *  Update Bank details
+ */
+
+exports.updateBankDetails = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var vendorId = req.user.id;
+            let accountHolderName = req.body.accountHolderName;
+            let accountType = req.body.accountType;
+            let accountNumber = req.body.accountNumber;
+            let ifscCode = req.body.ifscCode;
+            var bankAccountDetails = {
+                account_holder_name: accountHolderName,
+                account_type: accountType,
+                account_number: accountNumber
+            }
+            if (ifscCode) {
+                bankAccountDetails["IFSC_code"] = ifscCode;
+            }
+            var updateQuery = {
+                bank_account_details: bankAccountDetails
+            };
+            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (record) {
+                response = { message: 'Successfully updated bank account details.', error: false, data: {} };
+            }
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Update product tax code
+ */
+
+exports.updateProductTaxCode = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var vendorId = req.user.id;
+            var productTaxCode = req.body.productTaxCode;
+            var updateQuery = {
+                product_tax_code: productTaxCode
+            };
+            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (record) {
+                response = { message: 'Successfully updated product tax code.', error: false, data: {} };
+            }
+            res.json(response);
+        }
     } catch (error) {
         next({});
     }
