@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { body, query } = require('express-validator');
 const vendorDetailsController = require('../controllers/vendorDetailsController');
 const { verifyAccessJwt, verifyVendor } = require('../middleware');
-
+const { privateFileUpload } = require('../utils/fileUpload');
 
 const storeNameQueryValidator = [
     query('storeName').notEmpty()
@@ -71,7 +71,7 @@ router.put('/companyAddress', verifyAccessJwt, verifyVendor, companyAddressValid
 
 router.put('/taxDetails', verifyAccessJwt, verifyVendor, taxDetailsValidator, vendorDetailsController.updateTaxDetails);
 
-router.put('/sellerDetails', verifyAccessJwt, verifyVendor, sellerDetailsValidator, vendorDetailsController.updateSellerInfo);
+router.put('/sellerInfo', verifyAccessJwt, verifyVendor, sellerDetailsValidator, vendorDetailsController.updateSellerInfo);
 
 router.put('/shippingFee', verifyAccessJwt, verifyVendor, shippingFeeValidator, vendorDetailsController.updateShippingFee);
 
@@ -79,7 +79,7 @@ router.put('/bankDetails', verifyAccessJwt, verifyVendor, bankDetailsValidator, 
 
 router.put('/productTaxCode', verifyAccessJwt, verifyVendor, productTaxCodeValidator, vendorDetailsController.updateProductTaxCode);
 
-router.put('/signature'); // TODO file upload required.
+router.put('/signature', privateFileUpload.single('signature')); // TODO file upload required.
 
 
 module.exports = router;

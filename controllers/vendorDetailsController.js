@@ -47,7 +47,8 @@ exports.createVendorRecord = async (req, res, next) => {
             var vendorId = req.user.id;
             var reqBody = {
                 vendor_id: vendorId,
-                company_name: companyName
+                company_name: companyName,
+                'status_list.is_mobile_verified': true
             }
             const record = await vendorDetailsService.createVendorDetailsRecord(reqBody);
             res.statusCode = 200;

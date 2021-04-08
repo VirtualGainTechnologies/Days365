@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const adminSchema = new Schema({
     fullname: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     email: {
         type: String,
@@ -18,7 +19,8 @@ const adminSchema = new Schema({
     mobile_number: {
         type: String,
         unique: true,
-        required: true
+        required: true,
+        trim: true
     },
     admin_rank: {
         type: String,

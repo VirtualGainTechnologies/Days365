@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const preSignUpSchema = new mongoose.Schema({
     mobile: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     data: {
         type: String,
@@ -11,7 +12,8 @@ const preSignUpSchema = new mongoose.Schema({
     },
     otp: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     user_type: {
         type: String,

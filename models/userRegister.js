@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const UserRegisterSchema = new mongoose.Schema({
     fullname: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     mobile_number: {
         country_code: {
@@ -16,7 +17,8 @@ const UserRegisterSchema = new mongoose.Schema({
             type: String,
             unique: true,
             required: true,
-            index: true
+            index: true,
+            trim: true
         }
     },
     email: {
