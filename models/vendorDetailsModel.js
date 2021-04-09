@@ -52,6 +52,11 @@ const companyAddressSchema = new Schema({
 
 const taxDetailSchema = new Schema({
     _id: false,
+    is_GST_exempted: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     state: {
         type: String,
         trim: true

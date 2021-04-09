@@ -12,6 +12,6 @@ exports.getVendorDetailsRecord = async (filters) => {
     return await vendorDetailsModel.findOne(filters);
 }
 
-exports.updateVendorDetails = async (id, updateQuery) => {
-    return await vendorDetailsModel.findByIdAndUpdate(id, updateQuery, { new: true });
+exports.updateVendorDetails = async (filters, updateQuery) => {
+    return await vendorDetailsModel.findOneAndUpdate(filters, updateQuery, { new: true });
 }

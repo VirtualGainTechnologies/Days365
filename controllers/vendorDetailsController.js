@@ -24,7 +24,7 @@ exports.isCompanyNameAvailable = async (req, res, next) => {
             const record = await vendorDetailsService.getVendorDetailsRecord(filters);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json({ message: 'Successfully retrieved status.', error: false, data: { isAvaliable: record ? false : true } });
+            res.json({ message: 'Successfully retrieved status.', error: false, data: { isAvailable: record ? false : true } });
         }
     } catch (error) {
         next({});
@@ -77,7 +77,7 @@ exports.isStoreNameAvailable = async (req, res, next) => {
             const record = await vendorDetailsService.getVendorDetailsRecord(filters);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json({ message: 'Successfully retrieved status.', error: false, data: { isAvaliable: record ? false : true } });
+            res.json({ message: 'Successfully retrieved status.', error: false, data: { isAvailable: record ? false : true } });
         }
     } catch (error) {
         next({});
@@ -98,8 +98,9 @@ exports.updateStoreName = async (req, res, next) => {
         else {
             var storeName = req.body.storeName;
             var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
             var updateQuery = { store_name: storeName };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -142,8 +143,9 @@ exports.updateCompanyAddress = async (req, res, next) => {
                 companyAddress["address_line2"] = addressLine2;
             }
             var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
             var updateQuery = { company_address: companyAddress };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -196,6 +198,7 @@ exports.updateTaxDetails = async (req, res, next) => {
             var panNumber = req.body.panNumber;
             var sellerName = req.body.sellerName;
             var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
             var updateQuery = {
                 tax_details: {
                     state: state,
@@ -205,7 +208,40 @@ exports.updateTaxDetails = async (req, res, next) => {
                 },
                 'status_list.is_tax_details_collected': true
             };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            if (record) {
+                response = { message: 'Successfully updated tax details.', error: false, data: {} };
+            }
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ *  Update GST Exempted status.
+ */
+
+exports.updateGstExemptedStatus = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var isGstExempted = req.body.isGstExempted;
+            var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
+            var updateQuery = {
+                'tax_details.is_GST_exempted': isGstExempted,
+                'status_list.is_tax_details_collected': true
+            };
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -271,13 +307,14 @@ exports.updateSellerInfo = async (req, res, next) => {
                 companyAddress["address_line2"] = addressLine2;
             }
             var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
             var updateQuery = {
                 company_address: companyAddress,
                 store_name: storeName,
                 shipping_method: shippingMethod,
                 'status_list.is_seller_info_collected': true
             };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -305,10 +342,11 @@ exports.updateShippingFee = async (req, res, next) => {
         else {
             var shippingFee = req.body.shippingFee;
             var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
             var updateQuery = {
                 shipping_fee: shippingFee
             };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -347,10 +385,11 @@ exports.updateBankDetails = async (req, res, next) => {
             if (ifscCode) {
                 bankAccountDetails["IFSC_code"] = ifscCode;
             }
+            var filters = { vendor_id: vendorId };
             var updateQuery = {
                 bank_account_details: bankAccountDetails
             };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -378,10 +417,11 @@ exports.updateProductTaxCode = async (req, res, next) => {
         else {
             var vendorId = req.user.id;
             var productTaxCode = req.body.productTaxCode;
+            var filters = { vendor_id: vendorId };
             var updateQuery = {
                 product_tax_code: productTaxCode
             };
-            const record = await vendorDetailsService.updateVendorDetails(vendorId, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');

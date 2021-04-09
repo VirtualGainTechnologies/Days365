@@ -55,7 +55,9 @@ const productTaxCodeValidator = [
     body('productTaxCode').notEmpty()
 ];
 
-
+const gstExemptedValidator = [
+    body('isGstExempted').isBoolean()
+];
 
 router.get('/', verifyAccessJwt, verifyVendor, vendorDetailsController.getVendorDetails);
 
@@ -70,6 +72,8 @@ router.put('/storeName', verifyAccessJwt, verifyVendor, storeNameValidator, vend
 router.put('/companyAddress', verifyAccessJwt, verifyVendor, companyAddressValidator, vendorDetailsController.updateCompanyAddress);
 
 router.put('/taxDetails', verifyAccessJwt, verifyVendor, taxDetailsValidator, vendorDetailsController.updateTaxDetails);
+
+router.put('/taxDetails/gstExempted', verifyAccessJwt, verifyVendor, gstExemptedValidator, vendorDetailsController.updateGstExemptedStatus);
 
 router.put('/sellerInfo', verifyAccessJwt, verifyVendor, sellerDetailsValidator, vendorDetailsController.updateSellerInfo);
 
