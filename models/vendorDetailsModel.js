@@ -133,7 +133,9 @@ const VendorDetailSchema = new Schema({
     bank_account_details: bankAccountSchema,
     product_tax_code: {
         type: String,
-        trim: true
+        trim: true,
+        enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
+            'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
     },
     signature_url: {
         type: String

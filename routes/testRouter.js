@@ -3,25 +3,24 @@ const testRouter = express.Router();
 const { verifyAccessToken } = require('../services/jwtServices');
 const { verifyAccessJwt, verifyRefreshJwt } = require('../middleware');
 const { compareUserAgents } = require('../services/commonAccountService');
+const { publicFileUpload, createBucket, } = require('../utils/fileUpload');
 
 
-
-
-
-
-
-testRouter.route('/')
-    .get(verifyAccessJwt, async (req, res, next) => {
-        // console.log(req.useragent);
-        // console.log(await compareUserAgents(req.useragent, req.useragent));
-        console.log(Date.now());
-        res.json({ status: "success" });
+testRouter.route('/image')
+    .get(async (req, res, next) => {
+        try {
+            let a = await createBucket();
+            // console.log(a);
+            res.json({ status: "success" });
+        } catch (error) {
+            console.log(error);
+            next({});
+        }
     })
-    .post(verifyRefreshJwt, async (req, res, next) => {
-        console.log(Date.now());
-        res.json({ status: "success" });
-    });
-
+    // .post(publicFileUpload.single('signature'), (req, res, next) => {
+    //     console.log(req.file);
+    //     res.json({ status: "success" });
+    // });
 
 
 module.exports = testRouter;
