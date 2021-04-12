@@ -2,8 +2,7 @@ const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const vendorDetailsService = require('../services/vendorDetailsService');
 const { ErrorBody } = require('../utils/ErrorBody');
-
-
+const { deleteFileFromPrivateSpace, createSignedURL } = require('../utils/fileUpload');
 
 
 
@@ -430,6 +429,71 @@ exports.updateProductTaxCode = async (req, res, next) => {
             }
             res.json(response);
         }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Signature Upload
+ */
+
+exports.updateSignature = async (req, res, next) => {
+    try {
+        var image = req.file;
+        if (!image) {
+            return next(new ErrorBody(400, "Bad Inputs", []));
+        }
+        else {
+            var vendorId = req.user.id;
+            var filters = { vendor_id: vendorId };
+            var updateQuery = {
+                signature_file_name: image.key
+            };
+            const oldRecord = await vendorDetailsService.getVendorDetailsRecord(filters);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            if (record) {
+                response = { message: 'Successfully updated signature.', error: false, data: {} };
+                if (oldRecord && oldRecord.signature_file_name) {
+                    try {
+                        let fileName = oldRecord.signature_file_name;
+                        await deleteFileFromPrivateSpace(fileName);
+                    } catch (error) {
+                        // nothing to do
+                    }
+                }
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        console.log(error);
+        next({});
+    }
+}
+
+
+/**
+ * Get vendor signature
+ */
+
+exports.getMySignature = async (req, res, next) => {
+    try {
+        var vendorId = req.user.id;
+        var filters = { vendor_id: vendorId };
+        const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+        var response = { message: 'No image found.', error: true, data: {} };
+        if (record && record.signature_file_name) {
+            let fileName = record.signature_file_name;
+            var imageUrl = await createSignedURL(fileName);
+            response = { message: 'Successfully retrieved image URL.', error: false, data: { imageUrl: imageUrl } };
+        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
     } catch (error) {
         next({});
     }

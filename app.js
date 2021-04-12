@@ -105,6 +105,7 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
     console.log("ERROR========================>", chalk.red(err.message));
+    // console.log(req);
     res.status(err.status || 500);
     res.setHeader('Content-Type', 'application/json');
     res.json({ message: err.message || "Internal Server Error.", error: true, errors: err.errors || [] });

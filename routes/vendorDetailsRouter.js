@@ -83,7 +83,9 @@ router.put('/bankDetails', verifyAccessJwt, verifyVendor, bankDetailsValidator, 
 
 router.put('/productTaxCode', verifyAccessJwt, verifyVendor, productTaxCodeValidator, vendorDetailsController.updateProductTaxCode);
 
-router.put('/signature', privateFileUpload.single('signature')); // TODO file upload required.
+router.put('/signature', verifyAccessJwt, verifyVendor, privateFileUpload.single('signature'), vendorDetailsController.updateSignature);
+
+router.get('/signature', verifyAccessJwt, verifyVendor, vendorDetailsController.getMySignature);
 
 
 module.exports = router;

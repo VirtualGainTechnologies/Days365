@@ -16,7 +16,7 @@ router.route('/')
                 const record = await countryModel.findOne({ country: country });
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json({ message: 'Successfully retieved states.', error: false, data: record });
+                res.json({ message: 'Successfully retrieved states.', error: false, data: record });
             }
         } catch (error) {
             next({});

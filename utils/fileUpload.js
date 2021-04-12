@@ -20,7 +20,7 @@ const privateS3 = new aws.S3({
         accessKeyId: process.env.SPACE_ACCESS_KEY,
         secretAccessKey: process.env.SPACE_SECRET_ACCESS_KEY
     },
-    signatureVersion: 'v4',
+    // signatureVersion: 'v4',
 });
 
 const publicSpace = "public-days365-files";
