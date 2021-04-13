@@ -80,7 +80,7 @@ exports.verifyUserOTP = async (req, res, next) => {
             if (!record) {
                 next(new ErrorBody(400, "Bad Inputs", []));
             }
-            else if ((record.time_stamp < date) || record.otp !== otp || record.purpose !== "Reset Password") {
+            else if ((record.time_stamp.getTime() < date) || record.otp !== otp || record.purpose !== "Reset Password") {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'OTP verification failed.', error: true, data: {} });
@@ -114,7 +114,7 @@ exports.resetUserPassword = async (req, res, next) => {
             if (!record) {
                 next(new ErrorBody(400, "Bad Inputs", []));
             }
-            else if ((record.time_stamp < date) || record.purpose !== "Reset Password" || !record.is_verified) {
+            else if ((record.time_stamp.getTime() < date) || record.purpose !== "Reset Password" || !record.is_verified) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} });
