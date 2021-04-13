@@ -140,6 +140,18 @@ const VendorDetailSchema = new Schema({
     signature_file_name: {
         type: String
     },
+    food_license_file_name: {
+        type: String
+    },
+    GST_license_file_name: {
+        type: String
+    },
+    shop_license_file_name: {
+        type: String
+    },
+    blank_cheque_file_name: {
+        type: String
+    },
     is_admin_approved: {
         type: Boolean,
         required: true,

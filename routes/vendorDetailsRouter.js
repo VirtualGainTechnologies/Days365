@@ -59,6 +59,15 @@ const gstExemptedValidator = [
     body('isGstExempted').isBoolean()
 ];
 
+const sellerFileValidator = [
+    body('docName').custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
+];
+
+const sellerFileQueryValidator = [
+    query('docName').custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
+];
+
+
 router.get('/', verifyAccessJwt, verifyVendor, vendorDetailsController.getVendorDetails);
 
 router.get('/companyName/status', verifyAccessJwt, verifyVendor, companyNameQueryValidator, vendorDetailsController.isCompanyNameAvailable);
@@ -86,6 +95,10 @@ router.put('/productTaxCode', verifyAccessJwt, verifyVendor, productTaxCodeValid
 router.put('/signature', verifyAccessJwt, verifyVendor, privateFileUpload.single('signature'), vendorDetailsController.updateSignature);
 
 router.get('/signature', verifyAccessJwt, verifyVendor, vendorDetailsController.getMySignature);
+
+router.put('/sellerFile', verifyAccessJwt, verifyVendor, sellerFileValidator, privateFileUpload.single('sellerFile'), vendorDetailsController.updateSellerFile);
+
+router.get('/sellerFile', verifyAccessJwt, verifyVendor, sellerFileQueryValidator, vendorDetailsController.getMyFile);
 
 
 module.exports = router;

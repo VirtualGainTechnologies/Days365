@@ -1,3 +1,4 @@
+const { defaults } = require('argon2');
 const { validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const vendorDetailsService = require('../services/vendorDetailsService');
@@ -470,7 +471,13 @@ exports.updateSignature = async (req, res, next) => {
             res.json(response);
         }
     } catch (error) {
-        console.log(error);
+        if (image && image.key) {
+            try {
+                await deleteFileFromPrivateSpace(image.key);
+            } catch (error) {
+                // nothing to do
+            }
+        }
         next({});
     }
 }
@@ -494,6 +501,113 @@ exports.getMySignature = async (req, res, next) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(response);
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ *  Vendor file upload
+ */
+
+exports.updateSellerFile = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        var image = req.file;
+        if (!errors.isEmpty()) {
+            if (image && image.key) {
+                try {
+                    await deleteFileFromPrivateSpace(image.key);
+                } catch (error) {
+                    // nothing to do
+                }
+            }
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            if (!image) {
+                return next(new ErrorBody(400, "Bad Inputs", []));
+            }
+            else {
+                var vendorId = req.user.id;
+                var docName = req.body.docName;
+                var uploadedDocType = '';
+                switch (docName) {
+                    case 'foodLicense': uploadedDocType = 'food_license_file_name'; break;
+                    case 'gstLicense': uploadedDocType = 'GST_license_file_name'; break;
+                    case 'shopLicense': uploadedDocType = 'shop_license_file_name'; break;
+                    case 'blankCheque': uploadedDocType = 'blank_cheque_file_name'; break;
+                    default: uploadedDocType = '';
+                }
+                var filters = { vendor_id: vendorId };
+                var updateQuery = (uploadedDocType !== '') ? { [uploadedDocType]: image.key } : {};
+                const oldRecord = await vendorDetailsService.getVendorDetailsRecord(filters);
+                const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+                var response = { message: 'No record found.', error: true, data: {} };
+                if (record) {
+                    response = { message: 'Successfully updated document.', error: false, data: {} };
+                    if (uploadedDocType !== '' && oldRecord) {
+                        try {
+                            let fileName = oldRecord[uploadedDocType];
+                            await deleteFileFromPrivateSpace(fileName);
+                        } catch (error) {
+                            // nothing to do
+                        }
+                    }
+                }
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(response);
+            }
+        }
+    } catch (error) {
+        // console.log(error);
+        if (image && image.key) {
+            try {
+                await deleteFileFromPrivateSpace(image.key);
+            } catch (error) {
+                // nothing to do
+            }
+        }
+        next({});
+    }
+}
+
+
+/**
+ * Get file document
+ */
+
+exports.getMyFile = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }
+        else {
+            var vendorId = req.user.id;
+            var docName = req.query.docName;
+            var reqDocType = '';
+            switch (docName) {
+                case 'foodLicense': reqDocType = 'food_license_file_name'; break;
+                case 'gstLicense': reqDocType = 'GST_license_file_name'; break;
+                case 'shopLicense': reqDocType = 'shop_license_file_name'; break;
+                case 'blankCheque': reqDocType = 'blank_cheque_file_name'; break;
+                default: reqDocType = '';
+            }
+            var filters = { vendor_id: vendorId };
+            const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+            var response = { message: 'No File found.', error: true, data: {} };
+            if ((reqDocType !== '') && record) {
+                let fileName = record[reqDocType];
+                var fileUrl = await createSignedURL(fileName);
+                response = { message: 'Successfully retrieved File URL.', error: false, data: { fileUrl: fileUrl } };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
     } catch (error) {
         next({});
     }
