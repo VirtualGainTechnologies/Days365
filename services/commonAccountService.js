@@ -84,7 +84,7 @@ async function isMobileOrEmail(loginCredential, callback) {
             if (await verifyEmail(loginCredential)) {
                 field.isValid = true;
                 field.type = "EMAIL";
-                field.value = loginCredential;
+                field.value = loginCredential.toLowerCase();
             }
             else {
                 //transform data to a valid mobile number
