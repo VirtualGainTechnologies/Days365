@@ -29,8 +29,8 @@ const companyNameValidator = [
 const taxDetailsValidator = [
     body('state').notEmpty(),
     body('sellerName').notEmpty(),
-    body('gstNumber').notEmpty(),
-    body('panNumber').notEmpty()
+    body('gstNumber').custom(val => /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(val)),
+    body('panNumber').custom(val => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val))
 ];
 
 const sellerDetailsValidator = [
@@ -48,7 +48,8 @@ const shippingFeeValidator = [
 const bankDetailsValidator = [
     body('accountHolderName').notEmpty(),
     body('accountType').custom(val => ["Savings Account", "Current Account"].includes(val)),
-    body('accountNumber').notEmpty()
+    body('accountNumber').notEmpty(),
+    body('ifscCode').optional({ checkFalsy: true }).custom(val => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val))
 ];
 
 const productTaxCodeValidator = [
@@ -96,7 +97,7 @@ router.put('/signature', verifyAccessJwt, verifyVendor, privateFileUpload.single
 
 router.get('/signature', verifyAccessJwt, verifyVendor, vendorDetailsController.getMySignature);
 
-router.put('/sellerFile', verifyAccessJwt, verifyVendor, sellerFileValidator, privateFileUpload.single('sellerFile'), vendorDetailsController.updateSellerFile);
+router.put('/sellerFile', verifyAccessJwt, verifyVendor, privateFileUpload.single('sellerFile'), sellerFileValidator, vendorDetailsController.updateSellerFile);
 
 router.get('/sellerFile', verifyAccessJwt, verifyVendor, sellerFileQueryValidator, vendorDetailsController.getMyFile);
 
