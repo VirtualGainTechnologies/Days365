@@ -46,7 +46,8 @@ exports.sendUserOTP = async (req, res, next) => {
                     var reqBody = {
                         otp: otp,
                         purpose: "Reset Password",
-                        user_id: user._id
+                        user_id: user._id,
+                        time_stamp: Date.now()
                     };
                     const optRecord = await forgetPasswordService.createOtpRecord(reqBody);
 
@@ -74,13 +75,14 @@ exports.verifyUserOTP = async (req, res, next) => {
         else {
             var otpRecordId = mongoose.Types.ObjectId(req.body.id);
             var otp = req.body.otp;
-            var date = Date.now();
-            date -= 30 * 60 * 1000;
+            var date = new Date();
+            date.setMinutes(date.getMinutes() - 30);
+            let time = date.getTime();
             const record = await forgetPasswordService.getOtpRecord(otpRecordId);
             if (!record) {
                 next(new ErrorBody(400, "Bad Inputs", []));
             }
-            else if ((record.time_stamp.getTime() < date) || record.otp !== otp || record.purpose !== "Reset Password") {
+            else if ((record.time_stamp.getTime() < time) || record.otp !== otp || record.purpose !== "Reset Password") {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'OTP verification failed.', error: true, data: {} });
@@ -108,13 +110,14 @@ exports.resetUserPassword = async (req, res, next) => {
         else {
             var newPassword = req.body.password;
             var otpRecordId = mongoose.Types.ObjectId(req.body.id);
-            var date = Date.now();
-            date -= 1 * 60 * 60 * 1000;
+            var date = new Date();
+            date.setHours(date.getHours() - 1);
+            let time = date.getTime();
             const record = await forgetPasswordService.getOtpRecord(otpRecordId);
             if (!record) {
                 next(new ErrorBody(400, "Bad Inputs", []));
             }
-            else if ((record.time_stamp.getTime() < date) || record.purpose !== "Reset Password" || !record.is_verified) {
+            else if ((record.time_stamp.getTime() < time) || record.purpose !== "Reset Password" || !record.is_verified) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Failed to reset your password. Please try after sometimes.', error: true, data: {} });

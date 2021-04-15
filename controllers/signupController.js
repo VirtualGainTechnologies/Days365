@@ -90,10 +90,11 @@ exports.signupUser = async (req, res, next) => {
                 next(new ErrorBody(400, "Bad Request", []));
             }
             else {
-                var date = Date.now();
-                date -= 30 * 60 * 1000;
-                var recordDate = userData.date.getTime();
-                if ((date > recordDate) || (otp !== userData.otp)) {
+                var date = new Date();
+                date.setMinutes(date.getMinutes() - 30);
+                let time = date.getTime();
+                let recordDate = userData.date.getTime();
+                if ((time > recordDate) || (otp !== userData.otp)) {
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
                     res.json({ message: 'Mobile verification failed.', error: true, data: {} });

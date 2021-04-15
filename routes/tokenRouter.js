@@ -1,7 +1,7 @@
 const express = require('express');
 const tokenRouter = express.Router();
 const { refreshTokenModel } = require('../models/refreshTokenModel');
-const { verifyRefreshJwt } = require('../middleware');
+const { verifyRefreshJwt, verifyAccessJwt } = require('../middleware');
 const { generateTokens } = require('../services/jwtServices');
 const { compareUserAgents } = require('../services/commonAccountService');
 const { ErrorBody } = require('../utils/ErrorBody');
@@ -12,6 +12,11 @@ const { ErrorBody } = require('../utils/ErrorBody');
  */
 
 tokenRouter
+    .get('/', verifyAccessJwt, async (req, res, next) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ message: 'Valid Access Token.', error: false, data: { Status: "Success" } });
+    })
     .post('/refresh', verifyRefreshJwt, async (req, res, next) => {
         var userId = req.user.id;
         var useragent = req.useragent;
