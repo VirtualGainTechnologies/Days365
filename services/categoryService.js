@@ -25,6 +25,37 @@ exports.getCategories = async (filters, projection, options) => {
  *  Get a category record
  */
 
-exports.getCategory = async (id) => {
-    return await categoryModel.findById(id);
+exports.getCategory = async (id, projection) => {
+    return await categoryModel.findById(id, projection);
 }
+
+
+/**
+ * get caegory with filters
+ */
+exports.getCategoryWithFilters = async (filters) => {
+    return await categoryModel.findOne(filters);
+}
+
+
+/**
+ * Update a record
+ */
+
+exports.updateCategory = async (id, updateQuery, options) => {
+    return await categoryModel.findByIdAndUpdate(id, updateQuery, options);
+}
+
+/**
+ * Delete a record
+ */
+
+exports.deleteCategory = async (id) => {
+    return await categoryModel.findByIdAndDelete(id);
+}
+
+
+/**
+ * Get main categories
+ */
+

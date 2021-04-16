@@ -12,7 +12,8 @@ const getCategoryValidator = [
     query('id').notEmpty()
 ];
 
-
+// Use for creating root
+// router.post('/root', categoryController.addRootCategory); 
 
 router.post('/', verifyAccessJwt, verifyAdmin, categoryValidator, categoryController.addCategory);
 
@@ -20,7 +21,7 @@ router.get('/', verifyAccessJwt, verifyAdmin, getCategoryValidator, categoryCont
 
 router.get('/all', verifyAccessJwt, verifyAdmin, categoryController.getCategories);
 
-router.get('/parent', categoryController.getParentCategories);
+router.get('/main', categoryController.getMainCategories);
 
 router.get('/subCategories', getCategoryValidator, categoryController.getSubCategories);
 
