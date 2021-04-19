@@ -26,7 +26,7 @@ var mongooseOptions = {
 
 const testRouter = require('./routes/testRouter');
 const countryRouter = require('./routes/countryRouter');
-
+const utilityRouter = require('./routes/utilityRouter');
 
 const tokenRouter = require('./routes/tokenRouter');
 const signupRouter = require('./routes/signupRouter');
@@ -64,6 +64,7 @@ app.use(useragent.express());
 
 app.use('/test', testRouter);
 app.use('/country', countryRouter);
+app.use('/utility', utilityRouter);
 
 
 app.use('/token', tokenRouter);

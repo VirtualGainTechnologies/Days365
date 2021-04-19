@@ -15,10 +15,11 @@ const UserRegisterSchema = new mongoose.Schema({
         },
         number: {
             type: String,
-            unique: true,
             required: true,
-            index: true,
-            trim: true
+            trim: true,
+            index: {
+                unique: true
+            }
         }
     },
     email: {

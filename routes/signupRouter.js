@@ -24,7 +24,7 @@ const resendOtpValidator = [
 
 const adminSignupValidator = [
     body('fullname').notEmpty(),
-    body('mobile').custom(val => (val) => /^[6-9]{1}[0-9]{9}$/.test(val)),
+    body('mobile').custom(val => /^[6-9]{1}[0-9]{9}$/.test(val)),
     body('password').isLength({ min: 6, max: 50 }),
     body('email').isEmail(),
     body('username').notEmpty()

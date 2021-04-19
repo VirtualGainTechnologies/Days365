@@ -49,9 +49,11 @@ exports.addCategory = async (req, res, next) => {
         else {
             let categoryName = req.body.categoryName;
             let parentId = req.body.parentId;
+            let isRestricted = req.body.is_restricted;
             var parentCategory;
             let reqBody = {
-                category_name: categoryName
+                category_name: categoryName,
+                is_restricted: isRestricted
             }
             if (parentId) {
                 let id = mongoose.Types.ObjectId(parentId);
@@ -111,7 +113,8 @@ exports.getMainCategories = async (req, res, next) => {
         let projection = {
             _id: 1,
             category_name: 1,
-            is_leaf: 1
+            is_leaf: 1,
+            is_restricted: 1
         }
         const result = await root.getImmediateChildren({}, projection);
         var response = { message: 'Successfully retrieved root categories.', error: false, data: { categories: result } };
@@ -158,7 +161,8 @@ exports.getCategory = async (req, res, next) => {
                 _id: 1,
                 category_name: 1,
                 is_leaf: 1,
-                parent: 1
+                parent: 1,
+                is_restricted: 1
             }
             const result = await categoryService.getCategory(id, projection);
             var response = { message: 'No record found.', error: true, data: {} };
@@ -186,26 +190,38 @@ exports.getSubCategories = async (req, res, next) => {
             return next(new ErrorBody(400, "Bad Inputs", errors.array()));
         }
         else {
-            let id = mongoose.Types.ObjectId(req.query.id);
-            const parentCategory = await categoryService.getCategory(id);
-            if (!parentCategory) {
-                return next(new ErrorBody(400, "Bad Inputs", []));
+            var parentCategory;
+            var id = req.query.id;
+            if (id) {
+                let parentId = mongoose.Types.ObjectId(req.query.id);
+                parentCategory = await categoryService.getCategory(parentId);
+                if (!parentCategory) {
+                    return next(new ErrorBody(400, "Bad Inputs", []));
+                }
             }
             else {
-                let projection = {
-                    _id: 1,
-                    category_name: 1,
-                    is_leaf: 1,
+                let filters = {
+                    category_name: 'Root Category'
                 }
-                const result = await parentCategory.getImmediateChildren({}, projection);
-                var response = { message: 'Successfully retrieved sub categories.', error: false, data: { categories: result } };
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(response);
+                parentCategory = await categoryService.getCategoryWithFilters(filters);
+                if (!parentCategory) {
+                    return next({});
+                }
             }
+            let projection = {
+                _id: 1,
+                category_name: 1,
+                is_leaf: 1,
+                is_restricted: 1
+            }
+            const result = await parentCategory.getImmediateChildren({}, projection);
+            var response = { message: 'Successfully retrieved sub categories.', error: false, data: { categories: result } };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+
         }
     } catch (error) {
-        console.log(error);
         next({});
     }
 }

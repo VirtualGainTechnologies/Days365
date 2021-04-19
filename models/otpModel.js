@@ -8,7 +8,7 @@ const otpSchema = new Schema({
         required: true
     },
     user_id: {
-        type: mongoose.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         required: true
     },
     purpose: {

@@ -10,15 +10,18 @@ const adminSchema = new Schema({
     },
     email: {
         type: String,
-        unique: true,
         lowercase: true,
         trim: true,
         required: true,
-        index: true
+        index: {
+            unique: true
+        }
     },
     mobile_number: {
         type: String,
-        unique: true,
+        index: {
+            unique: true
+        },
         required: true,
         trim: true
     },
@@ -30,7 +33,9 @@ const adminSchema = new Schema({
     },
     username: {
         type: String,
-        unique: true,
+        index: {
+            unique: true
+        },
         lowercase: true,
         trim: true,
         required: true

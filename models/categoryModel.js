@@ -20,6 +20,11 @@ const categorySchema = new Schema({
         type: Boolean,
         default: true,
         required: true
+    },
+    is_restricted: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 

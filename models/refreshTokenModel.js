@@ -18,6 +18,9 @@ const RefreshTokenSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        index: {
+            unique: true
+        }
     },
     refresh_tokens: [RefreshToken]
 }, { timestamps: true });

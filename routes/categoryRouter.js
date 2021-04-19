@@ -5,11 +5,12 @@ const { verifyAdmin, verifyAccessJwt, verifyRefreshJwt, verifyVendor, verifySupe
 
 
 const categoryValidator = [
-    body('categoryName').notEmpty()
+    body('categoryName').notEmpty(),
+    body('is_restricted').isBoolean()
 ];
 
 const getCategoryValidator = [
-    query('id').notEmpty()
+    query('id').optional({ checkFalsy: true })
 ];
 
 // Use for creating root

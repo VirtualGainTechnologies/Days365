@@ -97,10 +97,11 @@ const bankAccountSchema = new Schema({
 
 const VendorDetailSchema = new Schema({
     vendor_id: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         required: true,
-        unique: true,
-        index: true,
+        index: {
+            unique: true
+        },
         ref: 'user_registers'
     },
     status_list: statusSchema,
