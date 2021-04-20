@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 
 
 const statusSchema = new Schema({
-    _id: false,
     is_mobile_verified: {
         type: Boolean,
         required: true,
@@ -20,10 +19,9 @@ const statusSchema = new Schema({
         required: true,
         default: false
     }
-});
+}, { _id: false });
 
 const companyAddressSchema = new Schema({
-    _id: false,
     country: {
         type: String,
         required: true,
@@ -48,10 +46,9 @@ const companyAddressSchema = new Schema({
         type: String,
         trim: true
     }
-});
+}, { _id: false });
 
 const taxDetailSchema = new Schema({
-    _id: false,
     is_GST_exempted: {
         type: Boolean,
         required: true,
@@ -73,10 +70,9 @@ const taxDetailSchema = new Schema({
         type: String,
         trim: true
     }
-});
+}, { _id: false });
 
 const bankAccountSchema = new Schema({
-    _id: false,
     account_holder_name: {
         type: String,
         trim: true
@@ -93,7 +89,7 @@ const bankAccountSchema = new Schema({
         type: String,
         trim: true
     }
-});
+}, { _id: false });
 
 const VendorDetailSchema = new Schema({
     vendor_id: {

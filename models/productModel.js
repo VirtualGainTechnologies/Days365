@@ -95,6 +95,9 @@ const productSchema = new Schema({
         type: String
     },
     variants: [productVariantSchema],
+    reference_id: {
+        type: Schema.Types.ObjectId
+    },
     is_blocked: {
         type: Boolean,
         required: true,

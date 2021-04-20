@@ -9,9 +9,8 @@ const RefreshToken = new mongoose.Schema({
     useragent: {
         type: {},
         required: true
-    },
-    _id: false,
-}, { timestamps: true });
+    }
+}, { timestamps: true, _id: false });
 
 
 const RefreshTokenSchema = new mongoose.Schema({
