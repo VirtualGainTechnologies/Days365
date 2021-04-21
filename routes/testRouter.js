@@ -4,6 +4,7 @@ const { verifyAccessToken } = require('../services/jwtServices');
 const { verifyAccessJwt, verifyRefreshJwt } = require('../middleware');
 const { compareUserAgents } = require('../services/commonAccountService');
 const { publicFileUpload, createBucket, } = require('../utils/fileUpload');
+const router = require('./productRouter');
 
 
 testRouter.route('/image')
@@ -17,10 +18,26 @@ testRouter.route('/image')
             next({});
         }
     })
-    // .post(publicFileUpload.single('signature'), (req, res, next) => {
-    //     console.log(req.file);
-    //     res.json({ status: "success" });
-    // });
+// .post(publicFileUpload.single('signature'), (req, res, next) => {
+//     console.log(req.file);
+//     res.json({ status: "success" });
+// });
+
+
+testRouter.route('/')
+    .get(async (req, res, next) => {
+        try {
+            var a = [];
+            a[10] = "hai";
+            console.log(a[10]);
+            res.json({ status: "success" });
+        } catch (error) {
+            console.log(error);
+            next({});
+        }
+    })
+
+
 
 
 module.exports = testRouter;

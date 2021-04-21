@@ -6,12 +6,14 @@ const productVariantSchema = new Schema({
     color: {
         type: String,
         default: "N/A",
-        required: true
+        required: true,
+        uppercase: true
     },
     size: {
         type: String,
         default: "N/A",
-        required: true
+        required: true,
+        uppercase: true
     },
     UPC: {
         type: String
@@ -40,7 +42,8 @@ const productVariantSchema = new Schema({
         type: String
     },
     description: {
-        type: String
+        type: String,
+        required: true
     },
     price: {
         type: Number,
@@ -53,7 +56,7 @@ const productVariantSchema = new Schema({
     offer_description: {
         type: String
     },
-    quantity: {
+    stock: {
         type: Number,
         required: true,
         default: 0
@@ -70,9 +73,12 @@ const productVariantSchema = new Schema({
             'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
     },
     image_URLs: [String],
-    refering_days_product_code: {
+    product_bill_image_URL: {
+        type: String
+    },
+    product_details_image_URL: {
         type: String,
-        uppercase: true
+        required: true
     }
 }, { timestamps: true, _id: true });
 
@@ -81,7 +87,7 @@ const productSchema = new Schema({
     vendor_id: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: 'vendor_details'
+        ref: 'user_registers'
     },
     title: {
         type: String,
@@ -91,17 +97,21 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-    brand: {
+    brand_name: {
         type: String
     },
     variants: [productVariantSchema],
-    reference_id: {
-        type: Schema.Types.ObjectId
-    },
     is_blocked: {
         type: Boolean,
         required: true,
         default: false
+    },
+    key_words: {
+        type: String,
+        required: true
+    },
+    reference_id: {
+        type: Schema.Types.ObjectId
     }
 }, { timestamps: true });
 

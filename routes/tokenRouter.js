@@ -12,7 +12,7 @@ const { ErrorBody } = require('../utils/ErrorBody');
  */
 
 tokenRouter
-    .get('/', verifyAccessJwt, async (req, res, next) => {
+    .get('/verifyAccessToken', verifyAccessJwt, async (req, res, next) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json({ message: 'Valid Access Token.', error: false, data: { Status: "Success" } });

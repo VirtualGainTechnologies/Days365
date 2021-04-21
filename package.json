@@ -16,6 +16,7 @@
     "express": "~4.16.1",
     "express-useragent": "^1.0.15",
     "express-validator": "^6.10.0",
+    "formidable": "^1.2.2",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.15",

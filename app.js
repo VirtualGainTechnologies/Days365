@@ -35,7 +35,7 @@ const signoutRouter = require('./routes/signoutRouter');
 const forgetPasswordRouter = require('./routes/forgetPasswordRouter');
 const vendorDetailsRouter = require('./routes/vendorDetailsRouter');
 const categoryRouter = require('./routes/categoryRouter');
-
+const productRouter = require('./routes/productRouter');
 
 
 
@@ -74,7 +74,7 @@ app.use('/signout', signoutRouter);
 app.use('/resetPassword', forgetPasswordRouter);
 app.use('/vendorDetails', vendorDetailsRouter);
 app.use('/category', categoryRouter);
-
+app.use('/product', productRouter);
 
 
 

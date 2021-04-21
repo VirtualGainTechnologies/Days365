@@ -2,6 +2,10 @@ const { userRegisterModel } = require('./models/userRegister');
 const { adminRegisterModel } = require('./models/adminRegister');
 const { verifyAccessToken, verifyRefreshToken } = require('./services/jwtServices');
 const { ErrorBody } = require('./utils/ErrorBody');
+const formidable = require('formidable');
+
+
+
 
 /**
  * Get Token From Headers
@@ -182,6 +186,28 @@ async function verifySuperAdmin(req, res, next) {
 
 
 
+/**
+ * Multi-part form data handler
+ */
+
+// async function formDataHandler(req, res, next) {
+//     try {
+//         var form = new formidable.IncomingForm();
+//         form.parse(req, (err, fields, files) => {
+//             if (err) {
+//                 return next({});
+//             }
+//             else {
+//                 req.body = fields;
+//                 req.files = files;
+//                 next();
+//             }
+//         })
+//     } catch (error) {
+//         return next({});
+//     }
+// }
+
 
 
 module.exports = {
@@ -190,5 +216,6 @@ module.exports = {
     verifyUser,
     verifyAdmin,
     verifyVendor,
-    verifySuperAdmin
+    verifySuperAdmin,
+    // formDataHandler
 };

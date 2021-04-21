@@ -149,6 +149,17 @@ const VendorDetailSchema = new Schema({
     blank_cheque_file_name: {
         type: String
     },
+    brand_file_name: {
+        type: String
+    },
+    brand_name: {
+        type: String,
+        lowercase: true,
+        trim: true
+    },
+    is_brand_approved: {
+        type: Boolean
+    },
     is_admin_approved: {
         type: Boolean,
         required: true,
