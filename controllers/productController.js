@@ -53,7 +53,8 @@ exports.addProduct = async (req, res, next) => {
                 category_path: categoryPath,
                 key_words: keyWords,
                 variants: formattedProductVariants,
-                is_blocked: categoryRecord.is_restricted ? true : false
+                is_blocked: categoryRecord.is_restricted ? true : false,
+                'customer_rating.total_rating': 0
             }
             if (brandName) {
                 reqBody['brand_name'] = brandName;

@@ -83,6 +83,52 @@ const productVariantSchema = new Schema({
 }, { timestamps: true, _id: true });
 
 
+const ratingSchema = new Schema({
+    five: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    four: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    three: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    two: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    one: {
+        type: Number,
+        default: 0,
+        required: true
+    },
+    total_rating: {
+        type: Number,
+        required: true,
+        default: 0
+    }
+}, { _id: false });
+
+
+
+ratingSchema.methods.setRating = function () {
+    let totalCount = parseInt(this.five + this.four + this.three + this.two + this.one) || 1;
+    let rating = ((this.five * 5) + (this.four * 4) + (this.three * 3) * (this.two * 2) + (this.one * 1)) / totalCount;
+    this.total_rating = parseFloat(rating).toFixed(1);
+}
+
+ratingSchema.methods.getRating = function () {
+    return this.total_rating;
+}
+
+
 const productSchema = new Schema({
     vendor_id: {
         type: Schema.Types.ObjectId,
@@ -112,7 +158,8 @@ const productSchema = new Schema({
     },
     reference_id: {
         type: Schema.Types.ObjectId
-    }
+    },
+    customer_rating: ratingSchema
 }, { timestamps: true });
 
 
