@@ -5,35 +5,35 @@ const { verifyUser, verifyAccessJwt, verifyVendor, verifyAdmin, verifySuperAdmin
 
 
 const preSignupValidator = [
-    body('fullname').notEmpty(),
-    body('mobile.countryCode').notEmpty(),
-    body('mobile.number').custom(val => (val) => /^[6-9]{1}[0-9]{9}$/.test(val)),
-    body('password').isLength({ min: 6, max: 50 }),
-    body('userType').custom(val => val === "user" || val === "vendor")
+    body('fullname').trim().notEmpty(),
+    body('mobile.countryCode').trim().notEmpty(),
+    body('mobile.number').trim().custom(val => (val) => /^[6-9]{1}[0-9]{9}$/.test(val)),
+    body('password').trim().isLength({ min: 6, max: 50 }),
+    body('userType').trim().custom(val => val === "user" || val === "vendor")
 ];
 
 const signupValidator = [
-    body('otp').isLength({ min: 6, max: 6 }),
-    body('id').notEmpty()
+    body('otp').trim().isLength({ min: 6, max: 6 }),
+    body('id').trim().notEmpty()
 ];
 
 const resendOtpValidator = [
-    body('id').notEmpty()
+    body('id').trim().notEmpty()
 ];
 
 
 const adminSignupValidator = [
-    body('fullname').notEmpty(),
-    body('mobile').custom(val => /^[6-9]{1}[0-9]{9}$/.test(val)),
-    body('password').isLength({ min: 6, max: 50 }),
-    body('email').isEmail(),
-    body('username').notEmpty()
+    body('fullname').trim().notEmpty(),
+    body('mobile').trim().custom(val => /^[6-9]{1}[0-9]{9}$/.test(val)),
+    body('password').trim().isLength({ min: 6, max: 50 }),
+    body('email').trim().isEmail(),
+    body('username').trim().notEmpty()
 ];
 
 
 const upgradeValidator = [
-    body('username').notEmpty(),
-    body('password').isLength({ min: 6, max: 50 })
+    body('username').trim().notEmpty(),
+    body('password').trim().isLength({ min: 6, max: 50 })
 ];
 
 

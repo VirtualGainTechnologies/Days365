@@ -83,6 +83,7 @@ const productVariantSchema = new Schema({
 }, { timestamps: true, _id: true });
 
 
+
 const ratingSchema = new Schema({
     five: {
         type: Number,
@@ -144,7 +145,8 @@ const productSchema = new Schema({
         required: true
     },
     brand_name: {
-        type: String
+        type: String,
+        trim: true
     },
     variants: [productVariantSchema],
     is_blocked: {

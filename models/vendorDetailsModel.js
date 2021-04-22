@@ -91,6 +91,19 @@ const bankAccountSchema = new Schema({
     }
 }, { _id: false });
 
+
+const brandSchema = new Schema({
+    brand_file_name: {
+        type: String
+    },
+    brand_name: {
+        type: String,
+        lowercase: true,
+        trim: true
+    },
+}, { _id: false });
+
+
 const VendorDetailSchema = new Schema({
     vendor_id: {
         type: Schema.Types.ObjectId,
@@ -149,17 +162,13 @@ const VendorDetailSchema = new Schema({
     blank_cheque_file_name: {
         type: String
     },
-    brand_file_name: {
-        type: String
-    },
-    brand_name: {
-        type: String,
-        lowercase: true,
-        trim: true
-    },
+    brand_details: brandSchema,
     is_brand_approved: {
-        type: Boolean
+        type: Boolean,
+        default: false,
+        required: true
     },
+    approved_generic_categories: [],
     is_admin_approved: {
         type: Boolean,
         required: true,

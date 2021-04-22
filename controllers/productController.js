@@ -37,7 +37,7 @@ exports.addProduct = async (req, res, next) => {
             }
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-            if (!vendorRecord || !categoryRecord || (brandName && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_name))) {
+            if (!vendorRecord || !categoryRecord || ((brandName !== "generic") && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
@@ -65,7 +65,7 @@ exports.addProduct = async (req, res, next) => {
             res.json({ message: 'Successfully added product', error: false, data: result });
         }
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         if (req.files) {
             await productService.filesBulkDelete(req.files);
         }

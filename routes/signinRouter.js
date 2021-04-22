@@ -5,15 +5,15 @@ const signinController = require('../controllers/signinController');
 
 
 const signinValidator = [
-    body('type').custom(val => val === "EMAIL" || val === "MOBILE"),
-    body('value').notEmpty(),
-    body('password').isLength({ min: 6, max: 50 })
+    body('type').trim().custom(val => val === "EMAIL" || val === "MOBILE"),
+    body('value').trim().notEmpty(),
+    body('password').trim().isLength({ min: 6, max: 50 })
 ];
 
 
 const adminSigninValidator = [
-    body('email').isEmail(),
-    body('password').isLength({ min: 6, max: 50 })
+    body('email').trim().isEmail(),
+    body('password').trim().isLength({ min: 6, max: 50 })
 ];
 
 

@@ -5,7 +5,7 @@ const { verifyAccessJwt, verifyRefreshJwt, verifyUser, verifyAdmin, verifyVendor
 
 
 const signoutValidator = [
-    body('refreshToken').notEmpty()
+    body('refreshToken').trim().notEmpty()
 ];
 
 

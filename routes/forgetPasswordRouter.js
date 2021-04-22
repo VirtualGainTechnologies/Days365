@@ -5,17 +5,17 @@ const { body } = require('express-validator');
 
 
 const userAccountValidator = [
-    body('username').notEmpty()
+    body('username').trim().notEmpty()
 ];
 
 const otpValidator = [
-    body('id').notEmpty(),
-    body('otp').isLength({ min: 6, max: 6 })
+    body('id').trim().notEmpty(),
+    body('otp').trim().isLength({ min: 6, max: 6 })
 ];
 
 const resetPasswordValidator = [
-    body('id').notEmpty(),
-    body('password').isLength({ min: 6, max: 50 })
+    body('id').trim().notEmpty(),
+    body('password').trim().isLength({ min: 6, max: 50 })
 ];
 
 

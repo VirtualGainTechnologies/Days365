@@ -8,9 +8,10 @@ const productController = require('../controllers/productController');
 // Validators
 
 const productBodyValidator = [
-    body('title').notEmpty(),
-    body('categoryId').notEmpty(),
-    body('keyWords').notEmpty(),
+    body('title').trim().notEmpty(),
+    body('categoryId').trim().notEmpty(),
+    body('brandName').trim().notEmpty(),
+    body('keyWords').trim().notEmpty(),
     body('productVariants').isArray({ min: 1 }),
     body('fileIndex').isArray({ min: 1 })
 ];

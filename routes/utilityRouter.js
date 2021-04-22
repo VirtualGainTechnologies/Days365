@@ -7,12 +7,12 @@ const utilityController = require('../controllers/utilityController');
 // Validators
 
 const productTaxCodeValidator = [
-    body('utilityName').notEmpty(),
+    body('utilityName').trim().notEmpty(),
     body('utilityData').isArray()
 ];
 
 const utilityQueryValidator = [
-    query('utilityName').notEmpty()
+    query('utilityName').trim().notEmpty()
 ];
 
 

@@ -5,40 +5,40 @@ const { verifyAccessJwt, verifyVendor } = require('../middleware');
 const { privateFileUpload } = require('../utils/fileUpload');
 
 const storeNameQueryValidator = [
-    query('storeName').notEmpty()
+    query('storeName').trim().notEmpty()
 ];
 
 const storeNameValidator = [
-    body('storeName').notEmpty()
+    body('storeName').trim().notEmpty()
 ];
 
 const companyAddressValidator = [
-    body('state').notEmpty(),
-    body('city').notEmpty(),
+    body('state').trim().notEmpty(),
+    body('city').trim().notEmpty(),
     body('pincode').custom(val => /^[1-9][0-9]{5}$/.test(val))
 ];
 
 const companyNameQueryValidator = [
-    query('companyName').notEmpty()
+    query('companyName').trim().notEmpty()
 ];
 
 const companyNameValidator = [
-    body('companyName').notEmpty()
+    body('companyName').trim().notEmpty()
 ];
 
 const taxDetailsValidator = [
-    body('state').notEmpty(),
-    body('sellerName').notEmpty(),
+    body('state').trim().notEmpty(),
+    body('sellerName').trim().notEmpty(),
     body('gstNumber').custom(val => /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(val)),
     body('panNumber').custom(val => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(val))
 ];
 
 const sellerDetailsValidator = [
-    body('storeName').notEmpty(),
-    body('state').notEmpty(),
-    body('city').notEmpty(),
+    body('storeName').trim().notEmpty(),
+    body('state').trim().notEmpty(),
+    body('city').trim().notEmpty(),
     body('pincode').custom(val => /^[1-9][0-9]{5}$/.test(val)),
-    body('shippingMethod').custom(val => ["Fulfillment by Days365"].includes(val))
+    body('shippingMethod').trim().custom(val => ["Fulfillment by Days365"].includes(val))
 ];
 
 const shippingFeeValidator = [
@@ -46,14 +46,14 @@ const shippingFeeValidator = [
 ];
 
 const bankDetailsValidator = [
-    body('accountHolderName').notEmpty(),
-    body('accountType').custom(val => ["Savings Account", "Current Account"].includes(val)),
-    body('accountNumber').notEmpty(),
-    body('ifscCode').optional({ checkFalsy: true }).custom(val => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val))
+    body('accountHolderName').trim().notEmpty(),
+    body('accountType').trim().custom(val => ["Savings Account", "Current Account"].includes(val)),
+    body('accountNumber').trim().notEmpty(),
+    body('ifscCode').trim().optional({ checkFalsy: true }).custom(val => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val))
 ];
 
 const productTaxCodeValidator = [
-    body('productTaxCode').isIn(['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
+    body('productTaxCode').trim().isIn(['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
         'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY'])
 ];
 
@@ -62,11 +62,11 @@ const gstExemptedValidator = [
 ];
 
 const sellerFileValidator = [
-    body('docName').custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
+    body('docName').trim().custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
 ];
 
 const sellerFileQueryValidator = [
-    query('docName').custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
+    query('docName').trim().custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
 ];
 
 
