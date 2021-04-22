@@ -27,7 +27,8 @@ exports.addProduct = async (req, res, next) => {
             var keyWords = data.keyWords;
             var productVariants = data.productVariants;
             var fileIndex = data.fileIndex;
-            var brandName = data.brandName ? data.brandName.trim().toLowerCase() : null;
+            var brandName = data.brandName;
+            var tempBrandName = brandName.toLowerCase();
             const flag = await productService.validateVariantData(productVariants);
             if (!flag || (fileIndex.length !== productVariants.length)) {
                 if (req.files) {
@@ -37,7 +38,8 @@ exports.addProduct = async (req, res, next) => {
             }
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-            if (!vendorRecord || !categoryRecord || ((brandName !== "generic") && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_details.brand_name))) {
+            if ((!vendorRecord) || (!categoryRecord) || (!vendorRecord.is_admin_approved) || ((tempBrandName !== "generic") && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_details.brand_name))
+                || ((tempBrandName === 'generic') && (!vendorRecord.approved_generic_categories.includes(categoryRecord._id)))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
@@ -52,12 +54,10 @@ exports.addProduct = async (req, res, next) => {
                 title: title,
                 category_path: categoryPath,
                 key_words: keyWords,
+                brand_name: tempBrandName === 'generic' ? "Generic" : brandName,
                 variants: formattedProductVariants,
                 is_blocked: categoryRecord.is_restricted ? true : false,
                 'customer_rating.total_rating': 0
-            }
-            if (brandName) {
-                reqBody['brand_name'] = brandName;
             }
             const result = await productService.createProduct(reqBody);
             res.statusCode = 201;

@@ -98,7 +98,6 @@ const brandSchema = new Schema({
     },
     brand_name: {
         type: String,
-        lowercase: true,
         trim: true
     },
 }, { _id: false });
@@ -168,7 +167,7 @@ const VendorDetailSchema = new Schema({
         default: false,
         required: true
     },
-    approved_generic_categories: [],
+    approved_generic_categories: [Schema.Types.ObjectId],
     is_admin_approved: {
         type: Boolean,
         required: true,

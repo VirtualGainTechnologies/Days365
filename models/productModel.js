@@ -146,7 +146,8 @@ const productSchema = new Schema({
     },
     brand_name: {
         type: String,
-        trim: true
+        trim: true,
+        required: true
     },
     variants: [productVariantSchema],
     is_blocked: {
