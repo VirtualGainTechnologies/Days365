@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { body, query } = require('express-validator');
 const vendorDetailsController = require('../controllers/vendorDetailsController');
-const { verifyAccessJwt, verifyVendor } = require('../middleware');
+const { verifyAccessJwt, verifyVendor, verifyAdmin } = require('../middleware');
 const { privateFileUpload } = require('../utils/fileUpload');
 
 const storeNameQueryValidator = [
@@ -69,6 +69,12 @@ const sellerFileQueryValidator = [
     query('docName').trim().custom(val => ['foodLicense', 'gstLicense', 'shopLicense', 'blankCheque'].includes(val))
 ];
 
+const approveVendorValidator = [
+    body('vendorId').trim().notEmpty()
+];
+
+
+
 
 router.get('/', verifyAccessJwt, verifyVendor, vendorDetailsController.getVendorDetails);
 
@@ -101,6 +107,12 @@ router.get('/signature', verifyAccessJwt, verifyVendor, vendorDetailsController.
 router.put('/sellerFile', verifyAccessJwt, verifyVendor, privateFileUpload.single('sellerFile'), sellerFileValidator, vendorDetailsController.updateSellerFile);
 
 router.get('/sellerFile', verifyAccessJwt, verifyVendor, sellerFileQueryValidator, vendorDetailsController.getMyFile);
+
+router.put('/approvalRequest', verifyAccessJwt, verifyVendor, vendorDetailsController.requestAdminApproval);
+
+router.put('/approveVendor', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendor);
+
+router.put('/approveVendorBrand', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendorBrand);
 
 
 module.exports = router;

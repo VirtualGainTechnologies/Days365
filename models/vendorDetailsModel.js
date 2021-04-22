@@ -168,6 +168,11 @@ const VendorDetailSchema = new Schema({
         required: true
     },
     approved_generic_categories: [Schema.Types.ObjectId],
+    is_requested_for_approval: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     is_admin_approved: {
         type: Boolean,
         required: true,
