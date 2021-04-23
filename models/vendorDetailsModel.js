@@ -93,14 +93,27 @@ const bankAccountSchema = new Schema({
 
 
 const brandSchema = new Schema({
-    brand_file_name: {
-        type: String
-    },
+    brand_file_name: [String],
     brand_name: {
         type: String,
         trim: true
     },
 }, { _id: false });
+
+
+const vendorRequestSchema = new Schema({
+    verify_request: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    brand_request: {
+        type: Boolean,
+        required: true,
+        default: false
+    }
+}, { _id: false });
+
 
 
 const VendorDetailSchema = new Schema({
@@ -162,16 +175,11 @@ const VendorDetailSchema = new Schema({
         type: String
     },
     brand_details: brandSchema,
+    request: vendorRequestSchema,
     is_brand_approved: {
         type: Boolean,
         default: false,
         required: true
-    },
-    approved_generic_categories: [Schema.Types.ObjectId],
-    is_requested_for_approval: {
-        type: Boolean,
-        required: true,
-        default: false
     },
     is_admin_approved: {
         type: Boolean,

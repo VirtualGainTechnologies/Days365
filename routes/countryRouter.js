@@ -64,9 +64,9 @@ router.route('/')
                 'Lakshadweep',
                 'Puducherry'
             ];
-            states.map((state) => {
-                return state.replace(/\s+/g, ' ').trim();
-            });
+            for (let [i, state] of states.entries()) {
+                states[i] = state.replace(/\s+/g, ' ').trim();
+            }
             const country = new countryModel({
                 country: "India",
                 state_list: states

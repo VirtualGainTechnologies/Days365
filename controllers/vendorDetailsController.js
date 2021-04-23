@@ -623,7 +623,7 @@ exports.requestAdminApproval = async (req, res, next) => {
         var vendorId = req.user.id;
         let filters = { vendor_id: vendorId };
         let updateQuery = {
-            is_requested_for_approval: true
+            'request.verify_request': true
         }
         const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
         var response = { message: 'No record found.', error: true, data: {} };
@@ -653,7 +653,8 @@ exports.approveVendor = async (req, res, next) => {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
             let filters = { vendor_id: vendorId };
             let updateQuery = {
-                is_admin_approved: true
+                is_admin_approved: true,
+                'request.verify_request': false
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
@@ -665,6 +666,50 @@ exports.approveVendor = async (req, res, next) => {
             res.json(response);
         }
     } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * request for brand approval, TODO: required docs upload with brand request.
+ */
+
+exports.requestBrandApproval = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            if (req.files) {
+                await vendorDetailsService.privateFilesBulkDelete(req.files);
+            }
+            next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        }
+        else {
+            var vendorId = req.user.id;
+            var brandName = req.body.brandName;
+            var brandFileNames = [];
+            for (let file of req.files) {
+                brandFileNames.push(file.key);
+            }
+            let filters = { vendor_id: vendorId };
+            let updateQuery = {
+                'brand_details.brand_file_name': brandFileNames,
+                'request.brand_request': true,
+                brand_name: brandName
+            }
+            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            var response = { message: 'No record found.', error: true, data: {} };
+            if (result) {
+                response = { message: 'Your request has been successfully submitted.', error: false, data: {} };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        if (req.files) {
+            await vendorDetailsService.privateFilesBulkDelete(req.files);
+        }
         next({});
     }
 }
@@ -684,7 +729,8 @@ exports.approveVendorBrand = async (req, res, next) => {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
             let filters = { vendor_id: vendorId };
             let updateQuery = {
-                is_brand_approved: true
+                is_brand_approved: true,
+                'request.brand_request': false
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
@@ -699,3 +745,5 @@ exports.approveVendorBrand = async (req, res, next) => {
         next({});
     }
 }
+
+

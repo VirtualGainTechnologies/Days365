@@ -73,6 +73,10 @@ const approveVendorValidator = [
     body('vendorId').trim().notEmpty()
 ];
 
+const vendorBrandRequestBodyValidator = [
+    body('brandName').trim().notEmpty()
+];
+
 
 
 
@@ -108,11 +112,14 @@ router.put('/sellerFile', verifyAccessJwt, verifyVendor, privateFileUpload.singl
 
 router.get('/sellerFile', verifyAccessJwt, verifyVendor, sellerFileQueryValidator, vendorDetailsController.getMyFile);
 
-router.put('/approvalRequest', verifyAccessJwt, verifyVendor, vendorDetailsController.requestAdminApproval);
+router.put('/request/approveAccount', verifyAccessJwt, verifyVendor, vendorDetailsController.requestAdminApproval);
 
-router.put('/approveVendor', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendor);
+router.put('/approve/account', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendor);
 
-router.put('/approveVendorBrand', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendorBrand);
+router.put('/request/approveBrand', verifyAccessJwt, verifyVendor, privateFileUpload.array('brandImages', 5), vendorBrandRequestBodyValidator, vendorDetailsController.requestBrandApproval);
+
+router.put('/approve/brand', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendorBrand);
+
 
 
 module.exports = router;

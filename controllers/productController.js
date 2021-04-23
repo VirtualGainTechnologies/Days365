@@ -38,8 +38,7 @@ exports.addProduct = async (req, res, next) => {
             }
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-            if ((!vendorRecord) || (!categoryRecord) || (!vendorRecord.is_admin_approved) || ((tempBrandName !== "generic") && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_details.brand_name))
-                || ((tempBrandName === 'generic') && (!vendorRecord.approved_generic_categories.includes(categoryRecord._id)))) {
+            if ((!vendorRecord) || (!categoryRecord) || (!vendorRecord.is_admin_approved) || ((tempBrandName !== "generic") && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
