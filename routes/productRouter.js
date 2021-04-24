@@ -23,6 +23,9 @@ const productReferValidator = [
     body('fileIndex').isArray({ min: 1 })
 ];
 
+const queryProductValidator = [
+    query('id').trim().notEmpty()
+];
 
 
 
@@ -32,6 +35,11 @@ const productReferValidator = [
 router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 100), productBodyValidator, productController.addProduct);
 
 router.post('/reference', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productReferValidator, productController.addProductByReference);
+
+router.get('/', queryProductValidator, productController.getProduct);
+
+router.get('/sellers', queryProductValidator, productController.getProductSellers);
+
 
 
 

@@ -133,3 +133,60 @@ exports.addProductByReference = async (req, res, next) => {
         next({});
     }
 }
+
+
+/**
+ * Get prouduct by id
+ */
+
+exports.getProduct = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }
+        else {
+            var id = mongoose.Types.ObjectId(req.query.id);
+            const result = await productService.getProductById(id);
+            var response = { message: "No record found.", error: true, data: {} };
+            if (result) {
+                response = { message: "Successfully retrieved product.", error: false, data: result };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Get versions of sellers selling same product
+ */
+
+exports.getProductSellers = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }
+        else {
+            var id = mongoose.Types.ObjectId(req.query.id);
+            let options = {
+                id: id
+            };
+            const result = await productService.getProductSellers(options);
+            var response = { message: "No record found.", error: true, data: {} };
+            if (result) {
+                response = { message: "Successfully retrieved products.", error: false, data: result };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}

@@ -2,6 +2,7 @@ const { productModel } = require('../models/productModel');
 const { vendorDetailsModel } = require('../models/vendorDetailsModel');
 const { categoryModel } = require('../models/categoryModel');
 const { deleteFileFromPublicSpace } = require('../utils/fileUpload');
+const mongoose = require('mongoose');
 
 
 /**
@@ -239,4 +240,48 @@ exports.getProductWithFilters = async (filters = null, projection = null, option
 
 exports.getProductById = async (id) => {
     return await productModel.findById(id);
+}
+
+
+/**
+ * Get versions of sellers selling same product
+ */
+
+exports.getProductSellers = async (options = {}) => {
+    let pipeline = [];
+    pipeline.push(
+        {
+            $match: {
+                _id: options.id,
+            },
+        },
+        {
+            $lookup: {
+                from: "product_documents",
+                let: { id: "$_id", refId: '$reference_id' },
+                pipeline: [{
+                    $match: {
+                        $expr: {
+                            $or: [
+                                {
+                                    $eq: ["$$id", "$reference_id"]
+                                },
+                                {
+                                    $eq: [{ $ifNull: ['$$refId', '$$id'] }, "$reference_id"]
+                                }
+                            ]
+                        }
+                    },
+                }],
+                as: "similarSellers"
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                similarSellers: 1
+            }
+        }
+    );
+    return await productModel.aggregate(pipeline);
 }
