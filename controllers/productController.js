@@ -52,10 +52,11 @@ exports.addProduct = async (req, res, next) => {
                 vendor_id: vendorId,
                 title: title,
                 category_path: categoryPath,
+                category_id: categoryRecord._id,
                 key_words: keyWords,
                 brand_name: tempBrandName === 'generic' ? "Generic" : brandName,
                 variants: formattedProductVariants,
-                is_blocked: categoryRecord.is_restricted ? true : false,
+                status: 'Pending',
                 'customer_rating.total_rating': 0
             }
             const result = await productService.createProduct(reqBody);
@@ -65,6 +66,67 @@ exports.addProduct = async (req, res, next) => {
         }
     } catch (error) {
         // console.log(error);
+        if (req.files) {
+            await productService.filesBulkDelete(req.files);
+        }
+        next({});
+    }
+}
+
+
+/**
+ * Add product by referring. // TO DO : need to consider product bill file upload
+ */
+
+exports.addProductByReference = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            if (req.files) {
+                await productService.filesBulkDelete(req.files);
+            }
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }
+        else {
+            var data = req.body;
+            var vendorId = mongoose.Types.ObjectId(req.user.id);
+            var productId = mongoose.Types.ObjectId(data.productId);
+            var productVariants = data.productVariants;
+            var fileIndex = data.fileIndex;
+            const flag = await productService.validateVariantData(productVariants);
+            if (!flag || (fileIndex.length !== productVariants.length)) {
+                if (req.files) {
+                    await productService.filesBulkDelete(req.files);
+                }
+                return next(new ErrorBody(400, 'Bad Inputs', []));
+            }
+            const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
+            const productRecord = await productService.getProductWithFilters({ _id: productId, status: 'Active' });
+            if ((!vendorRecord) || (!productRecord) || ((productRecord.brand_name !== 'Generic') && (!vendorRecord.is_brand_approved || productRecord.brand_name !== vendorRecord.brand_details.brand_name))) {
+                if (req.files) {
+                    await productService.filesBulkDelete(req.files);
+                }
+                return next(new ErrorBody(400, 'Bad Inputs', []));
+            }
+            const formattedProductVariants = await productService.formatProductVariants(productVariants, req.files, fileIndex);
+            var reqBody = {
+                vendor_id: vendorId,
+                title: productRecord.title,
+                category_path: productRecord.categoryPath,
+                category_id: productRecord.category_id,
+                key_words: productRecord.keyWords,
+                brand_name: productRecord.brand_name,
+                variants: formattedProductVariants,
+                status: 'Pending',
+                reference_id: productRecord.reference_id ? productRecord.reference_id : productRecord._id,
+                'customer_rating.total_rating': 0
+            }
+            const result = await productService.createProduct(reqBody);
+            res.statusCode = 201;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({ message: 'Successfully added product', error: false, data: result });
+        }
+    } catch (error) {
         if (req.files) {
             await productService.filesBulkDelete(req.files);
         }

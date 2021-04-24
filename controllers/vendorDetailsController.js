@@ -672,7 +672,7 @@ exports.approveVendor = async (req, res, next) => {
 
 
 /**
- * request for brand approval, TODO: required docs upload with brand request.
+ * request for brand approval.
  */
 
 exports.requestBrandApproval = async (req, res, next) => {

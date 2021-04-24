@@ -47,7 +47,7 @@ exports.validateVariantData = async (data = []) => {
 
 
 /**
- * Bulk delete uploded files
+ * Bulk delete uploaded files
  */
 
 exports.filesBulkDelete = async (files = []) => {
@@ -143,7 +143,7 @@ exports.formatProductVariants = async (variants = [], files = [], fileIndex = []
                     choice['price'] = option.price;
                 }
                 if (option.offerPrice) {
-                    choice['Offer_price'] = option.offerPrice;
+                    choice['offer_price'] = option.offerPrice;
                 }
                 if (option.offerDescription) {
                     choice['offer_description'] = option.offerDescription;
@@ -224,3 +224,19 @@ async function isUniqueId(id) {
 }
 
 
+/**
+ * Get product with filters
+ */
+
+exports.getProductWithFilters = async (filters = null, projection = null, options = null) => {
+    return await productModel.findOne(filters, projection, options);
+}
+
+
+/**
+ * Get product with id
+ */
+
+exports.getProductById = async (id) => {
+    return await productModel.findById(id);
+}

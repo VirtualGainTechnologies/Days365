@@ -49,7 +49,7 @@ const productVariantSchema = new Schema({
         type: Number,
         required: true
     },
-    Offer_price: {
+    offer_price: {
         type: Number,
         required: true
     },
@@ -138,11 +138,18 @@ const productSchema = new Schema({
     },
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     category_path: {
         type: String,
-        required: true
+        required: true,
+        trim: true
+    },
+    category_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'category_documents'
     },
     brand_name: {
         type: String,
@@ -150,14 +157,16 @@ const productSchema = new Schema({
         required: true
     },
     variants: [productVariantSchema],
-    is_blocked: {
-        type: Boolean,
+    status: {
+        type: String,
         required: true,
-        default: false
+        enum: ['Pending', 'Active', 'Blocked'],
+        default: "Pending"
     },
     key_words: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
     },
     reference_id: {
         type: Schema.Types.ObjectId
