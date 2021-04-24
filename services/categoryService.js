@@ -33,8 +33,8 @@ exports.getCategory = async (id, projection) => {
 /**
  * get caegory with filters
  */
-exports.getCategoryWithFilters = async (filters) => {
-    return await categoryModel.findOne(filters);
+exports.getCategoryWithFilters = async (filters, projection = null, options = null) => {
+    return await categoryModel.findOne(filters, projection, options);
 }
 
 

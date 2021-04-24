@@ -55,6 +55,12 @@ exports.addCategory = async (req, res, next) => {
                 category_name: categoryName,
                 is_restricted: isRestricted
             }
+            if (await categoryService.getCategoryWithFilters({ category_name: categoryName }, null, { collation: { locale: 'en', strength: 2 } })) {
+                let response = { message: 'Category already exists.', error: true, data: {} };
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                return res.json(response);
+            }
             if (parentId) {
                 let id = mongoose.Types.ObjectId(parentId);
                 parentCategory = await categoryService.getCategory(id);
