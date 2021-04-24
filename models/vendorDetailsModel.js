@@ -101,21 +101,6 @@ const brandSchema = new Schema({
 }, { _id: false });
 
 
-const vendorRequestSchema = new Schema({
-    verify_request: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
-    brand_request: {
-        type: Boolean,
-        required: true,
-        default: false
-    }
-}, { _id: false });
-
-
-
 const VendorDetailSchema = new Schema({
     vendor_id: {
         type: Schema.Types.ObjectId,
@@ -175,16 +160,17 @@ const VendorDetailSchema = new Schema({
         type: String
     },
     brand_details: brandSchema,
-    request: vendorRequestSchema,
-    is_brand_approved: {
-        type: Boolean,
-        default: false,
-        required: true
-    },
-    is_admin_approved: {
-        type: Boolean,
+    brand_status: {
+        type: String,
         required: true,
-        default: false
+        enum: ['NA', 'Pending', 'Approved'],
+        default: "NA"
+    },
+    account_status: {
+        type: String,
+        required: true,
+        enum: ['NA', 'Pending', 'Approved'],
+        default: "NA"
     }
 }, { timestamps: true });
 

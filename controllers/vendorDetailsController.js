@@ -623,7 +623,7 @@ exports.requestAdminApproval = async (req, res, next) => {
         var vendorId = req.user.id;
         let filters = { vendor_id: vendorId };
         let updateQuery = {
-            'request.verify_request': true
+            account_status: 'Pending'
         }
         const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
         var response = { message: 'No record found.', error: true, data: {} };
@@ -653,8 +653,7 @@ exports.approveVendor = async (req, res, next) => {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
             let filters = { vendor_id: vendorId };
             let updateQuery = {
-                is_admin_approved: true,
-                'request.verify_request': false
+                account_status: 'Approved'
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
@@ -694,8 +693,8 @@ exports.requestBrandApproval = async (req, res, next) => {
             let filters = { vendor_id: vendorId };
             let updateQuery = {
                 'brand_details.brand_file_name': brandFileNames,
-                'request.brand_request': true,
-                brand_name: brandName
+                'brand_details.brand_name': brandName,
+                'brand_status': 'Pending'
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };
@@ -729,8 +728,7 @@ exports.approveVendorBrand = async (req, res, next) => {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
             let filters = { vendor_id: vendorId };
             let updateQuery = {
-                is_brand_approved: true,
-                'request.brand_request': false
+                brand_status: 'Approved'
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
             var response = { message: 'No record found.', error: true, data: {} };

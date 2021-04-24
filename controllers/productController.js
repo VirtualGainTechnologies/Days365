@@ -38,7 +38,7 @@ exports.addProduct = async (req, res, next) => {
             }
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-            if ((!vendorRecord) || (!categoryRecord) || (!vendorRecord.is_admin_approved) || ((tempBrandName !== "generic") && (!vendorRecord.is_brand_approved || brandName !== vendorRecord.brand_details.brand_name))) {
+            if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || ((tempBrandName !== "generic") && (vendorRecord.brand_status !== 'Approved' || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
@@ -102,7 +102,7 @@ exports.addProductByReference = async (req, res, next) => {
             }
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
             const productRecord = await productService.getProductWithFilters({ _id: productId, status: 'Active' });
-            if ((!vendorRecord) || (!productRecord) || ((productRecord.brand_name !== 'Generic') && (!vendorRecord.is_brand_approved || productRecord.brand_name !== vendorRecord.brand_details.brand_name))) {
+            if ((!vendorRecord) || (!productRecord) || (vendorRecord.account_status !== 'Approved') || (vendorId === productRecord.vendor_id) || ((productRecord.brand_name !== 'Generic') && (vendorRecord.brand_status !== 'Approved' || productRecord.brand_name !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
@@ -112,9 +112,9 @@ exports.addProductByReference = async (req, res, next) => {
             var reqBody = {
                 vendor_id: vendorId,
                 title: productRecord.title,
-                category_path: productRecord.categoryPath,
+                category_path: productRecord.category_path,
                 category_id: productRecord.category_id,
-                key_words: productRecord.keyWords,
+                key_words: productRecord.key_words,
                 brand_name: productRecord.brand_name,
                 variants: formattedProductVariants,
                 status: 'Pending',
