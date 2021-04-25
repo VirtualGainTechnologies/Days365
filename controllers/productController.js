@@ -180,7 +180,7 @@ exports.getProductSellers = async (req, res, next) => {
             const result = await productService.getProductSellers(options);
             var response = { message: "No record found.", error: true, data: {} };
             if (result) {
-                response = { message: "Successfully retrieved products.", error: false, data: result };
+                response = { message: "Successfully retrieved sellers.", error: false, data: result };
             }
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');

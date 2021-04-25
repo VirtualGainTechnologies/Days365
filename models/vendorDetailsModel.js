@@ -170,7 +170,8 @@ const VendorDetailSchema = new Schema({
         type: String,
         required: true,
         enum: ['NA', 'Pending', 'Approved'],
-        default: "NA"
+        default: "NA",
+        index: true
     }
 }, { timestamps: true });
 

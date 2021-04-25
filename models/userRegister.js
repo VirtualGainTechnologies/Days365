@@ -36,12 +36,14 @@ const UserRegisterSchema = new mongoose.Schema({
     is_vendor: {
         type: Boolean,
         required: true,
-        default: false
+        default: false,
+        index: true
     },
     is_blocked: {
         type: Boolean,
         required: true,
-        default: false
+        default: false,
+        index: true
     }
 }, { timestamps: true });
 

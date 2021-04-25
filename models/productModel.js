@@ -51,7 +51,8 @@ const productVariantSchema = new Schema({
     },
     offer_price: {
         type: Number,
-        required: true
+        required: true,
+        index: true
     },
     offer_description: {
         type: String
@@ -59,7 +60,8 @@ const productVariantSchema = new Schema({
     stock: {
         type: Number,
         required: true,
-        default: 0
+        default: 0,
+        index: true
     },
     shipping_fee: {
         type: Number,
@@ -113,7 +115,8 @@ const ratingSchema = new Schema({
     total_rating: {
         type: Number,
         required: true,
-        default: 0
+        default: 0,
+        index: true
     }
 }, { _id: false });
 
@@ -134,7 +137,8 @@ const productSchema = new Schema({
     vendor_id: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: 'user_registers'
+        ref: 'user_registers',
+        index: true
     },
     title: {
         type: String,
@@ -154,14 +158,16 @@ const productSchema = new Schema({
     brand_name: {
         type: String,
         trim: true,
-        required: true
+        required: true,
+        index: true
     },
     variants: [productVariantSchema],
     status: {
         type: String,
         required: true,
         enum: ['Pending', 'Active', 'Blocked'],
-        default: "Pending"
+        default: "Pending",
+        index: true
     },
     key_words: {
         type: String,
