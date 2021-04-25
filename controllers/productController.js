@@ -136,10 +136,10 @@ exports.addProductByReference = async (req, res, next) => {
 
 
 /**
- * Get prouduct by id
+ * Get active prouduct by id
  */
 
-exports.getProduct = async (req, res, next) => {
+exports.getActiveProductById = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -147,7 +147,7 @@ exports.getProduct = async (req, res, next) => {
         }
         else {
             var id = mongoose.Types.ObjectId(req.query.id);
-            const result = await productService.getProductById(id);
+            const result = await productService.getActiveProductRecordById(id);
             var response = { message: "No record found.", error: true, data: {} };
             if (result) {
                 response = { message: "Successfully retrieved product.", error: false, data: result };

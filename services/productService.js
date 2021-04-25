@@ -253,33 +253,114 @@ exports.getProductSellers = async (options = {}) => {
         {
             $match: {
                 _id: options.id,
-            },
+                status: "Active"
+            }
         },
         {
             $lookup: {
                 from: "product_documents",
                 let: { id: "$_id", refId: '$reference_id' },
-                pipeline: [{
-                    $match: {
-                        $expr: {
-                            $or: [
-                                {
-                                    $eq: ["$$id", "$reference_id"]
-                                },
-                                {
-                                    $eq: [{ $ifNull: ['$$refId', '$$id'] }, "$reference_id"]
-                                }
-                            ]
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $or: [
+                                    {
+                                        $and: [
+                                            { $eq: ["$$id", "$reference_id"] },
+                                            { $eq: ["Active", "$status"] }
+                                        ]
+                                    },
+                                    {
+                                        $and: [
+                                            { $eq: [{ $ifNull: ['$$refId', null] }, "$_id"] },
+                                            { $eq: ["Active", "$status"] }
+                                        ]
+                                    },
+                                    {
+                                        $and: [
+                                            { $eq: [{ $ifNull: ['$$refId', '$$id'] }, "$reference_id"] },
+                                            { $eq: ["Active", "$status"] },
+                                            { $ne: ['$$id', '$_id'] }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                    },
+                    {
+                        $lookup: {
+                            from: "vendor_details",
+                            localField: "vendor_id",
+                            foreignField: "vendor_id",
+                            as: "sellerData"
                         }
                     },
-                }],
+                    {
+                        $unwind: "$sellerData"
+                    }
+                ],
                 as: "similarSellers"
             }
         },
         {
             $project: {
+                productId: "$_id",
                 _id: 0,
-                similarSellers: 1
+                'similarSellers._id': 1,
+                'similarSellers.vendor_id': 1,
+                'similarSellers.title': 1,
+                'similarSellers.brand_name': 1,
+                'similarSellers.customer_rating': 1,
+                'similarSellers.sellerData._id': 1,
+                'similarSellers.sellerData.shipping_method': 1,
+                'similarSellers.sellerData.company_name': 1,
+                'similarSellers.sellerData.company_address': 1,
+                'similarSellers.sellerData.store_name': 1
+            }
+        }
+    );
+    return await productModel.aggregate(pipeline);
+}
+
+
+
+/**
+ *  Get active prouduct by id
+ */
+
+exports.getActiveProductRecordById = async (id) => {
+    let pipeline = [];
+    pipeline.push(
+        {
+            $match: {
+                _id: id
+            }
+        },
+        {
+            $lookup: {
+                from: "vendor_details",
+                localField: "vendor_id",
+                foreignField: "vendor_id",
+                as: "sellerData"
+            }
+        },
+        {
+            $unwind: "$sellerData"
+        },
+        {
+            $project: {
+                '_id': 1,
+                'status': 1,
+                'vendor_id': 1,
+                'title': 1,
+                'brand_name': 1,
+                'variants': 1,
+                'customer_rating': 1,
+                'sellerData.shipping_method': 1,
+                'sellerData.company_name': 1,
+                'sellerData.store_name': 1,
+                'sellerData.company_address': 1
             }
         }
     );

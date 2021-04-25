@@ -36,7 +36,7 @@ router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productI
 
 router.post('/reference', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productReferValidator, productController.addProductByReference);
 
-router.get('/', queryProductValidator, productController.getProduct);
+router.get('/', queryProductValidator, productController.getActiveProductById);
 
 router.get('/sellers', queryProductValidator, productController.getProductSellers);
 
