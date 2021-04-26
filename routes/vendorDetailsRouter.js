@@ -48,7 +48,7 @@ const shippingFeeValidator = [
 const bankDetailsValidator = [
     body('accountHolderName').trim().notEmpty(),
     body('accountType').trim().custom(val => ["Savings Account", "Current Account"].includes(val)),
-    body('accountNumber').trim().notEmpty(),
+    body('accountNumber').trim().custom(val => /^[0-9]{9,18}$/.test(val)),
     body('ifscCode').trim().optional({ checkFalsy: true }).custom(val => /^[A-Z]{4}0[A-Z0-9]{6}$/.test(val))
 ];
 

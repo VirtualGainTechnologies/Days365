@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { body, query } = require('express-validator');
 const categoryController = require('../controllers/categoryController');
 const { verifyAdmin, verifyAccessJwt, verifyRefreshJwt, verifyVendor, verifySuperAdmin } = require('../middleware');
-
+const { publicFileUpload } = require('../utils/fileUpload');
 
 const categoryValidator = [
     body('categoryName').trim().notEmpty(),
@@ -16,7 +16,7 @@ const getCategoryValidator = [
 // Use for creating root
 // router.post('/root', categoryController.addRootCategory); 
 
-router.post('/', verifyAccessJwt, verifyAdmin, categoryValidator, categoryController.addCategory);
+router.post('/', verifyAccessJwt, verifySuperAdmin, publicFileUpload.single('categoryImage'), categoryValidator, categoryController.addCategory);
 
 router.get('/', verifyAccessJwt, verifyAdmin, getCategoryValidator, categoryController.getCategory);
 

@@ -25,8 +25,11 @@ const categorySchema = new Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+    image_URL: {
+        type: String
     }
-});
+}, { timestamps: true });
 
 categorySchema.plugin(MpathPlugin);
 const categoryModel = mongoose.model('category_documents', categorySchema);

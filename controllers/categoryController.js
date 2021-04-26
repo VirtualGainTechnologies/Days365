@@ -47,6 +47,7 @@ exports.addCategory = async (req, res, next) => {
             return next(new ErrorBody(400, "Bad Inputs", errors.array()));
         }
         else {
+            let imageLocation = req.file ? req.file.location : null;
             let categoryName = req.body.categoryName;
             let parentId = req.body.parentId;
             let isRestricted = req.body.is_restricted;
@@ -54,6 +55,9 @@ exports.addCategory = async (req, res, next) => {
             let reqBody = {
                 category_name: categoryName,
                 is_restricted: isRestricted
+            }
+            if (imageLocation) {
+                reqBody['image_URL'] = imageLocation;
             }
             if (await categoryService.getCategoryWithFilters({ category_name: categoryName }, null, { collation: { locale: 'en', strength: 2 } })) {
                 let response = { message: 'Category already exists.', error: true, data: {} };
@@ -97,6 +101,7 @@ exports.addCategory = async (req, res, next) => {
             res.json(response);
         }
     } catch (error) {
+        console.log(error);
         next({});
     }
 }
@@ -120,7 +125,9 @@ exports.getMainCategories = async (req, res, next) => {
             _id: 1,
             category_name: 1,
             is_leaf: 1,
-            is_restricted: 1
+            is_restricted: 1,
+            image_URL: 1,
+            createdAt: 1
         }
         const result = await root.getImmediateChildren({}, projection);
         var response = { message: 'Successfully retrieved root categories.', error: false, data: { categories: result } };
@@ -168,7 +175,9 @@ exports.getCategory = async (req, res, next) => {
                 category_name: 1,
                 is_leaf: 1,
                 parent: 1,
-                is_restricted: 1
+                is_restricted: 1,
+                image_URL: 1,
+                createdAt: 1
             }
             const result = await categoryService.getCategory(id, projection);
             var response = { message: 'No record found.', error: true, data: {} };
@@ -218,7 +227,9 @@ exports.getSubCategories = async (req, res, next) => {
                 _id: 1,
                 category_name: 1,
                 is_leaf: 1,
-                is_restricted: 1
+                is_restricted: 1,
+                image_URL: 1,
+                createdAt: 1
             }
             const result = await parentCategory.getImmediateChildren({}, projection);
             var response = { message: 'Successfully retrieved sub categories.', error: false, data: { categories: result } };
