@@ -21,7 +21,7 @@ exports.isCompanyNameAvailable = async (req, res, next) => {
         else {
             var companyName = req.query.companyName;
             var filters = { company_name: companyName };
-            const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+            const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json({ message: 'Successfully retrieved status.', error: false, data: { isAvailable: record ? false : true } });
@@ -74,7 +74,7 @@ exports.isStoreNameAvailable = async (req, res, next) => {
         else {
             var storeName = req.query.storeName;
             var filters = { store_name: storeName };
-            const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+            const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json({ message: 'Successfully retrieved status.', error: false, data: { isAvailable: record ? false : true } });
@@ -100,13 +100,13 @@ exports.updateStoreName = async (req, res, next) => {
             var vendorId = req.user.id;
             var filters = { vendor_id: vendorId };
             var updateQuery = { store_name: storeName };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
+            if (record) {
+                response = { message: 'Successfully updated store name.', error: false, data: {} };
+            }
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            if (record) {
-                response = { message: 'Successfully updated store name.', error: false, data: record };
-            }
             res.json(response);
         }
     } catch (error) {
@@ -145,13 +145,13 @@ exports.updateCompanyAddress = async (req, res, next) => {
             var vendorId = req.user.id;
             var filters = { vendor_id: vendorId };
             var updateQuery = { company_address: companyAddress };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true, new: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated company address.', error: false, data: record };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -168,13 +168,13 @@ exports.getVendorDetails = async (req, res, next) => {
     try {
         var vendorId = req.user.id;
         var filters = { vendor_id: vendorId };
-        const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+        const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
         var response = { message: 'No record found.', error: true, data: {} };
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
         if (record) {
             response = { message: 'Successfully retrieved vendor details.', error: false, data: record };
         }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
         res.json(response);
     } catch (error) {
         next({});
@@ -208,13 +208,13 @@ exports.updateTaxDetails = async (req, res, next) => {
                 },
                 'status_list.is_tax_details_collected': true
             };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated tax details.', error: false, data: {} };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -241,13 +241,13 @@ exports.updateGstExemptedStatus = async (req, res, next) => {
                 'tax_details.is_GST_exempted': isGstExempted,
                 'status_list.is_tax_details_collected': true
             };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated tax details.', error: false, data: {} };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -263,13 +263,13 @@ exports.updateGstExemptedStatus = async (req, res, next) => {
 exports.getStatus = async (req, res, next) => {
     try {
         var vendorId = mongoose.Types.ObjectId(req.user.id);
-        const record = await vendorDetailsService.getVendorDetailsRecord({ _id: vendorId });
+        const record = await vendorDetailsService.getVendorDetailsRecord({ _id: vendorId }, null, { lean: true });
         var response = { message: 'No record found.', error: true, data: {} };
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
         if (record) {
             response = { message: 'Successfully retrieved status.', error: false, data: { statusList: record.status_list } };
         }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
         res.json(response);
     } catch (error) {
         next({});
@@ -314,13 +314,13 @@ exports.updateSellerInfo = async (req, res, next) => {
                 shipping_method: shippingMethod,
                 'status_list.is_seller_info_collected': true
             };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated seller details.', error: false, data: {} };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -346,13 +346,13 @@ exports.updateShippingFee = async (req, res, next) => {
             var updateQuery = {
                 shipping_fee: shippingFee
             };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated shipping fee.', error: false, data: {} };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -389,13 +389,13 @@ exports.updateBankDetails = async (req, res, next) => {
             var updateQuery = {
                 bank_account_details: bankAccountDetails
             };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated bank account details.', error: false, data: {} };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -421,13 +421,13 @@ exports.updateProductTaxCode = async (req, res, next) => {
             var updateQuery = {
                 product_tax_code: productTaxCode
             };
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
             if (record) {
                 response = { message: 'Successfully updated product tax code.', error: false, data: {} };
             }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
     } catch (error) {
@@ -452,14 +452,14 @@ exports.updateSignature = async (req, res, next) => {
             var updateQuery = {
                 signature_file_name: image.key
             };
-            const oldRecord = await vendorDetailsService.getVendorDetailsRecord(filters);
-            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
+            // findOneAndUpdate() will return original record unless passsed option {new : true}
             var response = { message: 'No record found.', error: true, data: {} };
             if (record) {
                 response = { message: 'Successfully updated signature.', error: false, data: {} };
-                if (oldRecord && oldRecord.signature_file_name) {
+                if (record.signature_file_name) {
                     try {
-                        let fileName = oldRecord.signature_file_name;
+                        let fileName = record.signature_file_name;
                         await deleteFileFromPrivateSpace(fileName);
                     } catch (error) {
                         // nothing to do
@@ -491,7 +491,7 @@ exports.getMySignature = async (req, res, next) => {
     try {
         var vendorId = req.user.id;
         var filters = { vendor_id: vendorId };
-        const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+        const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
         var response = { message: 'No image found.', error: true, data: {} };
         if (record && record.signature_file_name) {
             let fileName = record.signature_file_name;
@@ -542,14 +542,14 @@ exports.updateSellerFile = async (req, res, next) => {
                 }
                 var filters = { vendor_id: vendorId };
                 var updateQuery = (uploadedDocType !== '') ? { [uploadedDocType]: image.key } : {};
-                const oldRecord = await vendorDetailsService.getVendorDetailsRecord(filters);
-                const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+                const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
+                // findOneAndUpdate() will return original record unless passsed option {new : true}
                 var response = { message: 'No record found.', error: true, data: {} };
                 if (record) {
                     response = { message: 'Successfully updated document.', error: false, data: {} };
-                    if (uploadedDocType !== '' && oldRecord) {
+                    if (uploadedDocType !== '' && record[uploadedDocType]) {
                         try {
-                            let fileName = oldRecord[uploadedDocType];
+                            let fileName = record[uploadedDocType];
                             await deleteFileFromPrivateSpace(fileName);
                         } catch (error) {
                             // nothing to do
@@ -597,9 +597,9 @@ exports.getMyFile = async (req, res, next) => {
                 default: reqDocType = '';
             }
             var filters = { vendor_id: vendorId };
-            const record = await vendorDetailsService.getVendorDetailsRecord(filters);
+            const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
             var response = { message: 'No File found.', error: true, data: {} };
-            if ((reqDocType !== '') && record) {
+            if ((reqDocType !== '') && record[reqDocType]) {
                 let fileName = record[reqDocType];
                 var fileUrl = await createSignedURL(fileName);
                 response = { message: 'Successfully retrieved File URL.', error: false, data: { fileUrl: fileUrl } };
@@ -625,7 +625,7 @@ exports.requestAdminApproval = async (req, res, next) => {
         let updateQuery = {
             account_status: 'Pending'
         }
-        const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+        const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
         var response = { message: 'No record found.', error: true, data: {} };
         if (result) {
             response = { message: 'Your request has been successfully submitted.', error: false, data: {} };
@@ -655,7 +655,7 @@ exports.approveVendor = async (req, res, next) => {
             let updateQuery = {
                 account_status: 'Approved'
             }
-            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Successfully activated vendor account.', error: false, data: {} };
@@ -696,7 +696,7 @@ exports.requestBrandApproval = async (req, res, next) => {
                 'brand_details.brand_name': brandName,
                 'brand_status': 'Pending'
             }
-            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Your request has been successfully submitted.', error: false, data: {} };
@@ -730,7 +730,7 @@ exports.approveVendorBrand = async (req, res, next) => {
             let updateQuery = {
                 brand_status: 'Approved'
             }
-            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery);
+            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Successfully approved vendor brand.', error: false, data: {} };

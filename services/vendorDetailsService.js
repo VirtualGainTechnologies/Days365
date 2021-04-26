@@ -5,16 +5,16 @@ const { deleteFileFromPrivateSpace } = require('../utils/fileUpload');
 
 
 
-exports.createVendorDetailsRecord = async (reqBody) => {
+exports.createVendorDetailsRecord = async (reqBody = {}) => {
     return await vendorDetailsModel.create(reqBody);
 }
 
-exports.getVendorDetailsRecord = async (filters) => {
-    return await vendorDetailsModel.findOne(filters);
+exports.getVendorDetailsRecord = async (filters = {}, projection = null, options = {}) => {
+    return await vendorDetailsModel.findOne(filters, projection, options);
 }
 
-exports.updateVendorDetails = async (filters, updateQuery) => {
-    return await vendorDetailsModel.findOneAndUpdate(filters, updateQuery, { new: true });
+exports.updateVendorDetails = async (filters = {}, updateQuery = {}, options = {}) => {
+    return await vendorDetailsModel.findOneAndUpdate(filters, updateQuery, options);
 }
 
 

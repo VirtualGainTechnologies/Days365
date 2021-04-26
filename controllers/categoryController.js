@@ -129,7 +129,10 @@ exports.getMainCategories = async (req, res, next) => {
             image_URL: 1,
             createdAt: 1
         }
-        const result = await root.getImmediateChildren({}, projection);
+        let options = {
+            lean: true
+        }
+        const result = await root.getImmediateChildren({}, projection, options);
         var response = { message: 'Successfully retrieved root categories.', error: false, data: { categories: result } };
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -147,7 +150,10 @@ exports.getMainCategories = async (req, res, next) => {
 exports.getCategories = async (req, res, next) => {
     try {
         let filters = {};
-        const result = await categoryService.getCategories(filters);
+        let options = {
+            lean: true
+        }
+        const result = await categoryService.getCategories(filters, null, options);
         var response = { message: 'Successfully retrieved categories.', error: false, data: { categories: result } };
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -179,7 +185,10 @@ exports.getCategory = async (req, res, next) => {
                 image_URL: 1,
                 createdAt: 1
             }
-            const result = await categoryService.getCategory(id, projection);
+            let options = {
+                lean: true
+            }
+            const result = await categoryService.getCategory(id, projection, options);
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Successfully retrieved category.', error: false, data: { category: result } };
@@ -231,7 +240,10 @@ exports.getSubCategories = async (req, res, next) => {
                 image_URL: 1,
                 createdAt: 1
             }
-            const result = await parentCategory.getImmediateChildren({}, projection);
+            let options = {
+                lean: true
+            }
+            const result = await parentCategory.getImmediateChildren({}, projection, options);
             var response = { message: 'Successfully retrieved sub categories.', error: false, data: { categories: result } };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');

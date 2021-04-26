@@ -48,7 +48,7 @@ exports.getUtilityDocument = async (req, res, next) => {
             var filters = {
                 utility_name: utilityName
             }
-            const result = await utilityService.getUtilityRecord(filters);
+            const result = await utilityService.getUtilityRecord(filters, null, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Utility document Successfully retrieved.', error: false, data: result };

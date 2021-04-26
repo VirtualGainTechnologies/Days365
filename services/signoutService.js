@@ -7,6 +7,6 @@ exports.getRefreshTokenRecord = async (userId) => {
 }
 
 
-exports.updateRefreshTokenRecord = async (userId, updateQuery) => {
-    return await refreshTokenModel.findOneAndUpdate({ user_id: userId }, updateQuery);
+exports.updateRefreshTokenRecord = async (userId, updateQuery = {}) => {
+    return await refreshTokenModel.findOneAndUpdate({ user_id: userId }, updateQuery).lean();
 }

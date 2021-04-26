@@ -22,7 +22,7 @@ exports.preSigninUser = async (req, res, next) => {
             else {
                 filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': field.value }] };
             }
-            const account = await signinService.getUserAccount(filters);
+            const account = await signinService.getUserAccount(filters, null, { lean: true });
             var response = { message: `Invalid Account`, error: true, data: {} };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -57,7 +57,7 @@ exports.signinUser = async (req, res, next) => {
             else {
                 filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value }] };
             }
-            const user = await signinService.getUserAccount(filters);
+            const user = await signinService.getUserAccount(filters, null, { lean: true });
             if (!user) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -111,7 +111,7 @@ exports.signinAdmin = async (req, res, next) => {
             var useragent = req.useragent;
             var email = req.body.email.trim().toLowerCase();
             var filters = { email: email };
-            const admin = await signinService.getAdminAccount(filters);
+            const admin = await signinService.getAdminAccount(filters, null, { lean: true });
             if (!admin) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');

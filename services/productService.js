@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
  * Create a product
  */
 
-exports.createProduct = async (reqBody) => {
+exports.createProduct = async (reqBody = {}) => {
     return await productModel.create(reqBody);
 }
 
@@ -70,8 +70,8 @@ exports.filesBulkDelete = async (files = []) => {
  * Get Vendor Record
  */
 
-exports.getVendorRecord = async (filters) => {
-    return await vendorDetailsModel.findOne(filters);
+exports.getVendorRecord = async (filters = {}, projection = null, options = {}) => {
+    return await vendorDetailsModel.findOne(filters, projection, options);
 }
 
 
@@ -79,8 +79,8 @@ exports.getVendorRecord = async (filters) => {
  * Get category record
  */
 
-exports.getCategoryRecord = async (id) => {
-    return await categoryModel.findById(id);
+exports.getCategoryRecord = async (id, projection = null, options = {}) => {
+    return await categoryModel.findById(id, projection, options);
 }
 
 
@@ -229,7 +229,7 @@ async function isUniqueId(id) {
  * Get product with filters
  */
 
-exports.getProductWithFilters = async (filters = null, projection = null, options = null) => {
+exports.getProductWithFilters = async (filters = {}, projection = null, options = {}) => {
     return await productModel.findOne(filters, projection, options);
 }
 
@@ -238,8 +238,8 @@ exports.getProductWithFilters = async (filters = null, projection = null, option
  * Get product with id
  */
 
-exports.getProductById = async (id) => {
-    return await productModel.findById(id);
+exports.getProductById = async (id, projection = null, options = {}) => {
+    return await productModel.findById(id, projection, options);
 }
 
 

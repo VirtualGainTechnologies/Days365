@@ -35,7 +35,7 @@ exports.preSignupUser = async (req, res, next) => {
             else {
                 filters = { $and: [{ 'mobile_number.country_code': countryCode }, { 'mobile_number.number': number }] };
             }
-            const account = await signupService.isUserExists(filters);
+            const account = await signupService.isUserExists(filters, null, { lean: true });
             if (account) {
                 let isMobile = account.mobile_number.number === number;
                 res.statusCode = 200;
@@ -261,7 +261,7 @@ exports.signupAdmin = async (req, res, next) => {
             var username = data.username.trim().toLowerCase();
             var mobile = data.mobile;
             filters = { $or: [{ email: email }, { username: username }, { mobile_number: mobile }] };
-            const account = await signupService.isAdminExists(filters);
+            const account = await signupService.isAdminExists(filters, null, { lean: true });
             if (account) {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');

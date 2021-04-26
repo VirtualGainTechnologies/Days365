@@ -36,7 +36,7 @@ exports.addProduct = async (req, res, next) => {
                 }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
-            const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
+            const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || ((tempBrandName !== "generic") && (vendorRecord.brand_status !== 'Approved' || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
@@ -44,7 +44,7 @@ exports.addProduct = async (req, res, next) => {
                 }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
-            var categoryAncestors = await categoryRecord.getAncestors();
+            var categoryAncestors = await categoryRecord.getAncestors({}, { category_name: 1 }, { lean: true });
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
             const formattedProductVariants = await productService.formatProductVariants(productVariants, req.files, fileIndex);
@@ -100,8 +100,8 @@ exports.addProductByReference = async (req, res, next) => {
                 }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
-            const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId });
-            const productRecord = await productService.getProductWithFilters({ _id: productId, status: 'Active' });
+            const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
+            const productRecord = await productService.getProductWithFilters({ _id: productId, status: 'Active' }, null, { lean: true });
             if ((!vendorRecord) || (!productRecord) || (vendorRecord.account_status !== 'Approved') || (vendorId === productRecord.vendor_id) || ((productRecord.brand_name !== 'Generic') && (vendorRecord.brand_status !== 'Approved' || productRecord.brand_name !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);

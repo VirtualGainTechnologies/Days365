@@ -3,13 +3,13 @@ const { adminRegisterModel } = require('../models/adminRegister');
 
 
 
-exports.getUserAccount = async (filters) => {
-    return await userRegisterModel.findOne(filters);
+exports.getUserAccount = async (filters = {}, projection = null, options = {}) => {
+    return await userRegisterModel.findOne(filters, projection, options);
 }
 
 
-exports.getAdminAccount = async (filters) => {
-    return await adminRegisterModel.findOne(filters);
+exports.getAdminAccount = async (filters = {}, projection = null, options = {}) => {
+    return await adminRegisterModel.findOne(filters, projection, options);
 }
 
 

@@ -8,15 +8,15 @@ const { userRegisterModel } = require('../models/userRegister');
 
 
 
-exports.getUserAccount = async (filters) => {
+exports.getUserAccount = async (filters = {}) => {
     return await userRegisterModel.findOne(filters);
 }
 
-exports.updateUserPassword = async (userId, updateQuery) => {
+exports.updateUserPassword = async (userId, updateQuery = {}) => {
     return await userRegisterModel.findByIdAndUpdate(userId, updateQuery);
 }
 
-exports.createOtpRecord = async (reqBody) => {
+exports.createOtpRecord = async (reqBody = {}) => {
     return await optModel.create(reqBody);
 }
 
@@ -24,7 +24,7 @@ exports.getOtpRecord = async (id) => {
     return await optModel.findById(id);
 }
 
-exports.updateOtpRecord = async (id, updateQuery) => {
+exports.updateOtpRecord = async (id, updateQuery = {}) => {
     return await optModel.findByIdAndUpdate(id, updateQuery);
 }
 
