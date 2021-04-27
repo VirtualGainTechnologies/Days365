@@ -21,7 +21,7 @@ exports.addRootCategory = async (req, res, next) => {
         }
         else {
             let reqBody = {
-                category_name: "Root Category",
+                category_name: "Departments",
                 is_leaf: false
             }
             await categoryService.createCategory(reqBody);
@@ -50,11 +50,13 @@ exports.addCategory = async (req, res, next) => {
             let imageLocation = req.file ? req.file.location : null;
             let categoryName = req.body.categoryName;
             let parentId = req.body.parentId;
-            let isRestricted = req.body.is_restricted;
+            let isRestricted = req.body.isRestricted;
+            let isLeaf = req.body.isLeaf;
             var parentCategory;
             let reqBody = {
                 category_name: categoryName,
-                is_restricted: isRestricted
+                is_restricted: isRestricted,
+                is_leaf: isLeaf
             }
             if (imageLocation) {
                 reqBody['image_URL'] = imageLocation;
@@ -74,7 +76,7 @@ exports.addCategory = async (req, res, next) => {
             }
             else {
                 let filters = {
-                    category_name: 'Root Category'
+                    category_name: 'Departments'
                 }
                 parentCategory = await categoryService.getCategoryWithFilters(filters)
                 if (!parentCategory) {
@@ -115,7 +117,7 @@ exports.addCategory = async (req, res, next) => {
 exports.getMainCategories = async (req, res, next) => {
     try {
         let filters = {
-            category_name: 'Root Category'
+            category_name: 'Departments'
         }
         const root = await categoryService.getCategoryWithFilters(filters);
         if (!root) {
@@ -225,7 +227,7 @@ exports.getSubCategories = async (req, res, next) => {
             }
             else {
                 let filters = {
-                    category_name: 'Root Category'
+                    category_name: 'Departments'
                 }
                 parentCategory = await categoryService.getCategoryWithFilters(filters);
                 if (!parentCategory) {
@@ -244,7 +246,14 @@ exports.getSubCategories = async (req, res, next) => {
                 lean: true
             }
             const result = await parentCategory.getImmediateChildren({}, projection, options);
-            var response = { message: 'Successfully retrieved sub categories.', error: false, data: { categories: result } };
+            let payload = {
+                parent: {
+                    id: parentCategory._id,
+                    name: parentCategory.category_name
+                },
+                categories: result
+            }
+            var response = { message: 'Successfully retrieved sub categories.', error: false, data: payload };
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json(response);

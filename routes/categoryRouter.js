@@ -6,7 +6,8 @@ const { publicFileUpload } = require('../utils/fileUpload');
 
 const categoryValidator = [
     body('categoryName').trim().notEmpty(),
-    body('is_restricted').isBoolean()
+    body('isRestricted').isBoolean(),
+    body('isLeaf').isBoolean()
 ];
 
 const getCategoryValidator = [
