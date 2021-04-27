@@ -130,7 +130,7 @@ exports.signinAdmin = async (req, res, next) => {
                         accessToken: tokens.accessToken,
                         refreshToken: tokens.refreshToken,
                         fullname: admin.fullname,
-                        type: "Admin"
+                        type: "admin"
                     }
                     res.statusCode = 200;
                     res.setHeader('Content-Type', 'application/json');
