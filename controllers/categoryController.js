@@ -70,7 +70,7 @@ exports.addCategory = async (req, res, next) => {
             if (parentId) {
                 let id = mongoose.Types.ObjectId(parentId);
                 parentCategory = await categoryService.getCategory(id);
-                if (!parentCategory) {
+                if (!parentCategory || parentCategory.is_leaf) {
                     return next(new ErrorBody(400, "Bad Inputs", []));
                 }
             }
