@@ -88,8 +88,8 @@ exports.verifyUserOTP = async (req, res, next) => {
                 res.json({ message: 'OTP verification failed.', error: true, data: {} });
             }
             else {
-                let updateQuery = { is_verified: true };
-                await forgetPasswordService.updateOtpRecord(otpRecordId, updateQuery);
+                record.is_verified = true;
+                await record.save();
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json({ message: 'Successfully verified OTP.', error: false, data: { id: otpRecordId } });

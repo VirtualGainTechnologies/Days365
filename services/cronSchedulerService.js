@@ -1,5 +1,5 @@
 const { userRegisterModel } = require('../models/userRegister');
-const { optModel } = require('../models/otpModel');
+const { otpModel } = require('../models/otpModel');
 const { adminRegisterModel } = require('../models/adminRegister');
 const { refreshTokenModel } = require('../models/refreshTokenModel');
 const { preSignUpModel } = require('../models/preSignUPModel');
@@ -14,7 +14,7 @@ exports.deleteExpiredOtpRecords = async () => {
         var date = new Date();
         date.setHours(date.getHours() - 2);
         var filters = { time_stamp: { $lt: date } };
-        await optModel.deleteMany(filters);
+        await otpModel.deleteMany(filters);
     } catch (error) {
         //Everything is fine.
     }

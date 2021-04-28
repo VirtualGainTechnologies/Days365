@@ -29,10 +29,10 @@ const otpSchema = new Schema({
 });
 
 
-const optModel = mongoose.model('otp_documents', otpSchema);
+const otpModel = mongoose.model('otp_documents', otpSchema);
 
 module.exports = {
-    optModel
+    otpModel
 }
 
 
