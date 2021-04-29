@@ -21,7 +21,7 @@ tokenRouter
         var userId = req.user.id;
         var useragent = req.useragent;
         var oldRefreshToken = req.body.refreshToken;
-        await refreshTokenModel.findOne({ user_id: userId }, async (err, record) => {
+        refreshTokenModel.findOne({ user_id: userId }, async (err, record) => {
             if (err) {
                 next({});
             }
@@ -42,7 +42,7 @@ tokenRouter
                     if (tokenIndex === -1) {
                         return next(new ErrorBody(401, "Unauthorized", []));
                     }
-                    await generateTokens(userId, async (err, tokens) => {
+                    generateTokens(userId, async (err, tokens) => {
                         if (err) {
                             return next({});
                         }
@@ -53,7 +53,7 @@ tokenRouter
                             };
                             refreshTokens[tokenIndex] = latestRefreshToken;
                             refreshTokenRecord.refresh_tokens = refreshTokens;
-                            await refreshTokenRecord.save((err, tokenRecord) => {
+                            refreshTokenRecord.save((err, tokenRecord) => {
                                 if (err) {
                                     return next({});
                                 }

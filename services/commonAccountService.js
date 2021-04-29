@@ -2,7 +2,6 @@ const argon2 = require('argon2');
 const { generateTokens } = require('./jwtServices');
 const { refreshTokenModel } = require("../models/refreshTokenModel");
 const chalk = require('chalk');
-const { token } = require('morgan');
 const createHttpError = require('http-errors');
 const queryString = require('querystring');
 const http = require('http');
@@ -139,12 +138,12 @@ async function compareUserAgents(firstAgent, secondAgent) {
 
 async function userLogin(userId, useragent, callback) {
     return new Promise(async (resolve, reject) => {
-        await generateTokens(userId, async (err, tokens) => {
+        generateTokens(userId, async (err, tokens) => {
             if (err) {
                 return callback ? callback(err) : reject(err);
             }
             else {
-                await refreshTokenModel.findOne({ user_id: userId }, async (err, record) => {
+                refreshTokenModel.findOne({ user_id: userId }, async (err, record) => {
                     if (err) {
                         return callback ? callback(err) : reject(err);
                     }
@@ -179,7 +178,7 @@ async function userLogin(userId, useragent, callback) {
                                 refreshTokens[tokenIndex] = latestRefreshToken;
                             }
                             refreshTokenRecord.refresh_tokens = refreshTokens;
-                            await refreshTokenRecord.save((err, tokenRecord) => {
+                            refreshTokenRecord.save((err, tokenRecord) => {
                                 if (err) {
                                     return callback ? callback(err) : reject(err);
                                 }

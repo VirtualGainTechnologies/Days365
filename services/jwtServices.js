@@ -11,7 +11,7 @@ require('dotenv').config();
 async function generateAccessToken(key, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_ACCESS_TOKEN_SECRET;
-        await jwt.sign({ key: key }, jwtSecret, { expiresIn: 1800 }, async (err, accessToken) => {
+        jwt.sign({ key: key }, jwtSecret, { expiresIn: 1800 }, async (err, accessToken) => {
             if (err || !accessToken) {
                 return callback ? callback(new Error("Error.")) : reject(new Error("Error"));
             }
@@ -30,7 +30,7 @@ async function generateAccessToken(key, callback) {
 async function generateRefreshToken(key, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
-        await jwt.sign({ key: key }, jwtSecret, { expiresIn: "2 days" }, async (err, refreshToken) => {
+        jwt.sign({ key: key }, jwtSecret, { expiresIn: "2 days" }, async (err, refreshToken) => {
             if (err || !refreshToken) {
                 return callback ? callback(new Error("Error.")) : reject(new Error("Error"));
             }
@@ -48,7 +48,7 @@ async function generateRefreshToken(key, callback) {
 
 async function generateTokens(key, callback) {
     return new Promise(async (resolve, reject) => {
-        await Promise.all([generateRefreshToken(key), generateAccessToken(key)])
+        Promise.all([generateRefreshToken(key), generateAccessToken(key)])
             .then(async (keys) => {
                 let data = { refreshToken: keys[0], accessToken: keys[1] };
                 return callback ? callback(null, data) : resolve(data);
@@ -83,7 +83,7 @@ async function generateTokens(key, callback) {
 async function verifyAccessToken(token, options, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_ACCESS_TOKEN_SECRET;
-        await jwt.verify(token, jwtSecret, options, async (err, decoded) => {
+        jwt.verify(token, jwtSecret, options, async (err, decoded) => {
             if (err) {
                 return callback ? callback(err) : reject(err);
             }
@@ -102,7 +102,7 @@ async function verifyAccessToken(token, options, callback) {
 async function verifyRefreshToken(token, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
-        await jwt.verify(token, jwtSecret, async (err, decoded) => {
+        jwt.verify(token, jwtSecret, async (err, decoded) => {
             if (err) {
                 return callback ? callback(err) : reject(err);
             }
