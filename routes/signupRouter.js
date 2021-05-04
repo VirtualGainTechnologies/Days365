@@ -7,7 +7,7 @@ const { verifyUser, verifyAccessJwt, verifyVendor, verifyAdmin, verifySuperAdmin
 const preSignupValidator = [
     body('fullname').trim().notEmpty(),
     body('mobile.countryCode').trim().notEmpty(),
-    body('mobile.number').trim().custom(val => (val) => /^[6-9]{1}[0-9]{9}$/.test(val)),
+    body('mobile.number').trim().custom(val => /^[6-9]{1}[0-9]{9}$/.test(val)),
     body('password').trim().isLength({ min: 6, max: 50 }),
     body('userType').trim().custom(val => val === "user" || val === "vendor")
 ];
