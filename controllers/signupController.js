@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const signupService = require('../services/signupService');
 const { ErrorBody } = require('../utils/ErrorBody');
-const { verifyPassword, encryptPassword, verifyEmail, sendOTP, isMobileOrEmail } = require('../services/commonAccountService');
+const { verifyPassword, encryptPassword, verifyEmail, sendOTP, isMobileOrEmail, userLogin } = require('../services/commonAccountService');
 const otpGenerator = require('otp-generator');
 const router = require('../routes/signupRouter');
 const mongoose = require('mongoose');
@@ -85,6 +85,7 @@ exports.signupUser = async (req, res, next) => {
         else {
             var otp = req.body.otp;
             var presignupId = req.body.id;
+            var useragent = req.useragent;
             const userData = await signupService.getPreSignupRecord(presignupId);
             if ((!userData) || !(userData.user_type === "user" || userData.user_type === "vendor")) {
                 next(new ErrorBody(400, "Bad Request", []));
@@ -115,16 +116,23 @@ exports.signupUser = async (req, res, next) => {
                     if (userData.user_type === "vendor") {
                         userRecord['is_vendor'] = true;
                     }
-                    const result = await signupService.registerUser(userRecord);
+                    const userAccount = await signupService.registerUser(userRecord);
                     try {
                         let filters = { mobile: user.number, user_type: userData.user_type };
                         await signupService.deleteAllUserPreSignupRecords(filters);
                     } catch (error) {
                         //Nothing to do.
                     }
+                    const tokens = await userLogin(userAccount._id, useragent);
+                    let response = {
+                        accessToken: tokens.accessToken,
+                        refreshToken: tokens.refreshToken,
+                        fullname: userAccount.fullname,
+                        type: userAccount.is_vendor ? "vendor" : "user"
+                    }
                     res.statusCode = 201;
                     res.setHeader('Content-Type', 'application/json');
-                    return res.json({ message: 'Account successfully registered.', error: false, data: {} });
+                    res.json({ message: 'Account successfully registered.', error: false, data: response });
                 }
             }
         }
