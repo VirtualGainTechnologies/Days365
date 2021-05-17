@@ -297,7 +297,10 @@ exports.getProductSellers = async (options = {}) => {
                         }
                     },
                     {
-                        $unwind: "$sellerData"
+                        $unwind: {
+                            path: "$sellerData",
+                            preserveNullAndEmptyArrays: true
+                        }
                     }
                 ],
                 as: "similarSellers"
@@ -346,7 +349,11 @@ exports.getActiveProductRecordById = async (id) => {
             }
         },
         {
-            $unwind: "$sellerData"
+            $unwind: {
+                path: "$sellerData",
+                preserveNullAndEmptyArrays: true
+            }
+
         },
         {
             $project: {
