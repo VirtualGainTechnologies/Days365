@@ -86,7 +86,7 @@ app.use('/product', productRouter);
 
 //Expired OTP records delete. Run twice in a day.
 
-cron.schedule('0 */12 * * *', async () => {
+cron.schedule('0 */12 * * *', async() => {
     console.log("EXPIRED OTP DOCUMENTS DELETION STARTED");
     await cronSchedulerService.deleteExpiredOtpRecords();
 });
@@ -94,7 +94,7 @@ cron.schedule('0 */12 * * *', async () => {
 
 // Delete Expired PreSignup Documents. Run once in a day
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('0 0 * * *', async() => {
     console.log("EXPIRED PRESIGNUP DOCUMENTS DELETION STARTED");
     await cronSchedulerService.deleteExpiredPreSignupRecords();
 });
@@ -107,13 +107,13 @@ cron.schedule('0 0 * * *', async () => {
  */
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     next(createError(404));
 });
 
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
     console.log("ERROR========================>", chalk.red(err.message));
     // console.log(req);
     res.status(err.status || 500);
