@@ -6,10 +6,10 @@ const mongoose = require('mongoose');
 
 
 /**
- * Create a product
+ * Create a product 
  */
 
-exports.createProduct = async (reqBody = {}) => {
+exports.createProduct = async(reqBody = {}) => {
     return await productModel.create(reqBody);
 }
 
@@ -18,8 +18,8 @@ exports.createProduct = async (reqBody = {}) => {
  *  Validate request body
  */
 
-exports.validateVariantData = async (data = []) => {
-    return new Promise(async (resolve, reject) => {
+exports.validateVariantData = async(data = []) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var i = 0;
             var length = data.length;
@@ -34,8 +34,7 @@ exports.validateVariantData = async (data = []) => {
                     (option.description.length)
                 ) {
                     i++;
-                }
-                else {
+                } else {
                     return resolve(false);
                 }
             }
@@ -51,7 +50,7 @@ exports.validateVariantData = async (data = []) => {
  * Bulk delete uploaded files
  */
 
-exports.filesBulkDelete = async (files = []) => {
+exports.filesBulkDelete = async(files = []) => {
     const length = files.length;
     var i = 0;
     while (i < length) {
@@ -70,7 +69,7 @@ exports.filesBulkDelete = async (files = []) => {
  * Get Vendor Record
  */
 
-exports.getVendorRecord = async (filters = {}, projection = null, options = {}) => {
+exports.getVendorRecord = async(filters = {}, projection = null, options = {}) => {
     return await vendorDetailsModel.findOne(filters, projection, options);
 }
 
@@ -79,7 +78,7 @@ exports.getVendorRecord = async (filters = {}, projection = null, options = {}) 
  * Get category record
  */
 
-exports.getCategoryRecord = async (id, projection = null, options = {}) => {
+exports.getCategoryRecord = async(id, projection = null, options = {}) => {
     return await categoryModel.findById(id, projection, options);
 }
 
@@ -88,8 +87,8 @@ exports.getCategoryRecord = async (id, projection = null, options = {}) => {
  *  Get category path 
  */
 
-exports.createCategoryPath = async (ancestors = []) => {
-    return new Promise(async (resolve, reject) => {
+exports.createCategoryPath = async(ancestors = []) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var catPath = '';
             for (let category of ancestors) {
@@ -107,8 +106,8 @@ exports.createCategoryPath = async (ancestors = []) => {
  * Format product variants
  */
 
-exports.formatProductVariants = async (variants = [], files = [], fileIndex = []) => {
-    return new Promise(async (resolve, reject) => {
+exports.formatProductVariants = async(variants = [], files = [], fileIndex = []) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var formattedVariants = [];
             for (let [i, option] of variants.entries()) {
@@ -191,7 +190,7 @@ exports.formatProductVariants = async (variants = [], files = [], fileIndex = []
  */
 
 async function generateUniqueProductID(count) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             var uniqueId = '';
@@ -211,7 +210,7 @@ async function generateUniqueProductID(count) {
  */
 
 async function isUniqueId(id) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         try {
             let filters = {
                 'variants': { $elemMatch: { days_product_code: id } }
@@ -229,7 +228,7 @@ async function isUniqueId(id) {
  * Get product with filters
  */
 
-exports.getProductWithFilters = async (filters = {}, projection = null, options = {}) => {
+exports.getProductWithFilters = async(filters = {}, projection = null, options = {}) => {
     return await productModel.findOne(filters, projection, options);
 }
 
@@ -238,7 +237,7 @@ exports.getProductWithFilters = async (filters = {}, projection = null, options 
  * Get product with id
  */
 
-exports.getProductById = async (id, projection = null, options = {}) => {
+exports.getProductById = async(id, projection = null, options = {}) => {
     return await productModel.findById(id, projection, options);
 }
 
@@ -247,82 +246,76 @@ exports.getProductById = async (id, projection = null, options = {}) => {
  * Get versions of sellers selling same product
  */
 
-exports.getProductSellers = async (options = {}) => {
+exports.getProductSellers = async(options = {}) => {
     let pipeline = [];
-    pipeline.push(
-        {
-            $match: {
-                _id: options.id,
-                status: "Active"
-            }
-        },
-        {
-            $lookup: {
-                from: "product_documents",
-                let: { id: "$_id", refId: '$reference_id' },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $or: [
-                                    {
-                                        $and: [
-                                            { $eq: ["$$id", "$reference_id"] },
-                                            { $eq: ["Active", "$status"] }
-                                        ]
-                                    },
-                                    {
-                                        $and: [
-                                            { $eq: [{ $ifNull: ['$$refId', null] }, "$_id"] },
-                                            { $eq: ["Active", "$status"] }
-                                        ]
-                                    },
-                                    {
-                                        $and: [
-                                            { $eq: [{ $ifNull: ['$$refId', '$$id'] }, "$reference_id"] },
-                                            { $eq: ["Active", "$status"] },
-                                            { $ne: ['$$id', '$_id'] }
-                                        ]
-                                    }
-                                ]
-                            }
-                        },
-                    },
-                    {
-                        $lookup: {
-                            from: "vendor_details",
-                            localField: "vendor_id",
-                            foreignField: "vendor_id",
-                            as: "sellerData"
-                        }
-                    },
-                    {
-                        $unwind: {
-                            path: "$sellerData",
-                            preserveNullAndEmptyArrays: true
-                        }
-                    }
-                ],
-                as: "similarSellers"
-            }
-        },
-        {
-            $project: {
-                productId: "$_id",
-                _id: 0,
-                'similarSellers._id': 1,
-                'similarSellers.vendor_id': 1,
-                'similarSellers.title': 1,
-                'similarSellers.brand_name': 1,
-                'similarSellers.customer_rating': 1,
-                'similarSellers.sellerData._id': 1,
-                'similarSellers.sellerData.shipping_method': 1,
-                'similarSellers.sellerData.company_name': 1,
-                'similarSellers.sellerData.company_address': 1,
-                'similarSellers.sellerData.store_name': 1
-            }
+    pipeline.push({
+        $match: {
+            _id: options.id,
+            status: "Active"
         }
-    );
+    }, {
+        $lookup: {
+            from: "product_documents",
+            let: { id: "$_id", refId: '$reference_id' },
+            pipeline: [{
+                    $match: {
+                        $expr: {
+                            $or: [{
+                                    $and: [
+                                        { $eq: ["$$id", "$reference_id"] },
+                                        { $eq: ["Active", "$status"] }
+                                    ]
+                                },
+                                {
+                                    $and: [
+                                        { $eq: [{ $ifNull: ['$$refId', null] }, "$_id"] },
+                                        { $eq: ["Active", "$status"] }
+                                    ]
+                                },
+                                {
+                                    $and: [
+                                        { $eq: [{ $ifNull: ['$$refId', '$$id'] }, "$reference_id"] },
+                                        { $eq: ["Active", "$status"] },
+                                        { $ne: ['$$id', '$_id'] }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "vendor_details",
+                        localField: "vendor_id",
+                        foreignField: "vendor_id",
+                        as: "sellerData"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$sellerData",
+                        preserveNullAndEmptyArrays: true
+                    }
+                }
+            ],
+            as: "similarSellers"
+        }
+    }, {
+        $project: {
+            productId: "$_id",
+            _id: 0,
+            'similarSellers._id': 1,
+            'similarSellers.vendor_id': 1,
+            'similarSellers.title': 1,
+            'similarSellers.brand_name': 1,
+            'similarSellers.customer_rating': 1,
+            'similarSellers.sellerData._id': 1,
+            'similarSellers.sellerData.shipping_method': 1,
+            'similarSellers.sellerData.company_name': 1,
+            'similarSellers.sellerData.company_address': 1,
+            'similarSellers.sellerData.store_name': 1
+        }
+    });
     return await productModel.aggregate(pipeline);
 }
 
@@ -332,44 +325,39 @@ exports.getProductSellers = async (options = {}) => {
  *  Get active prouduct by id
  */
 
-exports.getActiveProductRecordById = async (id) => {
+exports.getActiveProductRecordById = async(id) => {
     let pipeline = [];
-    pipeline.push(
-        {
-            $match: {
-                _id: id
-            }
-        },
-        {
-            $lookup: {
-                from: "vendor_details",
-                localField: "vendor_id",
-                foreignField: "vendor_id",
-                as: "sellerData"
-            }
-        },
-        {
-            $unwind: {
-                path: "$sellerData",
-                preserveNullAndEmptyArrays: true
-            }
-
-        },
-        {
-            $project: {
-                '_id': 1,
-                'status': 1,
-                'vendor_id': 1,
-                'title': 1,
-                'brand_name': 1,
-                'variants': 1,
-                'customer_rating': 1,
-                'sellerData.shipping_method': 1,
-                'sellerData.company_name': 1,
-                'sellerData.store_name': 1,
-                'sellerData.company_address': 1
-            }
+    pipeline.push({
+        $match: {
+            _id: id
         }
-    );
+    }, {
+        $lookup: {
+            from: "vendor_details",
+            localField: "vendor_id",
+            foreignField: "vendor_id",
+            as: "sellerData"
+        }
+    }, {
+        $unwind: {
+            path: "$sellerData",
+            preserveNullAndEmptyArrays: true
+        }
+
+    }, {
+        $project: {
+            '_id': 1,
+            'status': 1,
+            'vendor_id': 1,
+            'title': 1,
+            'brand_name': 1,
+            'variants': 1,
+            'customer_rating': 1,
+            'sellerData.shipping_method': 1,
+            'sellerData.company_name': 1,
+            'sellerData.store_name': 1,
+            'sellerData.company_address': 1
+        }
+    });
     return await productModel.aggregate(pipeline);
 }

@@ -5,7 +5,7 @@ const { publicFileUpload } = require('../utils/fileUpload');
 const productController = require('../controllers/productController');
 
 
-// Validators
+// Validators 
 
 const productBodyValidator = [
     body('title').trim().notEmpty(),
@@ -29,10 +29,7 @@ const queryProductValidator = [
 
 
 
-// API's
-
-
-router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 100), productBodyValidator, productController.addProduct);
+// API's 
 
 router.post('/reference', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productReferValidator, productController.addProductByReference);
 
@@ -40,11 +37,7 @@ router.get('/', queryProductValidator, productController.getActiveProductById);
 
 router.get('/sellers', queryProductValidator, productController.getProductSellers);
 
-
-
-
-
-
-
+// Search Product
+router.post('/search', productController.search);
 
 module.exports = router;

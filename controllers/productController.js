@@ -7,10 +7,10 @@ const mongoose = require('mongoose');
 
 
 /**
- *  Add a product
+ *  Add a product 
  */
 
-exports.addProduct = async (req, res, next) => {
+exports.addProduct = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -18,8 +18,7 @@ exports.addProduct = async (req, res, next) => {
                 await productService.filesBulkDelete(req.files);
             }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var data = req.body;
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var title = data.title;
@@ -78,7 +77,7 @@ exports.addProduct = async (req, res, next) => {
  * Add product by referring. // TO DO : need to consider product bill file upload
  */
 
-exports.addProductByReference = async (req, res, next) => {
+exports.addProductByReference = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -86,8 +85,7 @@ exports.addProductByReference = async (req, res, next) => {
                 await productService.filesBulkDelete(req.files);
             }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var data = req.body;
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var productId = mongoose.Types.ObjectId(data.productId);
@@ -139,13 +137,12 @@ exports.addProductByReference = async (req, res, next) => {
  * Get active prouduct by id
  */
 
-exports.getActiveProductById = async (req, res, next) => {
+exports.getActiveProductById = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var id = mongoose.Types.ObjectId(req.query.id);
             const result = await productService.getActiveProductRecordById(id);
             var response = { message: "No record found.", error: true, data: {} };
@@ -166,13 +163,12 @@ exports.getActiveProductById = async (req, res, next) => {
  * Get versions of sellers selling same product
  */
 
-exports.getProductSellers = async (req, res, next) => {
+exports.getProductSellers = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var id = mongoose.Types.ObjectId(req.query.id);
             let options = {
                 id: id
@@ -186,6 +182,22 @@ exports.getProductSellers = async (req, res, next) => {
             res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
+    } catch (error) {
+        next({});
+    }
+}
+
+// Search Product
+exports.search = async(req, res, next) => {
+    try {
+        // Call mongoose model here for product. Mongoose model is not defined. 
+
+        result = 'Product Model is not defined';
+        console.log(result);
+        response = { message: "Product Search : ", error: false, data: result };
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
     } catch (error) {
         next({});
     }
