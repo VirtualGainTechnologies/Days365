@@ -44,7 +44,9 @@ const productRouter = require('./routes/productRouter');
 var app = express();
 
 //MongoDB connect
-mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
+// const MongoDBURI = process.env.DB_CONNECTION || 'mongodb://localhost/Days365DEV';
+const MongoDBURI ='mongodb://localhost/Days365DEV';
+mongoose.connect(MongoDBURI, mongooseOptions)
     .then(() => {
         console.log(chalk.green("Connected Successfully to port 27017"));
     }).catch((error) => {
@@ -56,7 +58,19 @@ app.use(bodyParser.json({ limit: '100mb' }));
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
 app.use(useragent.express());
 
-
+app.use(function(req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    // Pass to next layer of middleware
+    next();
+});
 
 /**
  * Routes
@@ -115,10 +129,10 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
     console.log("ERROR========================>", chalk.red(err.message));
-    // console.log(req);
+    console.log(err);
     res.status(err.status || 500);
     res.setHeader('Content-Type', 'application/json');
-    res.json({ message: err.message || "Internal Server Error.", error: true, errors: err.errors || [] });
+    res.json({ message: err.message || "Internal Server Error.", error: true, errors: err || [] });
 });
 
 module.exports = app;

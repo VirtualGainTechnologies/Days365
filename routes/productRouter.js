@@ -11,9 +11,9 @@ const productBodyValidator = [
     body('title').trim().notEmpty(),
     body('categoryId').trim().notEmpty(),
     body('brandName').trim().notEmpty(),
-    body('keyWords').trim().notEmpty(),
-    body('productVariants').isArray({ min: 1 }),
-    body('fileIndex').isArray({ min: 1 })
+    body('searchTerms').trim().notEmpty(),
+    // body('productVariants').isArray({ min: 1 }),
+    // body('fileIndex').isArray({ min: 1 })
 ];
 
 
@@ -32,13 +32,18 @@ const queryProductValidator = [
 // API's
 
 
-router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 100), productBodyValidator, productController.addProduct);
+router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productBodyValidator, productController.addProduct);
 
 router.post('/reference', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productReferValidator, productController.addProductByReference);
 
 router.get('/', queryProductValidator, productController.getActiveProductById);
 
 router.get('/sellers', queryProductValidator, productController.getProductSellers);
+
+router.get('/getAllProductList',verifyAccessJwt, productController.getAllProductList);
+
+router.put('/changeProductStatus', verifyAccessJwt,productController.changeProductStatus);
+
 
 
 

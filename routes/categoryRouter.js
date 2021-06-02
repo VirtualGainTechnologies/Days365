@@ -27,6 +27,8 @@ router.get('/main', categoryController.getMainCategories);
 
 router.get('/subCategories', getCategoryValidator, categoryController.getSubCategories);
 
+router.post('/getCategoriesByName',verifyAccessJwt,categoryController.getCategoriesByName);
+
 
 
 

@@ -22,7 +22,7 @@ const adminSigninValidator = [
 
 router.get('/user/:loginCredential', signinController.preSigninUser);
 
-router.post('/user', signinValidator, signinController.signinUser);
+router.post('/user', signinController.signinUser);
 
 
 

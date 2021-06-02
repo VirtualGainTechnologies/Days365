@@ -1,11 +1,22 @@
+/*********************************
+CORE PACKAGES
+**********************************/
+const mongoose = require('mongoose');
+
+/*********************************
+MODULE PACKAGES
+**********************************/
 const productService = require('../services/productService');
 const { validationResult } = require('express-validator');
 const { ErrorBody } = require('../utils/ErrorBody');
-const mongoose = require('mongoose');
 
+/*********************************
+GLOBAL FUNCTIONS
+**********************************/
 
-
-
+/*********************************
+MODULE FUNCTION
+**********************************/
 /**
  *  Add a product
  */
@@ -29,43 +40,73 @@ exports.addProduct = async (req, res, next) => {
             var fileIndex = data.fileIndex;
             var brandName = data.brandName;
             var tempBrandName = brandName.toLowerCase();
-            const flag = await productService.validateVariantData(productVariants);
-            if (!flag || (fileIndex.length !== productVariants.length)) {
-                if (req.files) {
-                    await productService.filesBulkDelete(req.files);
-                }
-                return next(new ErrorBody(400, 'Bad Inputs', []));
-            }
+            // const flag = await productService.validateVariantData(productVariants);
+            // if (!flag || (fileIndex.length !== productVariants.length)) {
+            //     if (req.files) {
+            //         await productService.filesBulkDelete(req.files);
+            //     }
+            //     return next(new ErrorBody(400, 'Bad Inputs', []));
+            // }
+
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
+    
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || ((tempBrandName !== "generic") && (vendorRecord.brand_status !== 'Approved' || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
+            
             var categoryAncestors = await categoryRecord.getAncestors({}, { category_name: 1 }, { lean: true });
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
-            const formattedProductVariants = await productService.formatProductVariants(productVariants, req.files, fileIndex);
+            // const formattedProductVariants = await productService.formatProductVariants(productVariants, req.files, fileIndex);
+            const dayProductCode = await productService.formatProductVariants(null, req.files, fileIndex);
+           
             var reqBody = {
+                daysProductCode:dayProductCode,
                 vendor_id: vendorId,
                 title: title,
                 category_path: categoryPath,
                 category_id: categoryRecord._id,
-                key_words: keyWords,
-                brand_name: tempBrandName === 'generic' ? "Generic" : brandName,
-                variants: formattedProductVariants,
+                searchTerms: keyWords,
+                brandName: tempBrandName === 'generic' ? "Generic" : brandName,
+
+                productId: data.productId,
+                productIdType: data.productIdType,
+                countryOfOrigin: data.countryOfOrigin,
+                manuFacturer:data.manuFacturer,
+                color: data.color,
+                minRecommendedAge:data.minRecommendedAge,
+                isProductExpirable: data.isProductExpirable,
+                condition: data.condition,
+                conditionNote: data.conditionNote,
+                salePrice:data.salePrice,
+                yourPrice:data.yourPrice,
+                maximumRetailPrice:data.maximumRetailPrice,
+                handlingPeriod:data.handlingPeriod,
+                productDescription:data.productDescription,
+                bulletPoint: data.bulletPoint,
+                searchTerms: data.searchTerms,
+                targetAudience: data.targetAudience,
+                shippingCharges:data.shippingCharges,
+                shippingChargesAmt: data.shippingChargesAmt,
+                // variants: formattedProductVariants,
                 status: 'Pending',
-                'customer_rating.total_rating': 0
+               //'customer_rating.total_rating': 0
             }
+
             const result = await productService.createProduct(reqBody);
-            res.statusCode = 201;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({ message: 'Successfully added product', error: false, data: result });
+            console.log("Successfully Added Product");
+            res.status(201).json({
+                message: 'Successfully Added Product',
+                error: false,
+                data: result 
+            });
         }
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         if (req.files) {
             await productService.filesBulkDelete(req.files);
         }
@@ -186,6 +227,80 @@ exports.getProductSellers = async (req, res, next) => {
             res.setHeader('Content-Type', 'application/json');
             res.json(response);
         }
+    } catch (error) {
+        next({});
+    }
+}
+
+/**
+ * Getting All Pending Products list for Admin Approval
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 01/06/2021
+ * @usedIn : Admin
+ * @apiType : PUT
+ * @lastModified : 01/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : status
+ * @version : 1
+ */
+
+ exports.getAllProductList = async (req, res, next) => {
+    try {
+        
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }else {
+        
+            let options = {"status":"Pending"};
+            const result = await productService.getAllProduct(options);
+            if (result && result.length) {
+                var response = { message: "Successfully getting Product List", error: false, data:result};
+            }else{
+                var response = { message: "No Record Found.", error: true, data: [] };
+            }
+            res.status(201).json(response);
+        }
+        
+    } catch (error) {
+        next({});
+    }
+}
+
+/**
+ * Update Product Status by Admin.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 01/06/2021
+ * @usedIn : Admin
+ * @apiType : PUT
+ * @lastModified : 01/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : _id,status
+ * @version : 1
+ */
+
+exports.changeProductStatus = async (req, res, next) => {
+    try {
+        
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }else {
+            const id = mongoose.Types.ObjectId(req.body.id);
+            let filters = {_id: id};
+            let updateQuery = {
+                status: req.body.status
+            }
+            let response ={};
+            const result = await productService.changeProductStatus(filters, updateQuery, { lean: true });
+            if (result) {
+                response = { message: 'Product Status has been Changed', error: false, data: {} };
+            }else{
+                response = { message: 'No Record Found.', error: true, data: {} };
+            }
+            res.status(200).json(response);
+        }
+        
     } catch (error) {
         next({});
     }
