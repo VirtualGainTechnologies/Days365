@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 
 
 /**
- * Create a product
+ * Create a product 
  */
 
 exports.createProduct = async(reqBody = {}) => {

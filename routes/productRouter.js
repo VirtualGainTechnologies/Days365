@@ -5,7 +5,7 @@ const { publicFileUpload } = require('../utils/fileUpload');
 const productController = require('../controllers/productController');
 
 
-// Validators
+// Validators 
 
 const productBodyValidator = [
     body('title').trim().notEmpty(),

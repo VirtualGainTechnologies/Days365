@@ -20,7 +20,7 @@ GLOBAL FUNCTIONS
 MODULE FUNCTION
 **********************************/
 /**
- *  Add a product
+ *  Add a product 
  */
 
 exports.addProduct = async(req, res, next) => {
