@@ -27,6 +27,12 @@ const queryProductValidator = [
     query('id').trim().notEmpty()
 ];
 
+const taxCodeValidator = [
+    body('categoryName').trim().notEmpty(),
+    body('categoryId').trim().notEmpty(),
+    body('taxCode').trim().notEmpty(),
+];
+
 
 
 // API's
@@ -44,12 +50,9 @@ router.get('/getAllProductList',verifyAccessJwt, productController.getAllProduct
 
 router.put('/changeProductStatus', verifyAccessJwt,productController.changeProductStatus);
 
+router.post('/addProductTaxCode', verifyAccessJwt,taxCodeValidator,productController.addProductTaxCode);
 
-
-
-
-
-
+router.post('/getAllProductTaxCodeList',verifyAccessJwt, productController.getAllProductTaxCodeList);
 
 
 module.exports = router;

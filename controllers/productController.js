@@ -305,3 +305,81 @@ exports.changeProductStatus = async (req, res, next) => {
         next({});
     }
 }
+
+/**
+ * Add Product Tax Code.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 02/06/2021
+ * @usedIn : Admin 
+ * @apiType : POST
+ * @lastModified : 02/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : categoryId,categoryName,taxCode
+ * @version : 1
+ */
+
+
+ exports.addProductTaxCode = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        } else {
+            let response ;
+            var reqData = req.body;
+            let options = {"taxCode":req.body.taxCode};
+            const checkExistingTaxCode = await productService.checkExistingTaxCode(options);
+
+            if(checkExistingTaxCode){
+                response = { message: 'Duplicate Tax Code Found', error: false, data: {} };
+            }else{
+            const result = await productService.createProductTaxCode(reqData);
+            if (result) {
+                response = { message: 'Product Tax Code Saved Sucessfully', error: false, data: {} };
+            }else{
+                response = { message: 'Not Save Data.', error: true, data: {} };
+            }
+            }
+            res.status(200).json(response);
+        }
+    } catch (error) {
+        console.log(error);
+        next({});
+    }
+}
+
+/**
+ * getting All Product Tax Code.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 03/06/2021
+ * @usedIn : Seller Dashboard
+ * @apiType : POST
+ * @lastModified : 03/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : categoryId,categoryName,taxCode
+ * @version : 1
+ */
+
+
+ exports.getAllProductTaxCodeList = async (req, res, next) => {
+    try {
+        
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }else {
+        
+            let options = {"categoryName":req.body.categoryName};
+            const result = await productService.getAllProductTaxCode(options,null, { lean: true });
+            if (result && result.length) {
+                var response = { message: "Successfully getting Product Tax Code List", error: false, data:result};
+            }else{
+                var response = { message: "No Record Found.", error: true, data: [] };
+            }
+            res.status(200).json(response);
+        }
+        
+    } catch (error) {
+        next({});
+    }
+}

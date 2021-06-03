@@ -1,4 +1,5 @@
 const {productModel} = require('../models/productModel');
+const {productTaxModel} = require('../models/productTaxModel');
 const {vendorDetailsModel} = require('../models/vendorDetailsModel');
 const {categoryModel} = require('../models/categoryModel');
 const {deleteFileFromPublicSpace} = require('../utils/fileUpload');
@@ -327,7 +328,7 @@ exports.getActiveProductRecordById = async (id) => {
  * Get All Product List for Approval
  */
 
- exports.getAllProduct = async (filters = {},projection = null, options = {}) => {
+exports.getAllProduct = async (filters = {},projection = null, options = {}) => {
     return await productModel.find(filters, projection, options);
 }
 
@@ -336,4 +337,28 @@ exports.getActiveProductRecordById = async (id) => {
  */
 exports.changeProductStatus = async (filters = {}, updateQuery = {}, options = {}) => {
     return await productModel.findOneAndUpdate(filters, updateQuery, options);
+}
+
+
+/**
+ * Create a Product Tax Code
+ */
+
+exports.createProductTaxCode = async (reqBody = {}) => {
+    return await productTaxModel.create(reqBody);
+}
+
+/**
+ * Checking Existing or Duplicate Tax Code.
+ */
+
+exports.checkExistingTaxCode = async (filters = {}, projection = null, options = {}) => {
+    return await productTaxModel.findOne(filters, projection, options);
+}
+
+/**
+ * getting all product Tax Code.
+ */
+exports.getAllProductTaxCode = async (filters = {},projection = null, options = {}) => {
+    return await productTaxModel.find(filters, projection, options);
 }

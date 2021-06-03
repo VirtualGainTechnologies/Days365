@@ -137,9 +137,9 @@ const productSchema = new Schema({
     daysProductCode: {
         type: String,
         uppercase: true,
-        // index: {
-        //     unique: true
-        // }
+        index: {
+            unique: true
+        }
     },
     productId:{
         type: String,
