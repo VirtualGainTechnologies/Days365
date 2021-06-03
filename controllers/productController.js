@@ -10,6 +10,8 @@ const productService = require('../services/productService');
 const { validationResult } = require('express-validator');
 const { ErrorBody } = require('../utils/ErrorBody');
 
+const { productModel } = require('../models/productModel');
+
 /*********************************
 GLOBAL FUNCTIONS
 **********************************/
@@ -21,7 +23,7 @@ MODULE FUNCTION
  *  Add a product
  */
 
-exports.addProduct = async (req, res, next) => {
+exports.addProduct = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -29,8 +31,7 @@ exports.addProduct = async (req, res, next) => {
                 await productService.filesBulkDelete(req.files);
             }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var data = req.body;
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var title = data.title;
@@ -50,22 +51,22 @@ exports.addProduct = async (req, res, next) => {
 
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-    
+
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || ((tempBrandName !== "generic") && (vendorRecord.brand_status !== 'Approved' || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
                 }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
-            
+
             var categoryAncestors = await categoryRecord.getAncestors({}, { category_name: 1 }, { lean: true });
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
             // const formattedProductVariants = await productService.formatProductVariants(productVariants, req.files, fileIndex);
             const dayProductCode = await productService.formatProductVariants(null, req.files, fileIndex);
-           
+
             var reqBody = {
-                daysProductCode:dayProductCode,
+                daysProductCode: dayProductCode,
                 vendor_id: vendorId,
                 title: title,
                 category_path: categoryPath,
@@ -76,25 +77,25 @@ exports.addProduct = async (req, res, next) => {
                 productId: data.productId,
                 productIdType: data.productIdType,
                 countryOfOrigin: data.countryOfOrigin,
-                manuFacturer:data.manuFacturer,
+                manuFacturer: data.manuFacturer,
                 color: data.color,
-                minRecommendedAge:data.minRecommendedAge,
+                minRecommendedAge: data.minRecommendedAge,
                 isProductExpirable: data.isProductExpirable,
                 condition: data.condition,
                 conditionNote: data.conditionNote,
-                salePrice:data.salePrice,
-                yourPrice:data.yourPrice,
-                maximumRetailPrice:data.maximumRetailPrice,
-                handlingPeriod:data.handlingPeriod,
-                productDescription:data.productDescription,
+                salePrice: data.salePrice,
+                yourPrice: data.yourPrice,
+                maximumRetailPrice: data.maximumRetailPrice,
+                handlingPeriod: data.handlingPeriod,
+                productDescription: data.productDescription,
                 bulletPoint: data.bulletPoint,
                 searchTerms: data.searchTerms,
                 targetAudience: data.targetAudience,
-                shippingCharges:data.shippingCharges,
+                shippingCharges: data.shippingCharges,
                 shippingChargesAmt: data.shippingChargesAmt,
                 // variants: formattedProductVariants,
                 status: 'Pending',
-               //'customer_rating.total_rating': 0
+                //'customer_rating.total_rating': 0
             }
 
             const result = await productService.createProduct(reqBody);
@@ -102,7 +103,7 @@ exports.addProduct = async (req, res, next) => {
             res.status(201).json({
                 message: 'Successfully Added Product',
                 error: false,
-                data: result 
+                data: result
             });
         }
     } catch (error) {
@@ -119,7 +120,7 @@ exports.addProduct = async (req, res, next) => {
  * Add product by referring. // TO DO : need to consider product bill file upload
  */
 
-exports.addProductByReference = async (req, res, next) => {
+exports.addProductByReference = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -127,8 +128,7 @@ exports.addProductByReference = async (req, res, next) => {
                 await productService.filesBulkDelete(req.files);
             }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var data = req.body;
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var productId = mongoose.Types.ObjectId(data.productId);
@@ -180,13 +180,12 @@ exports.addProductByReference = async (req, res, next) => {
  * Get active prouduct by id
  */
 
-exports.getActiveProductById = async (req, res, next) => {
+exports.getActiveProductById = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var id = mongoose.Types.ObjectId(req.query.id);
             const result = await productService.getActiveProductRecordById(id);
             var response = { message: "No record found.", error: true, data: {} };
@@ -207,13 +206,12 @@ exports.getActiveProductById = async (req, res, next) => {
  * Get versions of sellers selling same product
  */
 
-exports.getProductSellers = async (req, res, next) => {
+exports.getProductSellers = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
+        } else {
             var id = mongoose.Types.ObjectId(req.query.id);
             let options = {
                 id: id
@@ -244,24 +242,45 @@ exports.getProductSellers = async (req, res, next) => {
  * @version : 1
  */
 
- exports.getAllProductList = async (req, res, next) => {
+exports.search = async(req, res, next) => {
     try {
-        
+        var upc = req.body.upc;
+        console.log(upc);
+        await productModel.find({ title: upc }).then((result) => {
+            var response = { 'message': 'Product Found', 'error': 'false', 'data': result };
+            res.status(200);
+            res.setHeader('Content-Type', 'application/json');
+            res.send(response);
+        }).catch((err) => {
+            var response = { 'message': 'Product not Found', 'error': 'true', 'data': err };
+            res.status(400);
+            res.setHeader('Content-Type', 'application/json');
+            res.send(response);
+        })
+
+    } catch (err) {
+        next({});
+    }
+}
+
+
+exports.getAllProductList = async(req, res, next) => {
+    try {
+
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }else {
-        
-            let options = {"status":"Pending"};
+        } else {
+            let options = { "status": "Pending" };
             const result = await productService.getAllProduct(options);
             if (result && result.length) {
-                var response = { message: "Successfully getting Product List", error: false, data:result};
-            }else{
+                var response = { message: "Successfully getting Product List", error: false, data: result };
+            } else {
                 var response = { message: "No Record Found.", error: true, data: [] };
             }
             res.status(201).json(response);
         }
-        
+
     } catch (error) {
         next({});
     }
@@ -279,28 +298,28 @@ exports.getProductSellers = async (req, res, next) => {
  * @version : 1
  */
 
-exports.changeProductStatus = async (req, res, next) => {
+exports.changeProductStatus = async(req, res, next) => {
     try {
-        
+
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }else {
+        } else {
             const id = mongoose.Types.ObjectId(req.body.id);
-            let filters = {_id: id};
+            let filters = { _id: id };
             let updateQuery = {
                 status: req.body.status
             }
-            let response ={};
+            let response = {};
             const result = await productService.changeProductStatus(filters, updateQuery, { lean: true });
             if (result) {
                 response = { message: 'Product Status has been Changed', error: false, data: {} };
-            }else{
+            } else {
                 response = { message: 'No Record Found.', error: true, data: {} };
             }
             res.status(200).json(response);
         }
-        
+
     } catch (error) {
         next({});
     }
@@ -319,26 +338,26 @@ exports.changeProductStatus = async (req, res, next) => {
  */
 
 
- exports.addProductTaxCode = async (req, res, next) => {
+exports.addProductTaxCode = async(req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         } else {
-            let response ;
+            let response;
             var reqData = req.body;
-            let options = {"taxCode":req.body.taxCode};
+            let options = { "taxCode": req.body.taxCode };
             const checkExistingTaxCode = await productService.checkExistingTaxCode(options);
 
-            if(checkExistingTaxCode){
+            if (checkExistingTaxCode) {
                 response = { message: 'Duplicate Tax Code Found', error: false, data: {} };
-            }else{
-            const result = await productService.createProductTaxCode(reqData);
-            if (result) {
-                response = { message: 'Product Tax Code Saved Sucessfully', error: false, data: {} };
-            }else{
-                response = { message: 'Not Save Data.', error: true, data: {} };
-            }
+            } else {
+                const result = await productService.createProductTaxCode(reqData);
+                if (result) {
+                    response = { message: 'Product Tax Code Saved Sucessfully', error: false, data: {} };
+                } else {
+                    response = { message: 'Not Save Data.', error: true, data: {} };
+                }
             }
             res.status(200).json(response);
         }
@@ -361,24 +380,24 @@ exports.changeProductStatus = async (req, res, next) => {
  */
 
 
- exports.getAllProductTaxCodeList = async (req, res, next) => {
+exports.getAllProductTaxCodeList = async(req, res, next) => {
     try {
-        
+
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }else {
-        
-            let options = {"categoryName":req.body.categoryName};
-            const result = await productService.getAllProductTaxCode(options,null, { lean: true });
+        } else {
+
+            let options = { "categoryName": req.body.categoryName };
+            const result = await productService.getAllProductTaxCode(options, null, { lean: true });
             if (result && result.length) {
-                var response = { message: "Successfully getting Product Tax Code List", error: false, data:result};
-            }else{
+                var response = { message: "Successfully getting Product Tax Code List", error: false, data: result };
+            } else {
                 var response = { message: "No Record Found.", error: true, data: [] };
             }
             res.status(200).json(response);
         }
-        
+
     } catch (error) {
         next({});
     }

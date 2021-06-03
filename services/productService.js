@@ -1,8 +1,8 @@
-const {productModel} = require('../models/productModel');
-const {productTaxModel} = require('../models/productTaxModel');
-const {vendorDetailsModel} = require('../models/vendorDetailsModel');
-const {categoryModel} = require('../models/categoryModel');
-const {deleteFileFromPublicSpace} = require('../utils/fileUpload');
+const { productModel } = require('../models/productModel');
+const { productTaxModel } = require('../models/productTaxModel');
+const { vendorDetailsModel } = require('../models/vendorDetailsModel');
+const { categoryModel } = require('../models/categoryModel');
+const { deleteFileFromPublicSpace } = require('../utils/fileUpload');
 const mongoose = require('mongoose');
 
 
@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
  * Create a product
  */
 
-exports.createProduct = async (reqBody = {}) => {
+exports.createProduct = async(reqBody = {}) => {
     return await productModel.create(reqBody);
 }
 
@@ -19,8 +19,8 @@ exports.createProduct = async (reqBody = {}) => {
  *  Validate request body
  */
 
-exports.validateVariantData = async (data = []) => {
-    return new Promise(async (resolve, reject) => {
+exports.validateVariantData = async(data = []) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var i = 0;
             var length = data.length;
@@ -51,7 +51,7 @@ exports.validateVariantData = async (data = []) => {
  * Bulk delete uploaded files
  */
 
-exports.filesBulkDelete = async (files = []) => {
+exports.filesBulkDelete = async(files = []) => {
     const length = files.length;
     var i = 0;
     while (i < length) {
@@ -70,7 +70,7 @@ exports.filesBulkDelete = async (files = []) => {
  * Get Vendor Record
  */
 
-exports.getVendorRecord = async (filters = {}, projection = null, options = {}) => {
+exports.getVendorRecord = async(filters = {}, projection = null, options = {}) => {
     return await vendorDetailsModel.findOne(filters, projection, options);
 }
 
@@ -79,7 +79,7 @@ exports.getVendorRecord = async (filters = {}, projection = null, options = {}) 
  * Get category record
  */
 
-exports.getCategoryRecord = async (id, projection = null, options = {}) => {
+exports.getCategoryRecord = async(id, projection = null, options = {}) => {
     return await categoryModel.findById(id, projection, options);
 }
 
@@ -88,8 +88,8 @@ exports.getCategoryRecord = async (id, projection = null, options = {}) => {
  *  Get category path 
  */
 
-exports.createCategoryPath = async (ancestors = []) => {
-    return new Promise(async (resolve, reject) => {
+exports.createCategoryPath = async(ancestors = []) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var catPath = '';
             for (let category of ancestors) {
@@ -107,22 +107,22 @@ exports.createCategoryPath = async (ancestors = []) => {
  * Format product variants
  */
 
-exports.formatProductVariants = async (variants = [], files = [], fileIndex = []) => {
-    return new Promise(async (resolve, reject) => {
+exports.formatProductVariants = async(variants = [], files = [], fileIndex = []) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var uniqueId = '';
             do {
                 let id = await generateUniqueProductID(15);
                 let isUnique = await isUniqueId(id);
-                 console.log(id + " " + isUnique);
+                console.log(id + " " + isUnique);
                 if (isUnique) {
                     uniqueId = id;
                 }
-            } while (uniqueId === ''){
-                uniqueId =  uniqueId; 
+            } while (uniqueId === '') {
+                uniqueId = uniqueId;
             }
             return resolve(uniqueId);
-          
+
         } catch (error) {
             return reject(error);
         }
@@ -135,7 +135,7 @@ exports.formatProductVariants = async (variants = [], files = [], fileIndex = []
  */
 
 async function generateUniqueProductID(count) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         try {
             var base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             var uniqueId = '';
@@ -157,9 +157,9 @@ async function generateUniqueProductID(count) {
  */
 
 async function isUniqueId(id) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         try {
-            let filters = {daysProductCode: id};
+            let filters = { daysProductCode: id };
             let result = await productModel.findOne(filters);
             return resolve(result ? false : true);
         } catch (error) {
@@ -173,7 +173,7 @@ async function isUniqueId(id) {
  * Get product with filters
  */
 
-exports.getProductWithFilters = async (filters = {}, projection = null, options = {}) => {
+exports.getProductWithFilters = async(filters = {}, projection = null, options = {}) => {
     return await productModel.findOne(filters, projection, options);
 }
 
@@ -182,7 +182,7 @@ exports.getProductWithFilters = async (filters = {}, projection = null, options 
  * Get product with id
  */
 
-exports.getProductById = async (id, projection = null, options = {}) => {
+exports.getProductById = async(id, projection = null, options = {}) => {
     return await productModel.findById(id, projection, options);
 }
 
@@ -190,7 +190,7 @@ exports.getProductById = async (id, projection = null, options = {}) => {
  * Get versions of sellers selling same product
  */
 
-exports.getProductSellers = async (options = {}) => {
+exports.getProductSellers = async(options = {}) => {
     let pipeline = [];
     pipeline.push({
         $match: {
@@ -285,7 +285,7 @@ exports.getProductSellers = async (options = {}) => {
  *  Get active prouduct by id
  */
 
-exports.getActiveProductRecordById = async (id) => {
+exports.getActiveProductRecordById = async(id) => {
     let pipeline = [];
     pipeline.push({
         $match: {
@@ -312,7 +312,7 @@ exports.getActiveProductRecordById = async (id) => {
             'title': 1,
             'brandName': 1,
             'daysProductCode': 1,
-            'manuFacturer':1,
+            'manuFacturer': 1,
             'customer_rating': 1,
             'sellerData.shipping_method': 1,
             'sellerData.company_name': 1,
@@ -328,14 +328,20 @@ exports.getActiveProductRecordById = async (id) => {
  * Get All Product List for Approval
  */
 
-exports.getAllProduct = async (filters = {},projection = null, options = {}) => {
+exports.getAllProduct = async(filters = {}, projection = null, options = {}) => {
     return await productModel.find(filters, projection, options);
 }
+
+/* Search Product by UPC */
+exports.searchProduct = async(filters = {}, projection = null, options = {}) => {
+    return await productModel.findById(filters, projection, options);
+}
+
 
 /**
  * This Below's API for change product Status.
  */
-exports.changeProductStatus = async (filters = {}, updateQuery = {}, options = {}) => {
+exports.changeProductStatus = async(filters = {}, updateQuery = {}, options = {}) => {
     return await productModel.findOneAndUpdate(filters, updateQuery, options);
 }
 
@@ -344,7 +350,7 @@ exports.changeProductStatus = async (filters = {}, updateQuery = {}, options = {
  * Create a Product Tax Code
  */
 
-exports.createProductTaxCode = async (reqBody = {}) => {
+exports.createProductTaxCode = async(reqBody = {}) => {
     return await productTaxModel.create(reqBody);
 }
 
@@ -352,13 +358,13 @@ exports.createProductTaxCode = async (reqBody = {}) => {
  * Checking Existing or Duplicate Tax Code.
  */
 
-exports.checkExistingTaxCode = async (filters = {}, projection = null, options = {}) => {
+exports.checkExistingTaxCode = async(filters = {}, projection = null, options = {}) => {
     return await productTaxModel.findOne(filters, projection, options);
 }
 
 /**
  * getting all product Tax Code.
  */
-exports.getAllProductTaxCode = async (filters = {},projection = null, options = {}) => {
+exports.getAllProductTaxCode = async(filters = {}, projection = null, options = {}) => {
     return await productTaxModel.find(filters, projection, options);
 }

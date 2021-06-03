@@ -36,6 +36,7 @@ const forgetPasswordRouter = require('./routes/forgetPasswordRouter');
 const vendorDetailsRouter = require('./routes/vendorDetailsRouter');
 const categoryRouter = require('./routes/categoryRouter');
 const productRouter = require('./routes/productRouter');
+const sliderRouter = require('./routes/sliderRouter');
 
 
 
@@ -44,8 +45,8 @@ const productRouter = require('./routes/productRouter');
 var app = express();
 
 //MongoDB connect
-// const MongoDBURI = process.env.DB_CONNECTION || 'mongodb://localhost/Days365DEV';
-const MongoDBURI ='mongodb://localhost/Days365DEV';
+const MongoDBURI = process.env.DB_CONNECTION || 'mongodb://localhost/Days365DEV';
+//const MongoDBURI ='mongodb://localhost/Days365DEV';
 mongoose.connect(MongoDBURI, mongooseOptions)
     .then(() => {
         console.log(chalk.green("Connected Successfully to port 27017"));
@@ -79,8 +80,6 @@ app.use(function(req, res, next) {
 app.use('/test', testRouter);
 app.use('/country', countryRouter);
 app.use('/utility', utilityRouter);
-
-
 app.use('/token', tokenRouter);
 app.use('/signup', signupRouter);
 app.use('/signin', signinRouter);
@@ -89,7 +88,7 @@ app.use('/resetPassword', forgetPasswordRouter);
 app.use('/vendorDetails', vendorDetailsRouter);
 app.use('/category', categoryRouter);
 app.use('/product', productRouter);
-
+app.use('/slider', sliderRouter);
 
 
 

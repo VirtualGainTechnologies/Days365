@@ -38,7 +38,7 @@ const taxCodeValidator = [
 // API's
 
 
-router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productBodyValidator, productController.addProduct);
+router.post('/', publicFileUpload.array('productImages', 9), productBodyValidator, productController.addProduct);
 
 router.post('/reference', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productReferValidator, productController.addProductByReference);
 
@@ -46,13 +46,15 @@ router.get('/', queryProductValidator, productController.getActiveProductById);
 
 router.get('/sellers', queryProductValidator, productController.getProductSellers);
 
-router.get('/getAllProductList',verifyAccessJwt, productController.getAllProductList);
+router.get('/getAllProductList', productController.getAllProductList);
 
-router.put('/changeProductStatus', verifyAccessJwt,productController.changeProductStatus);
+router.put('/changeProductStatus', verifyAccessJwt, productController.changeProductStatus);
 
-router.post('/addProductTaxCode', verifyAccessJwt,taxCodeValidator,productController.addProductTaxCode);
+router.post('/addProductTaxCode', verifyAccessJwt, taxCodeValidator, productController.addProductTaxCode);
 
-router.post('/getAllProductTaxCodeList',verifyAccessJwt, productController.getAllProductTaxCodeList);
+router.post('/getAllProductTaxCodeList', verifyAccessJwt, productController.getAllProductTaxCodeList);
 
+// Search Product by UPC / ISBN / EAN 
+router.post('/search', productController.search);
 
 module.exports = router;

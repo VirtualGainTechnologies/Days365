@@ -2,81 +2,81 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 
-const productVariantSchema = new Schema({
-    color: {
-        type: String,
-        default: "N/A",
-        required: true,
-        uppercase: true
-    },
-    size: {
-        type: String,
-        default: "N/A",
-        required: true,
-        uppercase: true
-    },
-    UPC: {
-        type: String
-    },
-    EAN: {
-        type: String
-    },
-    ISBN: {
-        type: String
-    },
-    
-    SKU_id: {
-        type: String,
-        required: true
-    },
-    ingredients: {
-        type: String
-    },
-    how_to_use: {
-        type: String
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    offer_price: {
-        type: Number,
-        required: true,
-        index: true
-    },
-    offer_description: {
-        type: String
-    },
-    stock: {
-        type: Number,
-        required: true,
-        default: 0,
-        index: true
-    },
-    shipping_fee: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    tax_code: {
-        type: String,
-        required: true,
-        enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
-            'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
-    },
-    image_URLs: [String],
-    product_bill_image_URL: {
-        type: String
-    },
-    product_details_image_URL: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true, _id: true });
+// const productVariantSchema = new Schema({
+//     color: {
+//         type: String,
+//         default: "N/A",
+//         required: true,
+//         uppercase: true
+//     },
+//     size: {
+//         type: String,
+//         default: "N/A",
+//         required: true,
+//         uppercase: true
+//     },
+//     UPC: {
+//         type: String
+//     },
+//     EAN: {
+//         type: String
+//     },
+//     ISBN: {
+//         type: String
+//     },
+
+//     SKU_id: {
+//         type: String,
+//         required: true
+//     },
+//     ingredients: {
+//         type: String
+//     },
+//     how_to_use: {
+//         type: String
+//     },
+//     description: {
+//         type: String,
+//         required: true
+//     },
+//     price: {
+//         type: Number,
+//         required: true
+//     },
+//     offer_price: {
+//         type: Number,
+//         required: true,
+//         index: true
+//     },
+//     offer_description: {
+//         type: String
+//     },
+//     stock: {
+//         type: Number,
+//         required: true,
+//         default: 0,
+//         index: true
+//     },
+//     shipping_fee: {
+//         type: Number,
+//         required: true,
+//         default: 0
+//     },
+//     tax_code: {
+//         type: String,
+//         required: true,
+//         enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
+//             'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
+//     },
+//     image_URLs: [String],
+//     product_bill_image_URL: {
+//         type: String
+//     },
+//     product_details_image_URL: {
+//         type: String,
+//         required: true
+//     }
+// }, { timestamps: true, _id: true });
 
 
 
@@ -116,13 +116,13 @@ const ratingSchema = new Schema({
 
 
 
-ratingSchema.methods.setRating = function () {
+ratingSchema.methods.setRating = function() {
     let totalCount = parseInt(this.five + this.four + this.three + this.two + this.one) || 1;
     let rating = ((this.five * 5) + (this.four * 4) + (this.three * 3) * (this.two * 2) + (this.one * 1)) / totalCount;
     this.total_rating = parseFloat(rating).toFixed(1);
 }
 
-ratingSchema.methods.getRating = function () {
+ratingSchema.methods.getRating = function() {
     return this.total_rating;
 }
 
@@ -141,11 +141,11 @@ const productSchema = new Schema({
             unique: true
         }
     },
-    productId:{
+    productId: {
         type: String,
         trim: true
     },
-    productIdType:{
+    productIdType: {
         type: String,
         trim: true
     },
@@ -154,66 +154,66 @@ const productSchema = new Schema({
         required: true,
         trim: true
     },
-    countryOfOrigin:{
+    countryOfOrigin: {
         type: String,
         trim: true
     },
-    manuFacturer:{
+    manuFacturer: {
         type: String,
         trim: true
     },
-    brandName:{
+    brandName: {
         type: String,
         trim: true
     },
-    color:{
+    color: {
         type: String,
         trim: true
     },
-    minRecommendedAge:{
+    minRecommendedAge: {
         type: Number,
         trim: true
     },
-    isProductExpirable:{
+    isProductExpirable: {
         type: String,
         trim: true
     },
-    condition:{
+    condition: {
         type: String,
         trim: true
     },
-    conditionNote:{
+    conditionNote: {
         type: String,
         trim: true
     },
-    quantity:{
+    quantity: {
         type: Number,
         trim: true
     },
-    maxOrderQuantity:{
+    maxOrderQuantity: {
         type: Number,
         trim: true
     },
-    salePrice:{
+    salePrice: {
         type: Number,
         trim: true
     },
-    yourPrice:{
+    yourPrice: {
         type: Number,
         trim: true
     },
-    maximumRetailPrice:{
+    maximumRetailPrice: {
         type: Number,
         trim: true
     },
-    handlingPeriod:{
+    handlingPeriod: {
         type: Number,
         trim: true
     },
     Images: {
         expiryDateImg: {
             type: String,
-            trim: true  
+            trim: true
         },
         importerMRPImg: {
             type: String,
@@ -228,31 +228,31 @@ const productSchema = new Schema({
             trim: true
         }
     },
-    productDescription:{
+    productDescription: {
         type: String,
         trim: true
     },
-    legalClaimer:{
+    legalClaimer: {
         type: String,
         trim: true
     },
-    bulletPoint:{
+    bulletPoint: {
         type: Array,
         trim: true
     },
-    searchTerms:{
+    searchTerms: {
         type: String,
         trim: true
     },
-    targetAudience:{
+    targetAudience: {
         type: Array,
         trim: true
     },
-    shippingCharges:{
+    shippingCharges: {
         type: String,
         trim: true
     },
-    shippingChargesAmt:{
+    shippingChargesAmt: {
         type: String,
         trim: true
     },
@@ -272,7 +272,7 @@ const productSchema = new Schema({
     //     required: true,
     //     index: true
     // },
-   
+
     status: {
         type: String,
         required: true,
