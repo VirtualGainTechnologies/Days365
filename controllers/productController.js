@@ -24,6 +24,7 @@ MODULE FUNCTION
 exports.addProduct = async (req, res, next) => {
     try {
         let errors = validationResult(req);
+        var image = req.file;
         if (!errors.isEmpty()) {
             if (req.files) {
                 await productService.filesBulkDelete(req.files);
@@ -31,7 +32,29 @@ exports.addProduct = async (req, res, next) => {
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }
         else {
+
+        //    // File upload proccess start.
+        //     if (!image) {
+        //         return next(new ErrorBody(400, "Bad Inputs", []));
+        //     }
+        //     var docName = req.body.docName;
+        //     var uploadedDocType = '';
+        //     switch (docName) {
+        //         case 'frontImg': uploadedDocType = 'front_Img'; break;
+        //         case 'expiryDateImg': uploadedDocType = 'expiryDate_Img'; break;
+        //         case 'importerMRPImg': uploadedDocType = 'importerMRP_Img'; break;
+        //         case 'productSealImg': uploadedDocType = 'productSeal_Img'; break;
+        //         case 'productImg1': uploadedDocType = 'product_Img1'; break;
+        //         case 'productImg2': uploadedDocType = 'product_Img2'; break;
+        //         case 'productImg3': uploadedDocType = 'product_Img3'; break;
+        //         case 'productImg4': uploadedDocType = 'product_Img4'; break;
+        //         default: uploadedDocType = '';
+        //     }
+            //req.body = (uploadedDocType !== '') ? { [uploadedDocType]: image.key } : {};
+            // File upload proccess End.
+
             var data = req.body;
+           // console.log("data.........",req.user);
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var title = data.title;
             var categoryId = mongoose.Types.ObjectId(data.categoryId);
@@ -40,17 +63,22 @@ exports.addProduct = async (req, res, next) => {
             var fileIndex = data.fileIndex;
             var brandName = data.brandName;
             var tempBrandName = brandName.toLowerCase();
-            // const flag = await productService.validateVariantData(productVariants);
+
+            const flag = await productService.getProductWithFilters({title: data.title}, null, { lean: true });
             // if (!flag || (fileIndex.length !== productVariants.length)) {
-            //     if (req.files) {
-            //         await productService.filesBulkDelete(req.files);
-            //     }
-            //     return next(new ErrorBody(400, 'Bad Inputs', []));
-            // }
+            if (flag) {
+                if (req.files) {
+                    await productService.filesBulkDelete(req.files);
+                }
+                return res.status(201).json({
+                    message: 'Duplicate Data Founded',
+                    error: false,
+                    data: flag 
+                });
+            }
 
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-    
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || ((tempBrandName !== "generic") && (vendorRecord.brand_status !== 'Approved' || brandName !== vendorRecord.brand_details.brand_name))) {
                 if (req.files) {
                     await productService.filesBulkDelete(req.files);
@@ -61,8 +89,7 @@ exports.addProduct = async (req, res, next) => {
             var categoryAncestors = await categoryRecord.getAncestors({}, { category_name: 1 }, { lean: true });
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
-            // const formattedProductVariants = await productService.formatProductVariants(productVariants, req.files, fileIndex);
-            const dayProductCode = await productService.formatProductVariants(null, req.files, fileIndex);
+            const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
            
             var reqBody = {
                 daysProductCode:dayProductCode,

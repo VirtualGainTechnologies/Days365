@@ -46,7 +46,7 @@ var app = express();
 //MongoDB connect
 // const MongoDBURI = process.env.DB_CONNECTION || 'mongodb://localhost/Days365DEV';
 const MongoDBURI ='mongodb://localhost/Days365DEV';
-mongoose.connect(MongoDBURI, mongooseOptions)
+mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
     .then(() => {
         console.log(chalk.green("Connected Successfully to port 27017"));
     }).catch((error) => {

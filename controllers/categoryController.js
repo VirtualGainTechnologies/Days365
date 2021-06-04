@@ -303,6 +303,18 @@ exports.getSubCategories = async (req, res, next) => {
     }
 }
 
+/**
+ * Search for a Category By Name.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 04/06/2021
+ * @usedIn : Seller Dashboard
+ * @apiType : PoST
+ * @lastModified : 04/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : CategoryName
+ * @version : 1
+ */
+
 exports.getCategoriesByName = async (req, res, next) => {
     try {
         let errors = validationResult(req);
@@ -321,6 +333,77 @@ exports.getCategoriesByName = async (req, res, next) => {
                 }
             }
 
+            let projection = {
+                _id: 1,
+                category_name: 1,
+                is_leaf: 1,
+                is_restricted: 1,
+                image_URL: 1,
+                createdAt: 1
+            }
+            let options = {
+                lean: true
+            }
+            const result = await parentCategory.getImmediateChildren({}, projection, options);
+            let payload = {
+                parent: {
+                    id: parentCategory._id,
+                    name: parentCategory.category_name
+                },
+                categories: result
+            }
+            var response = {
+                message: 'Successfully retrieved sub categories.',
+                error: false,
+                data: payload
+            };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+/**
+ * Browse All Category and subcategory.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 04/06/2021
+ * @usedIn : Seller Dashboard
+ * @apiType : Get
+ * @lastModified : 04/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : id
+ * @version : 1
+ */
+
+ exports.getSubCategoriesForSeller = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        } else {
+            var parentCategory;
+            var id = req.query.id;
+            if (id) {
+                let parentId = mongoose.Types.ObjectId(req.query.id);
+                parentCategory = await categoryService.getCategory(parentId);
+                if (!parentCategory) {
+                    return next(new ErrorBody(400, "Bad Inputs", []));
+                }
+
+            } else {
+                let filters = {
+                    category_name: 'Departments'
+                }
+                parentCategory = await categoryService.getCategoryWithFilters(filters);
+                if (!parentCategory) {
+                    return next({});
+                }
+            }
             let projection = {
                 _id: 1,
                 category_name: 1,

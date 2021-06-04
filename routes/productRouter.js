@@ -12,8 +12,8 @@ const productBodyValidator = [
     body('categoryId').trim().notEmpty(),
     body('brandName').trim().notEmpty(),
     body('searchTerms').trim().notEmpty(),
-    // body('productVariants').isArray({ min: 1 }),
-    // body('fileIndex').isArray({ min: 1 })
+   // body('docName').trim().custom(val => ['frontImg', 'expiryDateImg', 'importerMRPImg', 'productSealImg','productImg1','productImg2','productImg3','productImg4'].includes(val))
+    
 ];
 
 
@@ -38,7 +38,7 @@ const taxCodeValidator = [
 // API's
 
 
-router.post('/', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productBodyValidator, productController.addProduct);
+router.post('/', verifyAccessJwt, verifyVendor, productBodyValidator, productController.addProduct);
 
 router.post('/reference', verifyAccessJwt, verifyVendor, publicFileUpload.array('productImages', 9), productReferValidator, productController.addProductByReference);
 

@@ -143,11 +143,15 @@ const productSchema = new Schema({
     },
     productId:{
         type: String,
-        trim: true
+        trim: true,
+        required: true,
+        index: true
     },
     productIdType:{
         type: String,
-        trim: true
+        trim: true,
+        required: true,
+        index: true
     },
     title: {
         type: String,
@@ -164,7 +168,8 @@ const productSchema = new Schema({
     },
     brandName:{
         type: String,
-        trim: true
+        trim: true,
+        index: true
     },
     color:{
         type: String,
@@ -172,7 +177,8 @@ const productSchema = new Schema({
     },
     minRecommendedAge:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
     isProductExpirable:{
         type: String,
@@ -188,46 +194,61 @@ const productSchema = new Schema({
     },
     quantity:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
     maxOrderQuantity:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
     salePrice:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
     yourPrice:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
     maximumRetailPrice:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
     handlingPeriod:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
-    Images: {
-        expiryDateImg: {
-            type: String,
-            trim: true  
-        },
-        importerMRPImg: {
-            type: String,
-            trim: true
-        },
-        productSeal: {
-            type: String,
-            trim: true
-        },
-        productImages: {
-            type: String,
-            trim: true
-        }
+    // Images: {
+    front_Img: {
+        type: String
     },
+    expiryDate_Img: {
+        type: String  
+    },
+    importerMRP_Img: {
+        type: String
+    },
+    productSeal_Img: {
+        type: String
+    },
+    product_Img1: {
+        type: String
+    },
+    product_Img2: {
+        type: String
+    },
+    product_Img3: {
+        type: String
+    },
+    product_Img4: {
+        type: String
+    },
+
+    // },
     productDescription:{
         type: String,
         trim: true
@@ -253,8 +274,9 @@ const productSchema = new Schema({
         trim: true
     },
     shippingChargesAmt:{
-        type: String,
-        trim: true
+        type: Number,
+        trim: true,
+        default:0
     },
     category_path: {
         type: String,
@@ -266,12 +288,6 @@ const productSchema = new Schema({
         required: true,
         ref: 'category_documents'
     },
-    // brand_name: {
-    //     type: String,
-    //     trim: true,
-    //     required: true,
-    //     index: true
-    // },
    
     status: {
         type: String,
@@ -280,11 +296,7 @@ const productSchema = new Schema({
         default: "Pending",
         index: true
     },
-    // key_words: {
-    //     type: String,
-    //     required: true,
-    //     trim: true,
-    // },
+    
     reference_id: {
         type: Schema.Types.ObjectId
     },

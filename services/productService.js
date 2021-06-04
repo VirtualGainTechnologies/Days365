@@ -107,7 +107,7 @@ exports.createCategoryPath = async (ancestors = []) => {
  * Format product variants
  */
 
-exports.formatProductVariants = async (variants = [], files = [], fileIndex = []) => {
+exports.generateDaysProductCode = async (variants = [], files = [], fileIndex = []) => {
     return new Promise(async (resolve, reject) => {
         try {
             var uniqueId = '';
