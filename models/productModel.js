@@ -3,31 +3,51 @@ const Schema = mongoose.Schema;
 
 
 const productVariantSchema = new Schema({
+    
+    daysProductCode: {
+        type: String,
+        uppercase: true,
+        index: {
+            unique: true
+        }
+    },
+    productId:{
+        type: String,
+        trim: true,
+        //required: true,
+        index: true
+    },
+    productIdType:{
+        type: String,
+        trim: true,
+        //required: true,
+        index: true
+    },
     color: {
         type: String,
         default: "N/A",
-        required: true,
+       // required: true,
         uppercase: true
     },
     size: {
         type: String,
         default: "N/A",
-        required: true,
+        //required: true,
         uppercase: true
     },
-    UPC: {
-        type: String
-    },
-    EAN: {
-        type: String
-    },
-    ISBN: {
-        type: String
-    },
+    // UPC: {
+    //     type: String
+    // },
+    // EAN: {
+    //     type: String
+    // },
+    // ISBN: {
+    //     type: String
+    // },
     
-    SKU_id: {
+    SKUId: {
         type: String,
-        required: true
+        //required: true
     },
     ingredients: {
         type: String
@@ -35,46 +55,46 @@ const productVariantSchema = new Schema({
     how_to_use: {
         type: String
     },
-    description: {
-        type: String,
-        required: true
-    },
-    price: {
+    // description: {
+    //     type: String,
+    //     required: true
+    // },
+     yourPrice:{
         type: Number,
-        required: true
+        default:0
     },
-    offer_price: {
+    offerPrice: {
         type: Number,
-        required: true,
+        // required: true,
         index: true
     },
-    offer_description: {
+    offerDescription: {
         type: String
     },
     stock: {
         type: Number,
-        required: true,
+        // required: true,
         default: 0,
         index: true
     },
-    shipping_fee: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    tax_code: {
-        type: String,
-        required: true,
-        enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
-            'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
-    },
+    // shipping_fee: {
+    //     type: Number,
+    //     required: true,
+    //     default: 0
+    // },
+    // tax_code: {
+    //     type: String,
+    //     required: true,
+    //     enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
+    //         'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
+    // },
     image_URLs: [String],
     product_bill_image_URL: {
         type: String
     },
     product_details_image_URL: {
         type: String,
-        required: true
+       // required: true
     }
 }, { timestamps: true, _id: true });
 
@@ -134,25 +154,7 @@ const productSchema = new Schema({
         ref: 'user_registers',
         index: true
     },
-    daysProductCode: {
-        type: String,
-        uppercase: true,
-        index: {
-            unique: true
-        }
-    },
-    productId:{
-        type: String,
-        trim: true,
-        required: true,
-        index: true
-    },
-    productIdType:{
-        type: String,
-        trim: true,
-        required: true,
-        index: true
-    },
+  
     title: {
         type: String,
         required: true,
@@ -192,26 +194,22 @@ const productSchema = new Schema({
         type: String,
         trim: true
     },
-    quantity:{
-        type: Number,
-        trim: true,
-        default:0
-    },
-    maxOrderQuantity:{
-        type: Number,
-        trim: true,
-        default:0
-    },
+    // quantity:{
+    //     type: Number,
+    //     trim: true,
+    //     default:0
+    // },
+    // maxOrderQuantity:{
+    //     type: Number,
+    //     trim: true,
+    //     default:0
+    // },
     salePrice:{
         type: Number,
         trim: true,
         default:0
     },
-    yourPrice:{
-        type: Number,
-        trim: true,
-        default:0
-    },
+  
     maximumRetailPrice:{
         type: Number,
         trim: true,
@@ -300,7 +298,11 @@ const productSchema = new Schema({
     reference_id: {
         type: Schema.Types.ObjectId
     },
-    customer_rating: ratingSchema,
+    productVariant : [productVariantSchema]
+    // feature: {
+    //     type: String,
+    // },
+    // customer_rating: ratingSchema,
 }, { timestamps: true });
 
 

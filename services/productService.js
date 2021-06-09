@@ -107,6 +107,84 @@ exports.createCategoryPath = async (ancestors = []) => {
  * Format product variants
  */
 
+ exports.formatProductVariants = async (variants = [], files = [], fileIndex = []) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            var formattedVariants = [];
+            for (let [i, option] of variants.entries()) {
+                var choice = {};
+                if (option.color) {
+                    choice['color'] = option.color;
+                }
+                if (option.size) {
+                    choice['size'] = option.size;
+                }
+                if (option.productId) {
+                    choice['productId'] = option.productId;
+                }
+                if (option.productIdType) {
+                    choice['productIdType'] = option.productIdType;
+                }
+                // if (option.ISBN) {
+                //     choice['ISBN'] = option.ISBN;
+                // }
+                if (option.SKUId) {
+                    choice['SKUId'] = option.SKUId;
+                }
+                if (option.ingredients) {
+                    choice['ingredients'] = option.ingredients;
+                }
+                if (option.howToUse) {
+                    choice['how_to_use'] = option.howToUse;
+                }
+                if (option.description) {
+                    choice['description'] = option.description;
+                }
+                if (option.yourPrice) {
+                    choice['yourPrice'] = option.yourPrice;
+                }
+                if (option.offerPrice) {
+                    choice['offerPrice'] = option.offerPrice;
+                }
+                if (option.offerDescription) {
+                    choice['offerDescription'] = option.offerDescription;
+                }
+                if (option.stock > 0) {
+                    choice['stock'] = option.stock;
+                }
+                // if (option.shippingFee > 0) {
+                //     choice['shipping_fee'] = option.shippingFee;
+                // }
+                // if (option.taxCode) {
+                //     choice['tax_code'] = option.taxCode;
+                // }
+                // let startIndex = parseInt(fileIndex[i].start);
+                // let endIndex = parseInt(fileIndex[i].end);
+                // choice['product_details_image_URL'] = files[startIndex].location;
+                // let imageUrls = [];
+                // for (let j = startIndex + 1; j <= endIndex; j++) {
+                //     imageUrls.push(files[j].location);
+                // }
+                // choice['image_URLs'] = imageUrls;
+                var uniqueId = '';
+                do {
+                    let id = await generateUniqueProductID(15);
+                    let isUnique = await isUniqueId(id);
+                    // console.log(id + " " + isUnique);
+                    if (isUnique) {
+                        uniqueId = id;
+                    }
+                } while (uniqueId === '');
+                choice['daysProductCode'] = uniqueId;
+                formattedVariants.push(choice);
+            }
+            return resolve(formattedVariants);
+        } catch (error) {
+            return reject(error);
+        }
+    });
+}
+
 exports.generateDaysProductCode = async (variants = [], files = [], fileIndex = []) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -335,7 +413,7 @@ exports.getAllProduct = async (filters = {},projection = null, options = {}) => 
 /**
  * This Below's API for change product Status.
  */
-exports.changeProductStatus = async (filters = {}, updateQuery = {}, options = {}) => {
+exports.updateProduct = async (filters = {}, updateQuery = {}, options = {}) => {
     return await productModel.findOneAndUpdate(filters, updateQuery, options);
 }
 

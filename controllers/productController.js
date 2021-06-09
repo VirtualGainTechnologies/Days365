@@ -23,8 +23,9 @@ MODULE FUNCTION
 
 exports.addProduct = async (req, res, next) => {
     try {
+    console.log("REqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req.body);
         let errors = validationResult(req);
-        var image = req.file;
+        //var image = req.file;
         if (!errors.isEmpty()) {
             if (req.files) {
                 await productService.filesBulkDelete(req.files);
@@ -54,7 +55,7 @@ exports.addProduct = async (req, res, next) => {
             // File upload proccess End.
 
             var data = req.body;
-           // console.log("data.........",req.user);
+           console.log("data.........",req.user);
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var title = data.title;
             var categoryId = mongoose.Types.ObjectId(data.categoryId);
@@ -89,10 +90,10 @@ exports.addProduct = async (req, res, next) => {
             var categoryAncestors = await categoryRecord.getAncestors({}, { category_name: 1 }, { lean: true });
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
-            const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
+           // const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
            
             var reqBody = {
-                daysProductCode:dayProductCode,
+                // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
                 title: title,
                 category_path: categoryPath,
@@ -100,8 +101,8 @@ exports.addProduct = async (req, res, next) => {
                 searchTerms: keyWords,
                 brandName: tempBrandName === 'generic' ? "Generic" : brandName,
 
-                productId: data.productId,
-                productIdType: data.productIdType,
+                // productId: data.productId,
+                // productIdType: data.productIdType,
                 countryOfOrigin: data.countryOfOrigin,
                 manuFacturer:data.manuFacturer,
                 color: data.color,
@@ -319,7 +320,7 @@ exports.changeProductStatus = async (req, res, next) => {
                 status: req.body.status
             }
             let response ={};
-            const result = await productService.changeProductStatus(filters, updateQuery, { lean: true });
+            const result = await productService.updateProduct(filters, updateQuery, { lean: true });
             if (result) {
                 response = { message: 'Product Status has been Changed', error: false, data: {} };
             }else{
@@ -402,6 +403,170 @@ exports.changeProductStatus = async (req, res, next) => {
                 var response = { message: "Successfully getting Product Tax Code List", error: false, data:result};
             }else{
                 var response = { message: "No Record Found.", error: true, data: [] };
+            }
+            res.status(200).json(response);
+        }
+        
+    } catch (error) {
+        next({});
+    }
+}
+
+/**
+ * Add Existing Product.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 05/06/2021
+ * @usedIn : Seller Dashboard 
+ * @apiType : POST
+ * @lastModified : 05/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : title,brandName,yourPrice,productDescription,feature,front_Img,productId
+ * @version : 1
+ */
+
+
+ exports.addExistingProduct = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        } else {
+            let response ;
+            let imageLocation = req.file ? req.file.location : null;
+            let reqData = req.body;
+            let vendorId = mongoose.Types.ObjectId(req.user.id);
+            let productId = mongoose.Types.ObjectId(reqData.productId);
+           
+            const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
+            const productRecord = await productService.getProductWithFilters({ _id: productId, status: 'Active' }, null, { lean: true });
+            if ((!vendorRecord) || (!productRecord) || (vendorRecord.account_status !== 'Approved') || (vendorId === productRecord.vendor_id) || ((productRecord.brandName !== 'Generic') && (vendorRecord.brand_status !== 'Approved' || productRecord.brandName !== vendorRecord.brand_details.brand_name))) {
+                if (req.files) {
+                    await productService.filesBulkDelete(req.files);
+                }
+                return next(new ErrorBody(400, 'Bad Inputs', []));
+            }
+
+            const dayProductCode = await productService.generateDaysProductCode(null, req.files, null);
+           
+            var reqBody = {
+                daysProductCode:dayProductCode,
+                vendor_id: vendorId,
+                title: reqData.title,
+                category_path:productRecord.category_path,
+                category_id: productRecord.category_id,
+                searchTerms: productRecord.searchTerms,
+                brandName: reqData.brandName,
+
+                productId: productRecord.productId,
+                productIdType: productRecord.productIdType,
+                countryOfOrigin: productRecord.countryOfOrigin,
+                manuFacturer:productRecord.manuFacturer,
+                color: productRecord.color,
+                minRecommendedAge:productRecord.minRecommendedAge,
+                isProductExpirable: productRecord.isProductExpirable,
+                condition: productRecord.condition,
+                conditionNote: productRecord.conditionNote,
+                salePrice:productRecord.salePrice,
+                yourPrice:reqData.yourPrice,
+                maximumRetailPrice:productRecord.maximumRetailPrice,
+                handlingPeriod:productRecord.handlingPeriod,
+                productDescription:reqData.productDescription,
+                bulletPoint: productRecord.bulletPoint,
+                searchTerms: productRecord.searchTerms,
+                targetAudience: productRecord.targetAudience,
+                shippingCharges:productRecord.shippingCharges,
+                shippingChargesAmt: productRecord.shippingChargesAmt,
+                // variants: formattedProductVariants,
+                status: 'Pending',
+               //'customer_rating.total_rating': 0
+               reference_id : productRecord._id
+            }
+            if (imageLocation) {
+                reqBody['front_Img'] = imageLocation;
+            }
+            const result = await productService.createProduct(reqBody);
+            console.log("Successfully Added Product");
+            res.status(201).json({
+                message: 'Successfully Added Product',
+                error: false,
+                data: result 
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        next({});
+    }
+}
+
+/**
+ * Getting all product by seller wise.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 05/06/2021
+ * @usedIn : Seller Dashboard 
+ * @apiType : GET
+ * @lastModified : 05/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : 
+ * @version : 1
+ */
+
+ exports.getProductSellerWise = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }
+        else {
+            let vendorId = mongoose.Types.ObjectId(req.user.id);
+            let filter = {
+                vendor_id: vendorId,  
+            }
+            const result = await productService.getAllProduct(filter,null,{lean:true});
+            var response = { message: "No record found.", error: true, data: {} };
+            if (result) {
+                response = { message: "Successfully retrieved product.", error: false, data: result };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ * Add Product Varient of Every Product.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 08/06/2021
+ * @usedIn : Seller Dashboard 
+ * @apiType : GET
+ * @lastModified : 08/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : 
+ * @version : 1
+ */
+
+ exports.addProductVarient = async (req, res, next) => {
+    try {
+        
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }else {
+            const id = mongoose.Types.ObjectId(req.body.id);
+            let filters = {_id: id};
+            const formattedProductVariants = await productService.formatProductVariants(req.body.productVariant, null, null);
+            let updateQuery = {
+                productVariant: formattedProductVariants
+            }
+            let response ={};
+            const result = await productService.updateProduct(filters, updateQuery, { lean: true });
+            if (result) {
+                response = { message: 'Product Varient  has been Added', error: false, data: {} };
+            }else{
+                response = { message: 'No Record Found.', error: true, data: {} };
             }
             res.status(200).json(response);
         }
