@@ -17,45 +17,21 @@ GLOBAL FUNCTIONS
 /*********************************
 MODULE FUNCTION
 **********************************/
+
 /**
  *  Add a product
  */
 
 exports.addProduct = async (req, res, next) => {
     try {
-    console.log("REqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req.body);
         let errors = validationResult(req);
-        //var image = req.file;
         if (!errors.isEmpty()) {
-            if (req.files) {
-                await productService.filesBulkDelete(req.files);
-            }
+            // if (req.files) {
+            //     await productService.filesBulkDelete(req.files);
+            // }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
-
-        //    // File upload proccess start.
-        //     if (!image) {
-        //         return next(new ErrorBody(400, "Bad Inputs", []));
-        //     }
-        //     var docName = req.body.docName;
-        //     var uploadedDocType = '';
-        //     switch (docName) {
-        //         case 'frontImg': uploadedDocType = 'front_Img'; break;
-        //         case 'expiryDateImg': uploadedDocType = 'expiryDate_Img'; break;
-        //         case 'importerMRPImg': uploadedDocType = 'importerMRP_Img'; break;
-        //         case 'productSealImg': uploadedDocType = 'productSeal_Img'; break;
-        //         case 'productImg1': uploadedDocType = 'product_Img1'; break;
-        //         case 'productImg2': uploadedDocType = 'product_Img2'; break;
-        //         case 'productImg3': uploadedDocType = 'product_Img3'; break;
-        //         case 'productImg4': uploadedDocType = 'product_Img4'; break;
-        //         default: uploadedDocType = '';
-        //     }
-            //req.body = (uploadedDocType !== '') ? { [uploadedDocType]: image.key } : {};
-            // File upload proccess End.
-
+        } else {
             var data = req.body;
-           console.log("data.........",req.user);
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var title = data.title;
             var categoryId = mongoose.Types.ObjectId(data.categoryId);
@@ -68,9 +44,9 @@ exports.addProduct = async (req, res, next) => {
             const flag = await productService.getProductWithFilters({title: data.title}, null, { lean: true });
             // if (!flag || (fileIndex.length !== productVariants.length)) {
             if (flag) {
-                if (req.files) {
-                    await productService.filesBulkDelete(req.files);
-                }
+                // if (req.files) {
+                //     await productService.filesBulkDelete(req.files);
+                // }
                 return res.status(201).json({
                     message: 'Duplicate Data Founded',
                     error: false,
@@ -80,24 +56,27 @@ exports.addProduct = async (req, res, next) => {
 
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
-            if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || ((tempBrandName !== "generic") && (vendorRecord.brand_status !== 'Approved' || brandName !== vendorRecord.brand_details.brand_name))) {
-                if (req.files) {
-                    await productService.filesBulkDelete(req.files);
-                }
+            if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || (vendorRecord.brand_status !== 'Approved')) {
+                // if (req.files) {
+                //     await productService.filesBulkDelete(req.files);
+                // }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
             
             var categoryAncestors = await categoryRecord.getAncestors({}, { category_name: 1 }, { lean: true });
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
+          
            // const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
            
             var reqBody = {
                 // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
+                venderName:vendorRecord.company_name,
                 title: title,
                 category_path: categoryPath,
                 category_id: categoryRecord._id,
+                categoryName:categoryRecord.category_name,
                 searchTerms: keyWords,
                 brandName: tempBrandName === 'generic' ? "Generic" : brandName,
 
@@ -135,9 +114,9 @@ exports.addProduct = async (req, res, next) => {
         }
     } catch (error) {
         console.log(error);
-        if (req.files) {
-            await productService.filesBulkDelete(req.files);
-        }
+        // if (req.files) {
+        //     await productService.filesBulkDelete(req.files);
+        // }
         next({});
     }
 }
@@ -280,7 +259,7 @@ exports.getProductSellers = async (req, res, next) => {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
         
-            let options = {"status":"Pending"};
+            let options = {"status":req.query.status};
             const result = await productService.getAllProduct(options);
             if (result && result.length) {
                 var response = { message: "Successfully getting Product List", error: false, data:result};
@@ -440,16 +419,16 @@ exports.changeProductStatus = async (req, res, next) => {
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const productRecord = await productService.getProductWithFilters({ _id: productId, status: 'Active' }, null, { lean: true });
             if ((!vendorRecord) || (!productRecord) || (vendorRecord.account_status !== 'Approved') || (vendorId === productRecord.vendor_id) || ((productRecord.brandName !== 'Generic') && (vendorRecord.brand_status !== 'Approved' || productRecord.brandName !== vendorRecord.brand_details.brand_name))) {
-                if (req.files) {
-                    await productService.filesBulkDelete(req.files);
-                }
+                // if (req.files) {
+                //     await productService.filesBulkDelete(req.files);
+                // }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
 
-            const dayProductCode = await productService.generateDaysProductCode(null, req.files, null);
+            // const dayProductCode = await productService.generateDaysProductCode(null, req.files, null);
            
             var reqBody = {
-                daysProductCode:dayProductCode,
+                // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
                 title: reqData.title,
                 category_path:productRecord.category_path,
@@ -457,8 +436,8 @@ exports.changeProductStatus = async (req, res, next) => {
                 searchTerms: productRecord.searchTerms,
                 brandName: reqData.brandName,
 
-                productId: productRecord.productId,
-                productIdType: productRecord.productIdType,
+               // productId: productRecord.productId,
+                //productIdType: productRecord.productIdType,
                 countryOfOrigin: productRecord.countryOfOrigin,
                 manuFacturer:productRecord.manuFacturer,
                 color: productRecord.color,
@@ -481,12 +460,13 @@ exports.changeProductStatus = async (req, res, next) => {
                //'customer_rating.total_rating': 0
                reference_id : productRecord._id
             }
+           // console.log("imageLocation",imageLocation);
             if (imageLocation) {
                 reqBody['front_Img'] = imageLocation;
             }
             const result = await productService.createProduct(reqBody);
             console.log("Successfully Added Product");
-            res.status(201).json({
+           return res.status(201).json({
                 message: 'Successfully Added Product',
                 error: false,
                 data: result 
@@ -561,6 +541,7 @@ exports.changeProductStatus = async (req, res, next) => {
             let updateQuery = {
                 productVariant: formattedProductVariants
             }
+            console.log("updateQuery....",filters,updateQuery);
             let response ={};
             const result = await productService.updateProduct(filters, updateQuery, { lean: true });
             if (result) {
@@ -574,4 +555,20 @@ exports.changeProductStatus = async (req, res, next) => {
     } catch (error) {
         next({});
     }
+}
+
+/**
+ * Filter Product Brand,Seller wise.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 12/06/2021
+ * @usedIn : User Dashboard 
+ * @apiType : GET
+ * @lastModified : 12/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : 
+ * @version : 1
+ */
+
+exports.getFiltersList = async (req, res, next) =>{
+    console.log("@@@@@@@@@@@@@@@@@@@@@");
 }

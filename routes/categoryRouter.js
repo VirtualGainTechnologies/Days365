@@ -15,7 +15,7 @@ const getCategoryValidator = [
 ];
 
 // Use for creating root
-// router.post('/root', categoryController.addRootCategory); 
+router.post('/root', categoryController.addRootCategory); 
 
 router.post('/', verifyAccessJwt, verifySuperAdmin, publicFileUpload.single('categoryImage'), categoryValidator, categoryController.addCategory);
 

@@ -36,6 +36,7 @@ const forgetPasswordRouter = require('./routes/forgetPasswordRouter');
 const vendorDetailsRouter = require('./routes/vendorDetailsRouter');
 const categoryRouter = require('./routes/categoryRouter');
 const productRouter = require('./routes/productRouter');
+const uploadRouter = require('./routes/uploadRouter');
 
 
 
@@ -89,6 +90,7 @@ app.use('/resetPassword', forgetPasswordRouter);
 app.use('/vendorDetails', vendorDetailsRouter);
 app.use('/category', categoryRouter);
 app.use('/product', productRouter);
+app.use('/upload', uploadRouter);
 
 
 

@@ -14,40 +14,26 @@ const productVariantSchema = new Schema({
     productId:{
         type: String,
         trim: true,
-        //required: true,
         index: true
     },
     productIdType:{
         type: String,
         trim: true,
-        //required: true,
         index: true
     },
     color: {
         type: String,
         default: "N/A",
-       // required: true,
         uppercase: true
     },
     size: {
         type: String,
         default: "N/A",
-        //required: true,
         uppercase: true
     },
-    // UPC: {
-    //     type: String
-    // },
-    // EAN: {
-    //     type: String
-    // },
-    // ISBN: {
-    //     type: String
-    // },
-    
+ 
     SKUId: {
         type: String,
-        //required: true
     },
     ingredients: {
         type: String
@@ -55,17 +41,13 @@ const productVariantSchema = new Schema({
     how_to_use: {
         type: String
     },
-    // description: {
-    //     type: String,
-    //     required: true
-    // },
      yourPrice:{
         type: Number,
+        index: true,
         default:0
     },
     offerPrice: {
         type: Number,
-        // required: true,
         index: true
     },
     offerDescription: {
@@ -73,29 +55,33 @@ const productVariantSchema = new Schema({
     },
     stock: {
         type: Number,
-        // required: true,
         default: 0,
         index: true
     },
-    // shipping_fee: {
-    //     type: Number,
-    //     required: true,
-    //     default: 0
-    // },
-    // tax_code: {
-    //     type: String,
-    //     required: true,
-    //     enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
-    //         'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
-    // },
-    image_URLs: [String],
-    product_bill_image_URL: {
+    MainImg: {
         type: String
     },
-    product_details_image_URL: {
-        type: String,
-       // required: true
-    }
+    expiryDate_Img: {
+        type: String  
+    },
+    importerMRP_Img: {
+        type: String
+    },
+    productSeal_Img: {
+        type: String
+    },
+    product_Img1: {
+        type: String
+    },
+    product_Img2: {
+        type: String
+    },
+    product_Img3: {
+        type: String
+    },
+    product_Img4: {
+        type: String
+    },
 }, { timestamps: true, _id: true });
 
 
@@ -153,6 +139,10 @@ const productSchema = new Schema({
         required: true,
         ref: 'user_registers',
         index: true
+    },
+    venderName:{
+        type: String,
+        required: true
     },
   
     title: {
@@ -220,33 +210,6 @@ const productSchema = new Schema({
         trim: true,
         default:0
     },
-    // Images: {
-    front_Img: {
-        type: String
-    },
-    expiryDate_Img: {
-        type: String  
-    },
-    importerMRP_Img: {
-        type: String
-    },
-    productSeal_Img: {
-        type: String
-    },
-    product_Img1: {
-        type: String
-    },
-    product_Img2: {
-        type: String
-    },
-    product_Img3: {
-        type: String
-    },
-    product_Img4: {
-        type: String
-    },
-
-    // },
     productDescription:{
         type: String,
         trim: true
@@ -286,11 +249,14 @@ const productSchema = new Schema({
         required: true,
         ref: 'category_documents'
     },
-   
+    categoryName:{
+        type: String,
+    },
+
     status: {
         type: String,
         required: true,
-        enum: ['Pending', 'Active', 'Blocked'],
+        enum: ['Pending', 'Active','Processing','Blocked'],
         default: "Pending",
         index: true
     },

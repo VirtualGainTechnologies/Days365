@@ -21,6 +21,17 @@ const productReferValidator = [
     body('fileIndex').isArray({ min: 1 })
 ];
 
+const productExistingValidator = [
+    body('productId').trim().notEmpty(),
+    body('title').trim().notEmpty(),
+    body('yourPrice').trim().notEmpty()
+];
+
+const productVarientsValidator = [
+    body('id').trim().notEmpty(),
+    body('productVariant').isArray({ min: 1 }),
+];
+
 const queryProductValidator = [
     query('id').trim().notEmpty()
 ];
@@ -51,11 +62,12 @@ router.post('/addProductTaxCode', verifyAccessJwt,taxCodeValidator,productContro
 
 router.post('/getAllProductTaxCodeList',verifyAccessJwt, productController.getAllProductTaxCodeList);
 
-router.post('/addExistingProduct',verifyAccessJwt, verifyVendor,publicFileUpload.single('front_Img'),productController.addExistingProduct);
+router.post('/addExistingProduct',verifyAccessJwt, verifyVendor,publicFileUpload.single('front_Img'),productExistingValidator,productController.addExistingProduct);
 
 router.get('/getProductSellerWise',verifyAccessJwt, verifyVendor, productController.getProductSellerWise);
 
-router.put('/addProductVarient', productController.addProductVarient);
+router.put('/addProductVarient',verifyAccessJwt,productVarientsValidator, productController.addProductVarient);
 
+router.get('/getFiltersList',productController.getFiltersList);
 
 module.exports = router;

@@ -152,20 +152,24 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.stock > 0) {
                     choice['stock'] = option.stock;
                 }
-                // if (option.shippingFee > 0) {
-                //     choice['shipping_fee'] = option.shippingFee;
-                // }
-                // if (option.taxCode) {
-                //     choice['tax_code'] = option.taxCode;
-                // }
-                // let startIndex = parseInt(fileIndex[i].start);
-                // let endIndex = parseInt(fileIndex[i].end);
-                // choice['product_details_image_URL'] = files[startIndex].location;
-                // let imageUrls = [];
-                // for (let j = startIndex + 1; j <= endIndex; j++) {
-                //     imageUrls.push(files[j].location);
-                // }
-                // choice['image_URLs'] = imageUrls;
+
+                if (option.expiryDate_Img > 0) {
+                    choice['expiryDate_Img'] = option.expiryDate_Img;
+                }
+
+                if (option.importerMRP_Img > 0) {
+                    choice['importerMRP_Img'] = option.importerMRP_Img;
+                }
+
+                if (option.productSeal_Img > 0) {
+                    choice['productSeal_Img'] = option.productSeal_Img;
+                }
+
+                if (option.MainImg > 0) {
+                    choice['MainImg'] = option.MainImg;
+                }
+              
+
                 var uniqueId = '';
                 do {
                     let id = await generateUniqueProductID(15);
@@ -185,27 +189,27 @@ exports.createCategoryPath = async (ancestors = []) => {
     });
 }
 
-exports.generateDaysProductCode = async (variants = [], files = [], fileIndex = []) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            var uniqueId = '';
-            do {
-                let id = await generateUniqueProductID(15);
-                let isUnique = await isUniqueId(id);
-                 console.log(id + " " + isUnique);
-                if (isUnique) {
-                    uniqueId = id;
-                }
-            } while (uniqueId === ''){
-                uniqueId =  uniqueId; 
-            }
-            return resolve(uniqueId);
+// exports.generateDaysProductCode = async (variants = [], files = [], fileIndex = []) => {
+//     return new Promise(async (resolve, reject) => {
+//         try {
+//             var uniqueId = '';
+//             do {
+//                 let id = await generateUniqueProductID(15);
+//                 let isUnique = await isUniqueId(id);
+//                  console.log(id + " " + isUnique);
+//                 if (isUnique) {
+//                     uniqueId = id;
+//                 }
+//             } while (uniqueId === ''){
+//                 uniqueId =  uniqueId; 
+//             }
+//             return resolve(uniqueId);
           
-        } catch (error) {
-            return reject(error);
-        }
-    });
-}
+//         } catch (error) {
+//             return reject(error);
+//         }
+//     });
+// }
 
 
 /**
