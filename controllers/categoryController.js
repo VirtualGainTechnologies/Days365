@@ -6,6 +6,7 @@ const {
 } = require('../utils/ErrorBody');
 const categoryService = require('../services/categoryService');
 const mongoose = require('mongoose');
+const _ = require("underscore");
 
 /**
  *  Add root category
@@ -379,61 +380,38 @@ exports.getCategoriesByName = async (req, res, next) => {
  * @version : 1
  */
 
- exports.getSubCategoriesForSeller = async (req, res, next) => {
+ exports.getCategoriesBrowse = async (req, res, next) => {
     try {
-        let errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return next(new ErrorBody(400, "Bad Inputs", errors.array()));
-        } else {
-            var parentCategory;
-            var id = req.query.id;
-            if (id) {
-                let parentId = mongoose.Types.ObjectId(req.query.id);
-                parentCategory = await categoryService.getCategory(parentId);
-                if (!parentCategory) {
-                    return next(new ErrorBody(400, "Bad Inputs", []));
-                }
-
-            } else {
-                let filters = {
-                    category_name: 'Departments'
-                }
-                parentCategory = await categoryService.getCategoryWithFilters(filters);
-                if (!parentCategory) {
-                    return next({});
-                }
-            }
-            let projection = {
-                _id: 1,
-                category_name: 1,
-                is_leaf: 1,
-                is_restricted: 1,
-                image_URL: 1,
-                createdAt: 1
-            }
-            let options = {
-                lean: true
-            }
-            const result = await parentCategory.getImmediateChildren({}, projection, options);
-            let payload = {
-                parent: {
-                    id: parentCategory._id,
-                    name: parentCategory.category_name
-                },
-                categories: result
-            }
-            var response = {
-                message: 'Successfully retrieved sub categories.',
-                error: false,
-                data: payload
-            };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(response);
-
+        var parentCategory;
+        let filters = {
+            category_name: 'Departments'
         }
+        parentCategory = await categoryService.getCategoryWithFilters(filters);
+        if (!parentCategory) {
+            return next({});
+        }
+        let projection = {
+            _id: 1,
+            category_name: 1,
+            is_leaf: 1,
+            is_restricted: 1,
+            image_URL: 1,
+            createdAt: 1
+        }
+        let options = {
+            lean: true
+        }
+        let result = await parentCategory.getChildrenTree({}, projection, options);
+        var response = {
+            message: 'Successfully Retrieved Categories. and Sub-Categories',
+            error: false,
+            data: result
+        };
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
     } catch (error) {
+        console.log(error)
         next({});
     }
 }

@@ -29,6 +29,6 @@ router.get('/subCategories', getCategoryValidator, categoryController.getSubCate
 
 router.post('/getCategoriesByName',verifyAccessJwt,categoryController.getCategoriesByName);
 
-router.get('/subCategoriesForSeller',verifyAccessJwt, getCategoryValidator, categoryController.getSubCategoriesForSeller);
+router.get('/getCategoriesBrowse',verifyAccessJwt, categoryController.getCategoriesBrowse);
 
 module.exports = router;
