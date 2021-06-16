@@ -9,6 +9,10 @@ var useragent = require('express-useragent');
 var cron = require('node-cron');
 const cronSchedulerService = require('./services/cronSchedulerService');
 
+var app = express()
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 require('dotenv').config();
 
 var mongooseOptions = {
@@ -18,10 +22,9 @@ var mongooseOptions = {
     useCreateIndex: true
 }
 
-var app = express();
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
-app.use(bodyParser.json());
+// app.use(bodyParser.json({ limit: '100mb' }));
+// app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
+// app.use(bodyParser.json());
 
 //MongoDB connect
 const MongoDBURI = process.env.DB_CONNECTION || 'mongodb://localhost/Days365DEV';

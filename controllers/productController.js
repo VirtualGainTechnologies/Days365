@@ -244,8 +244,10 @@ exports.getProductSellers = async (req, res, next) => {
 
 exports.search = async (req, res, next) => {
     try {
-        var upc = req.body;
-        console.log(upc.upc)
+        var body = req.body;
+        var upc = body.upc;
+        var id = body.id;
+        var isbn = body.isbn;
 
         //console.log(upc);
         await productModel.find({ title: upc }).then((result) => {
@@ -259,9 +261,8 @@ exports.search = async (req, res, next) => {
             res.setHeader('Content-Type', 'application/json');
             res.send(response);
         })
-
     } catch (err) {
-        next({});
+        next();
     }
 }
 

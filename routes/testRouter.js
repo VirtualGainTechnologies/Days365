@@ -6,7 +6,6 @@ const { userLogin } = require('../services/commonAccountService');
 const { publicFileUpload, createBucket, } = require('../utils/fileUpload');
 const router = require('./productRouter');
 
-
 testRouter.route('/image')
     .get(async (req, res, next) => {
         try {
@@ -43,7 +42,7 @@ testRouter.route('/').post(async (req, res, next) => {
         res.json({ token: token });
     } catch (error) {
         console.log(error);
-        next({});
+        next();
     }
 })
 
