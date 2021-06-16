@@ -9,7 +9,6 @@ var useragent = require('express-useragent');
 var cron = require('node-cron');
 const cronSchedulerService = require('./services/cronSchedulerService');
 
-
 require('dotenv').config();
 
 var mongooseOptions = {
@@ -19,47 +18,23 @@ var mongooseOptions = {
     useCreateIndex: true
 }
 
-
-/**
- * Routers added
- */
-
-const testRouter = require('./routes/testRouter');
-const countryRouter = require('./routes/countryRouter');
-const utilityRouter = require('./routes/utilityRouter');
-
-const tokenRouter = require('./routes/tokenRouter');
-const signupRouter = require('./routes/signupRouter');
-const signinRouter = require('./routes/signinRouter');
-const signoutRouter = require('./routes/signoutRouter');
-const forgetPasswordRouter = require('./routes/forgetPasswordRouter');
-const vendorDetailsRouter = require('./routes/vendorDetailsRouter');
-const categoryRouter = require('./routes/categoryRouter');
-const productRouter = require('./routes/productRouter');
-const sliderRouter = require('./routes/sliderRouter');
-
-
-
-
-
 var app = express();
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
+app.use(bodyParser.json());
 
 //MongoDB connect
 const MongoDBURI = process.env.DB_CONNECTION || 'mongodb://localhost/Days365DEV';
-//const MongoDBURI ='mongodb://localhost/Days365DEV';
-mongoose.connect(MongoDBURI, mongooseOptions)
-    .then(() => {
-        console.log(chalk.green("Connected Successfully to port 27017"));
-    }).catch((error) => {
-        console.log(chalk.red(error));
-    });
+mongoose.connect(MongoDBURI, mongooseOptions).then(() => {
+    console.log(chalk.green("Connected Successfully to port 27017"));
+}).catch((error) => {
+    console.log(chalk.red(error));
+});
 
 app.use(cors());
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
 app.use(useragent.express());
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
     // Request methods you wish to allow
@@ -73,9 +48,18 @@ app.use(function(req, res, next) {
     next();
 });
 
-/**
- * Routes
- */
+const testRouter = require('./routes/testRouter');
+const countryRouter = require('./routes/countryRouter');
+const utilityRouter = require('./routes/utilityRouter');
+const tokenRouter = require('./routes/tokenRouter');
+const signupRouter = require('./routes/signupRouter');
+const signinRouter = require('./routes/signinRouter');
+const signoutRouter = require('./routes/signoutRouter');
+const forgetPasswordRouter = require('./routes/forgetPasswordRouter');
+const vendorDetailsRouter = require('./routes/vendorDetailsRouter');
+const categoryRouter = require('./routes/categoryRouter');
+const productRouter = require('./routes/productRouter');
+const sliderRouter = require('./routes/sliderRouter');
 
 app.use('/test', testRouter);
 app.use('/country', countryRouter);
@@ -90,43 +74,24 @@ app.use('/category', categoryRouter);
 app.use('/product', productRouter);
 app.use('/slider', sliderRouter);
 
-
-
-
-/**
- * Schedulers
- */
-
-//Expired OTP records delete. Run twice in a day.
-
-cron.schedule('0 */12 * * *', async() => {
+cron.schedule('0 */12 * * *', async () => {
     console.log("EXPIRED OTP DOCUMENTS DELETION STARTED");
     await cronSchedulerService.deleteExpiredOtpRecords();
 });
 
-
 // Delete Expired PreSignup Documents. Run once in a day
-
-cron.schedule('0 0 * * *', async() => {
+cron.schedule('0 0 * * *', async () => {
     console.log("EXPIRED PRESIGNUP DOCUMENTS DELETION STARTED");
     await cronSchedulerService.deleteExpiredPreSignupRecords();
 });
 
-
-
-
-/**
- * Error Handlers
- */
-
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     next(createError(404));
 });
 
-
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     console.log("ERROR========================>", chalk.red(err.message));
     console.log(err);
     res.status(err.status || 500);

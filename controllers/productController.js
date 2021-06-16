@@ -20,10 +20,10 @@ GLOBAL FUNCTIONS
 MODULE FUNCTION
 **********************************/
 /**
- *  Add a product 
+ *  Add a product
  */
 
-exports.addProduct = async(req, res, next) => {
+exports.addProduct = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -120,7 +120,7 @@ exports.addProduct = async(req, res, next) => {
  * Add product by referring. // TO DO : need to consider product bill file upload
  */
 
-exports.addProductByReference = async(req, res, next) => {
+exports.addProductByReference = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -180,7 +180,7 @@ exports.addProductByReference = async(req, res, next) => {
  * Get active prouduct by id
  */
 
-exports.getActiveProductById = async(req, res, next) => {
+exports.getActiveProductById = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -206,7 +206,7 @@ exports.getActiveProductById = async(req, res, next) => {
  * Get versions of sellers selling same product
  */
 
-exports.getProductSellers = async(req, res, next) => {
+exports.getProductSellers = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -242,10 +242,12 @@ exports.getProductSellers = async(req, res, next) => {
  * @version : 1
  */
 
-exports.search = async(req, res, next) => {
+exports.search = async (req, res, next) => {
     try {
-        var upc = req.body.upc;
-        console.log(upc);
+        var upc = req.body;
+        console.log(upc.upc)
+
+        //console.log(upc);
         await productModel.find({ title: upc }).then((result) => {
             var response = { 'message': 'Product Found', 'error': 'false', 'data': result };
             res.status(200);
@@ -264,7 +266,7 @@ exports.search = async(req, res, next) => {
 }
 
 
-exports.getAllProductList = async(req, res, next) => {
+exports.getAllProductList = async (req, res, next) => {
     try {
 
         let errors = validationResult(req);
@@ -298,7 +300,7 @@ exports.getAllProductList = async(req, res, next) => {
  * @version : 1
  */
 
-exports.changeProductStatus = async(req, res, next) => {
+exports.changeProductStatus = async (req, res, next) => {
     try {
 
         let errors = validationResult(req);
@@ -329,7 +331,7 @@ exports.changeProductStatus = async(req, res, next) => {
  * Add Product Tax Code.
  * @createdBy : VINAY SINGH BAGHEL
  * @createdOn : 02/06/2021
- * @usedIn : Admin 
+ * @usedIn : Admin
  * @apiType : POST
  * @lastModified : 02/06/2021
  * @modifiedBy : VINAY SINGH BAGHEL
@@ -338,7 +340,7 @@ exports.changeProductStatus = async(req, res, next) => {
  */
 
 
-exports.addProductTaxCode = async(req, res, next) => {
+exports.addProductTaxCode = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -380,7 +382,7 @@ exports.addProductTaxCode = async(req, res, next) => {
  */
 
 
-exports.getAllProductTaxCodeList = async(req, res, next) => {
+exports.getAllProductTaxCodeList = async (req, res, next) => {
     try {
 
         let errors = validationResult(req);
