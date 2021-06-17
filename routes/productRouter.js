@@ -8,10 +8,10 @@ const productController = require('../controllers/productController');
 // Validators
 
 const productBodyValidator = [
-    body('title').notEmpty(),
-    body('categoryId').notEmpty(),
-    body('brandName').notEmpty(),
-    body('searchTerms').notEmpty()  
+    body('vitalInfo.title').notEmpty(),
+    //body('vitalInfo.categoryId').notEmpty(),
+    body('vitalInfo.brandName').notEmpty(),
+    //body('vitalInfo.searchTerms').notEmpty()  
 ];
  // body('docName').trim().custom(val => ['frontImg', 'expiryDateImg', 'importerMRPImg', 'productSealImg','productImg1','productImg2','productImg3','productImg4'].includes(val))
 
@@ -54,13 +54,13 @@ router.get('/', queryProductValidator, productController.getActiveProductById);
 
 router.get('/sellers', queryProductValidator, productController.getProductSellers);
 
-router.get('/getAllProductList',verifyAccessJwt, productController.getAllProductList);
+router.post('/getAllProductList',verifyAccessJwt, verifyAdmin , productController.getAllProductList);
 
 router.put('/changeProductStatus', verifyAccessJwt,productController.changeProductStatus);
 
 router.post('/addProductTaxCode', verifyAccessJwt,taxCodeValidator,productController.addProductTaxCode);
 
-router.post('/getAllProductTaxCodeList',verifyAccessJwt, productController.getAllProductTaxCodeList);
+router.get('/getAllProductTaxCodeList',verifyAccessJwt, verifyVendor, productController.getAllProductTaxCodeList);
 
 router.post('/addExistingProduct',verifyAccessJwt, verifyVendor,publicFileUpload.single('front_Img'),productExistingValidator,productController.addExistingProduct);
 

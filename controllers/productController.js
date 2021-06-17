@@ -24,6 +24,8 @@ MODULE FUNCTION
 
 exports.addProduct = async (req, res, next) => {
     try {
+        console.log("reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req.body);
+    //    return;
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             // if (req.files) {
@@ -31,17 +33,18 @@ exports.addProduct = async (req, res, next) => {
             // }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         } else {
+            
             var data = req.body;
             var vendorId = mongoose.Types.ObjectId(req.user.id);
-            var title = data.title;
-            var categoryId = mongoose.Types.ObjectId(data.categoryId);
+            var title = data.vitalInfo.title;
+            var categoryId = mongoose.Types.ObjectId(data.vitalInfo.categoryId);
             var keyWords = data.keyWords;
-            var productVariants = data.productVariants;
-            var fileIndex = data.fileIndex;
-            var brandName = data.brandName;
+            // var productVariants = data.productVariants;
+            // var fileIndex = data.fileIndex;
+            var brandName = data.vitalInfo.brandName;
             var tempBrandName = brandName.toLowerCase();
 
-            const flag = await productService.getProductWithFilters({title: data.title}, null, { lean: true });
+            const flag = await productService.getProductWithFilters({title:title}, null, { lean: true });
             // if (!flag || (fileIndex.length !== productVariants.length)) {
             if (flag) {
                 // if (req.files) {
@@ -53,9 +56,11 @@ exports.addProduct = async (req, res, next) => {
                     data: flag 
                 });
             }
-
+           
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
+            // console.log("################1111 vendorRecord",vendorRecord);
+            // console.log("################1111 categoryRecord",categoryRecord);
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || (vendorRecord.brand_status !== 'Approved')) {
                 // if (req.files) {
                 //     await productService.filesBulkDelete(req.files);
@@ -73,36 +78,37 @@ exports.addProduct = async (req, res, next) => {
                 // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
                 venderName:vendorRecord.company_name,
-                title: title,
                 category_path: categoryPath,
                 category_id: categoryRecord._id,
                 categoryName:categoryRecord.category_name,
-                searchTerms: keyWords,
-                brandName: tempBrandName === 'generic' ? "Generic" : brandName,
 
-                // productId: data.productId,
-                // productIdType: data.productIdType,
-                countryOfOrigin: data.countryOfOrigin,
-                manuFacturer:data.manuFacturer,
-                color: data.color,
-                minRecommendedAge:data.minRecommendedAge,
-                isProductExpirable: data.isProductExpirable,
-                condition: data.condition,
-                conditionNote: data.conditionNote,
-                salePrice:data.salePrice,
-                yourPrice:data.yourPrice,
-                maximumRetailPrice:data.maximumRetailPrice,
-                handlingPeriod:data.handlingPeriod,
-                productDescription:data.productDescription,
-                bulletPoint: data.bulletPoint,
-                searchTerms: data.searchTerms,
-                targetAudience: data.targetAudience,
-                shippingCharges:data.shippingCharges,
-                shippingChargesAmt: data.shippingChargesAmt,
-                // variants: formattedProductVariants,
+                title: title,
+                brandName: tempBrandName === 'generic' ? "Generic" : brandName,
+                countryOfOrigin: data.vitalInfo.countryOfOrigin,
+                manuFacturer:data.vitalInfo.manufacturer,
+                minRecommendedAge:data.vitalInfo.minimumRecommendedAge,
+                isProductExpirable: data.vitalInfo.isProductExpirable,
+
+                condition: data.offer.condition,
+                conditionNote: data.offer.conditionNote,
+                salePrice:data.offer.salePrice,
+                maximumRetailPrice:data.offer.maxRetailPrice,
+                handlingPeriod:data.offer.handlingPeriod,
+
+                productDescription:data.description.productDescription,
+                legalClaimer:data.description.legalDisclaimer,
+                // bulletPoint: data.description.bulletPoint,
+               
+                // searchTerms: data.searchTerms,
+                // targetAudience: data.targetAudience,
+                shippingCharges:data.keywords.shippingCharges,
+                // shippingChargesAmt: data.keywords.shippingChargesAmt,
                 status: 'Pending',
-               //'customer_rating.total_rating': 0
+            
             }
+
+        //     console.log("###########################################",reqBody);
+        // return;
 
             const result = await productService.createProduct(reqBody);
             console.log("Successfully Added Product");
@@ -253,14 +259,13 @@ exports.getProductSellers = async (req, res, next) => {
 
  exports.getAllProductList = async (req, res, next) => {
     try {
-        
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
         
-            let options = {"status":req.query.status};
-            const result = await productService.getAllProduct(options);
+            let options = {"status":req.body.status};
+            const result = await productService.getAllProduct(options,null, { lean: true });
             if (result && result.length) {
                 var response = { message: "Successfully getting Product List", error: false, data:result};
             }else{
@@ -375,8 +380,8 @@ exports.changeProductStatus = async (req, res, next) => {
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
-        
-            let options = {"categoryName":req.body.categoryName};
+            let options ={};
+           // let options = {"categoryName":req.body.categoryName};
             const result = await productService.getAllProductTaxCode(options,null, { lean: true });
             if (result && result.length) {
                 var response = { message: "Successfully getting Product Tax Code List", error: false, data:result};

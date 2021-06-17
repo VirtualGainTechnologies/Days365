@@ -328,12 +328,76 @@ exports.getCategoriesByName = async (req, res, next) => {
                 let filters = {
                     category_name: regexName
                 }
+                let projection = {
+                    _id: 1,
+                    category_name: 1,
+                    is_leaf: 1,
+                    is_restricted: 1,
+                    image_URL: 1,
+                    createdAt: 1
+                }
+                let options = {
+                    lean: true
+                }
+                parentCategory = await categoryService.getCategories(filters,projection,options);
+                if (parentCategory && parentCategory.length==0) {
+                    return res.status(201).json({
+                        message: 'Category Not exists',
+                        error: false,
+                        data: []
+                    });
+                }else{
+                    return res.status(201).json({
+                        message: 'Successfully Retrieved Category.',
+                        error: false,
+                        data: parentCategory 
+                    });
+                }
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        next({});
+    }
+}
+
+/**
+ * Browse All Category and subcategory.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 04/06/2021
+ * @usedIn : Seller Dashboard
+ * @apiType : Get
+ * @lastModified : 04/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : id
+ * @version : 1
+ */
+
+ exports.getCategoriesBrowse = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        } else {
+            var parentCategory;
+            var id = req.query.id;
+            if (id) {
+                let parentId = mongoose.Types.ObjectId(req.query.id);
+                parentCategory = await categoryService.getCategory(parentId);
+                if (!parentCategory) {
+                    return next(new ErrorBody(400, "Bad Inputs", []));
+                }
+
+            } else {
+                let filters = {
+                    category_name: 'Departments'
+                }
                 parentCategory = await categoryService.getCategoryWithFilters(filters);
                 if (!parentCategory) {
                     return next({});
                 }
             }
-
             let projection = {
                 _id: 1,
                 category_name: 1,
@@ -363,53 +427,34 @@ exports.getCategoriesByName = async (req, res, next) => {
             res.json(response);
 
         }
-    } catch (error) {
-        next({});
-    }
-}
-
-/**
- * Browse All Category and subcategory.
- * @createdBy : VINAY SINGH BAGHEL
- * @createdOn : 04/06/2021
- * @usedIn : Seller Dashboard
- * @apiType : Get
- * @lastModified : 04/06/2021
- * @modifiedBy : VINAY SINGH BAGHEL
- * @parameters : id
- * @version : 1
- */
-
- exports.getCategoriesBrowse = async (req, res, next) => {
-    try {
-        var parentCategory;
-        let filters = {
-            category_name: 'Departments'
-        }
-        parentCategory = await categoryService.getCategoryWithFilters(filters);
-        if (!parentCategory) {
-            return next({});
-        }
-        let projection = {
-            _id: 1,
-            category_name: 1,
-            is_leaf: 1,
-            is_restricted: 1,
-            image_URL: 1,
-            createdAt: 1
-        }
-        let options = {
-            lean: true
-        }
-        let result = await parentCategory.getChildrenTree({}, projection, options);
-        var response = {
-            message: 'Successfully Retrieved Categories. and Sub-Categories',
-            error: false,
-            data: result
-        };
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(response);
+        // var parentCategory;
+        // let filters = {
+        //     category_name: 'Departments'
+        // }
+        // parentCategory = await categoryService.getCategoryWithFilters(filters);
+        // if (!parentCategory) {
+        //     return next({});
+        // }
+        // let projection = {
+        //     _id: 1,
+        //     category_name: 1,
+        //     is_leaf: 1,
+        //     is_restricted: 1,
+        //     image_URL: 1,
+        //     createdAt: 1
+        // }
+        // let options = {
+        //     lean: true
+        // }
+        // let result = await parentCategory.getChildrenTree({}, projection, options);
+        // var response = {
+        //     message: 'Successfully Retrieved Categories. and Sub-Categories',
+        //     error: false,
+        //     data: result
+        // };
+        // res.statusCode = 200;
+        // res.setHeader('Content-Type', 'application/json');
+        // res.json(response);
     } catch (error) {
         console.log(error)
         next({});

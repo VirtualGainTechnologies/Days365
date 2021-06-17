@@ -163,10 +163,10 @@ const productSchema = new Schema({
         trim: true,
         index: true
     },
-    color:{
-        type: String,
-        trim: true
-    },
+    // color:{
+    //     type: String,
+    //     trim: true
+    // },
     minRecommendedAge:{
         type: Number,
         trim: true,
@@ -256,7 +256,7 @@ const productSchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Pending', 'Active','Processing','Blocked'],
+        enum: ['Pending', 'Active','Processing','Rejected'],
         default: "Pending",
         index: true
     },

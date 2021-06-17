@@ -411,7 +411,7 @@ exports.getActiveProductRecordById = async (id) => {
  */
 
 exports.getAllProduct = async (filters = {},projection = null, options = {}) => {
-    return await productModel.find(filters, projection, options);
+    return await productModel.find(filters, projection, options).sort({_id:-1});
 }
 
 /**
