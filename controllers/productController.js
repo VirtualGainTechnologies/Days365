@@ -24,7 +24,7 @@ MODULE FUNCTION
 
 exports.addProduct = async (req, res, next) => {
     try {
-        console.log("reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req.body);
+    //     console.log("reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req.body.keywords.searchTermsArr);
     //    return;
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -60,7 +60,7 @@ exports.addProduct = async (req, res, next) => {
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId);
             // console.log("################1111 vendorRecord",vendorRecord);
-            // console.log("################1111 categoryRecord",categoryRecord);
+            
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || (vendorRecord.brand_status !== 'Approved')) {
                 // if (req.files) {
                 //     await productService.filesBulkDelete(req.files);
@@ -73,7 +73,10 @@ exports.addProduct = async (req, res, next) => {
             categoryPath += "/" + categoryRecord.category_name;
           
            // const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
-           
+        //    var searchProductKey = [];
+        //    searchProductKey.push(data.firstSearchTerm);
+        //    console.log("################1111 categoryRecord",data.addedSearchTerm);
+           //searchProductKey.concat(data.addedSearchTerm);
             var reqBody = {
                 // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
@@ -97,18 +100,18 @@ exports.addProduct = async (req, res, next) => {
 
                 productDescription:data.description.productDescription,
                 legalClaimer:data.description.legalDisclaimer,
-                // bulletPoint: data.description.bulletPoint,
+                bulletPoint: data.description.bulletPoint,
                
-                // searchTerms: data.searchTerms,
-                // targetAudience: data.targetAudience,
+                searchTermsArr: data.keywords.searchTermsArr,
+                targetAudience: data.keywords.targetAudienceArr,
                 shippingCharges:data.keywords.shippingCharges,
-                // shippingChargesAmt: data.keywords.shippingChargesAmt,
+                shippingChargesAmt: (data.keywords.shippingChargesAmt)?data.keywords.shippingChargesAmt:0,
                 status: 'Pending',
             
             }
 
-        //     console.log("###########################################",reqBody);
-        // return;
+            //console.log("###########################################",reqBody);
+        //return;
 
             const result = await productService.createProduct(reqBody);
             console.log("Successfully Added Product");
@@ -303,6 +306,7 @@ exports.changeProductStatus = async (req, res, next) => {
             let updateQuery = {
                 status: req.body.status
             }
+
             let response ={};
             const result = await productService.updateProduct(filters, updateQuery, { lean: true });
             if (result) {
@@ -563,6 +567,37 @@ exports.changeProductStatus = async (req, res, next) => {
 }
 
 /**
+ * Search Product by UPC / ISBN / EAN / Product Name
+ * @createdBy : VINAY KUMAR SINGH
+ * @createdOn : 01/06/2021
+ * @usedIn : Admin
+ * @apiType : POST
+ * @lastModified : 01/06/2021
+ * @modifiedBy : VINAY KUMAR SINGH
+ * @parameters : status
+ * @version : 1
+ */
+
+ exports.searchProduct = async (req, res, next) => {
+    try {
+        var filter ={};
+        filter =  {"status":"Active", $or: [{ "productVariant.title": new RegExp(req.body.searchValue, 'i') },{ "productVariant.productId": req.body.searchValue },{ "productVariant.daysProductCode": req.body.searchValue },{ "productVariant.SKUId": req.body.searchValue }]};
+        const result = await productService.getAllProduct(filter,null,{lean:true});
+       
+        if (result && result.length==0) {
+            var response = { message: "No Record Found", error: true, data: [] };
+        }else{
+            response = { message: "Successfully retrieved product.", error: false, data: result };
+        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    } catch (err) {
+        next();
+    }
+ }
+
+/**
  * Filter Product Brand,Seller wise.
  * @createdBy : VINAY SINGH BAGHEL
  * @createdOn : 12/06/2021
@@ -574,6 +609,28 @@ exports.changeProductStatus = async (req, res, next) => {
  * @version : 1
  */
 
-exports.getFiltersList = async (req, res, next) =>{
-    console.log("@@@@@@@@@@@@@@@@@@@@@");
+// exports.getFiltersList = async (req, res, next) =>{
+//     console.log("@@@@@@@@@@@@@@@@@@@@@");
+// }
+
+/**
+ * get All product in customer dashboard.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 18/06/2021
+ * @usedIn : User Dashboard 
+ * @apiType : GET
+ * @lastModified : 18/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : 
+ * @version : 1
+ */
+exports.getProducts = async(req, res, next)=>{
+    let options = {"status":"Active"};
+    const result = await productService.getAllProduct(options,null, { lean: true });
+    if (result && result.length) {
+        var response = { message: "Successfully getting Product List", error: false, data:result};
+    }else{
+        var response = { message: "No Record Found.", error: true, data: [] };
+    }
+    res.status(201).json(response);
 }

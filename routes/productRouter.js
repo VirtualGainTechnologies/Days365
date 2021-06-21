@@ -68,6 +68,9 @@ router.get('/getProductSellerWise',verifyAccessJwt, verifyVendor, productControl
 
 router.put('/addProductVarient',verifyAccessJwt,productVarientsValidator, productController.addProductVarient);
 
-router.get('/getFiltersList',productController.getFiltersList);
+// router.get('/getFiltersList',productController.getFiltersList);
+router.post('/searchProduct',verifyAccessJwt,verifyVendor, productController.searchProduct);
+
+router.post('/getProducts', productController.getProducts);
 
 module.exports = router;

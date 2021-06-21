@@ -3,6 +3,12 @@ const Schema = mongoose.Schema;
 
 
 const productVariantSchema = new Schema({
+
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
     
     daysProductCode: {
         type: String,
@@ -219,11 +225,11 @@ const productSchema = new Schema({
         trim: true
     },
     bulletPoint:{
-        type: Array,
+        type: Number,
         trim: true
     },
-    searchTerms:{
-        type: String,
+    searchTermsArr:{
+        type: Array,
         trim: true
     },
     targetAudience:{
