@@ -24,13 +24,8 @@ MODULE FUNCTION
 
 exports.addProduct = async (req, res, next) => {
     try {
-    //     console.log("reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req.body.keywords.searchTermsArr);
-    //    return;
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
-            // if (req.files) {
-            //     await productService.filesBulkDelete(req.files);
-            // }
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         } else {
             
@@ -39,17 +34,11 @@ exports.addProduct = async (req, res, next) => {
             var title = data.vitalInfo.title;
             var categoryId = mongoose.Types.ObjectId(data.vitalInfo.categoryId);
             var keyWords = data.keyWords;
-            // var productVariants = data.productVariants;
-            // var fileIndex = data.fileIndex;
             var brandName = data.vitalInfo.brandName;
             var tempBrandName = brandName.toLowerCase();
 
             const flag = await productService.getProductWithFilters({title:title}, null, { lean: true });
-            // if (!flag || (fileIndex.length !== productVariants.length)) {
             if (flag) {
-                // if (req.files) {
-                //     await productService.filesBulkDelete(req.files);
-                // }
                 return res.status(201).json({
                     message: 'Duplicate Data Founded',
                     error: false,
@@ -58,13 +47,8 @@ exports.addProduct = async (req, res, next) => {
             }
            
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
-            const categoryRecord = await productService.getCategoryRecord(categoryId);
-            // console.log("################1111 vendorRecord",vendorRecord);
-            
+            const categoryRecord = await productService.getCategoryRecord(categoryId); 
             if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || (vendorRecord.brand_status !== 'Approved')) {
-                // if (req.files) {
-                //     await productService.filesBulkDelete(req.files);
-                // }
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
             
@@ -73,10 +57,6 @@ exports.addProduct = async (req, res, next) => {
             categoryPath += "/" + categoryRecord.category_name;
           
            // const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
-        //    var searchProductKey = [];
-        //    searchProductKey.push(data.firstSearchTerm);
-        //    console.log("################1111 categoryRecord",data.addedSearchTerm);
-           //searchProductKey.concat(data.addedSearchTerm);
             var reqBody = {
                 // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
@@ -109,10 +89,6 @@ exports.addProduct = async (req, res, next) => {
                 status: 'Pending',
             
             }
-
-            //console.log("###########################################",reqBody);
-        //return;
-
             const result = await productService.createProduct(reqBody);
             console.log("Successfully Added Product");
             res.status(201).json({
@@ -145,6 +121,7 @@ exports.addProductByReference = async (req, res, next) => {
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }
         else {
+            
             var data = req.body;
             var vendorId = mongoose.Types.ObjectId(req.user.id);
             var productId = mongoose.Types.ObjectId(data.productId);
@@ -266,8 +243,15 @@ exports.getProductSellers = async (req, res, next) => {
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
-        
-            let options = {"status":req.body.status};
+            let options ={};
+            if(req.body.Type =="seller"){
+                options = {"status":req.body.status,productVariant: { $exists: true, $size:0}};
+            }else if(req.body.Type =="adminSecond"){
+                options = {"status":req.body.status,productVariant: { $exists: true, $not: {$size: 0} }};
+            }else{
+                options = {"status":req.body.status};
+            }
+           console.log("options...................",options);
             const result = await productService.getAllProduct(options,null, { lean: true });
             if (result && result.length) {
                 var response = { message: "Successfully getting Product List", error: false, data:result};
@@ -539,18 +523,25 @@ exports.changeProductStatus = async (req, res, next) => {
 
  exports.addProductVarient = async (req, res, next) => {
     try {
-        
+    
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
+            //console.log(req.body);
+            let diffArray = req.body.urlHistory.filter(o1 => !req.body.productVariant.some(o2 => o1 === o2.expiryDate_Img || o1 === o2.importerMRP_Img || o1 === o2.productSeal_Img || o1 === o2.MainImg || o1 === o2.product_Img1));
+           // console.log("resssssssssssss",diffArray);
+            if(diffArray && diffArray.length>0){
+               await productService.bulkFilesDelete(diffArray);
+            }
+            //return;
             const id = mongoose.Types.ObjectId(req.body.id);
             let filters = {_id: id};
-            const formattedProductVariants = await productService.formatProductVariants(req.body.productVariant, null, null);
+            const formattedProductVariants = await productService.formatProductVariants(req.body.productVariant, req.files, null);
             let updateQuery = {
                 productVariant: formattedProductVariants
             }
-            console.log("updateQuery....",filters,updateQuery);
+
             let response ={};
             const result = await productService.updateProduct(filters, updateQuery, { lean: true });
             if (result) {
@@ -562,6 +553,7 @@ exports.changeProductStatus = async (req, res, next) => {
         }
         
     } catch (error) {
+        console.log("errrrrrrrrrrrrrrr",error);
         next({});
     }
 }
@@ -633,4 +625,32 @@ exports.getProducts = async(req, res, next)=>{
         var response = { message: "No Record Found.", error: true, data: [] };
     }
     res.status(201).json(response);
+}
+
+
+/**
+ * get product variants in Admin Side.
+ * @createdBy : VINAY SINGH BAGHEL
+ * @createdOn : 26/06/2021
+ * @usedIn : User Dashboard 
+ * @apiType : GET
+ * @lastModified : 26/06/2021
+ * @modifiedBy : VINAY SINGH BAGHEL
+ * @parameters : 
+ * @version : 1
+ */
+ exports.getProductVariant = async(req, res, next)=>{
+    try{
+        // console.log("reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req);
+    let options = {"_id":req.query.id};
+    const result = await productService.getProductWithFilters(options,null, { lean: true });
+    if (result) {
+        var response = { message: "Successfully getting Product Variants List", error: false, data:result};
+    }else{
+        var response = { message: "No Record Found.", error: true, data:{}};
+    }
+        return res.status(201).json(response);
+    }catch (err) {
+        next();
+    }
 }

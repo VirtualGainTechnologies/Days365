@@ -66,6 +66,21 @@ exports.filesBulkDelete = async (files = []) => {
 }
 
 
+exports.bulkFilesDelete = async (files = []) => {
+    const length = files.length;
+    var i = 0;
+    while (i < length) {
+        try {
+            let fileName = files[i].split("/")
+            console.log("fileName",fileName[3]);
+            await deleteFileFromPublicSpace(fileName[3]);
+        } catch (error) {
+            //Nothing to do
+        }
+        i++;
+    }
+}
+
 /**
  * Get Vendor Record
  */
@@ -110,6 +125,9 @@ exports.createCategoryPath = async (ancestors = []) => {
  exports.formatProductVariants = async (variants = [], files = [], fileIndex = []) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // console.log("reqqqqqqqqqqqqqqqqqqqqq",variants);
+            // console.log("req.file.location ............................",files);
+            // return;
             var formattedVariants = [];
             for (let [i, option] of variants.entries()) {
                 var choice = {};
@@ -153,19 +171,19 @@ exports.createCategoryPath = async (ancestors = []) => {
                     choice['stock'] = option.stock;
                 }
 
-                if (option.expiryDate_Img > 0) {
+                if (option.expiryDate_Img) {
                     choice['expiryDate_Img'] = option.expiryDate_Img;
                 }
 
-                if (option.importerMRP_Img > 0) {
+                if (option.importerMRP_Img) {
                     choice['importerMRP_Img'] = option.importerMRP_Img;
                 }
 
-                if (option.productSeal_Img > 0) {
+                if (option.productSeal_Img) {
                     choice['productSeal_Img'] = option.productSeal_Img;
                 }
 
-                if (option.MainImg > 0) {
+                if (option.MainImg) {
                     choice['MainImg'] = option.MainImg;
                 }
               

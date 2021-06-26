@@ -56,6 +56,8 @@ router.get('/sellers', queryProductValidator, productController.getProductSeller
 
 router.post('/getAllProductList',verifyAccessJwt, verifyAdmin , productController.getAllProductList);
 
+router.post('/getAllProductOnSeller',verifyAccessJwt, verifyVendor , productController.getAllProductList);
+
 router.put('/changeProductStatus', verifyAccessJwt,productController.changeProductStatus);
 
 router.post('/addProductTaxCode', verifyAccessJwt,taxCodeValidator,productController.addProductTaxCode);
@@ -66,11 +68,13 @@ router.post('/addExistingProduct',verifyAccessJwt, verifyVendor,publicFileUpload
 
 router.get('/getProductSellerWise',verifyAccessJwt, verifyVendor, productController.getProductSellerWise);
 
-router.put('/addProductVarient',verifyAccessJwt,productVarientsValidator, productController.addProductVarient);
+router.put('/addProductVarient',verifyAccessJwt,productVarientsValidator,publicFileUpload.array('expiryDate_Img'), productController.addProductVarient);
 
 // router.get('/getFiltersList',productController.getFiltersList);
 router.post('/searchProduct',verifyAccessJwt,verifyVendor, productController.searchProduct);
 
-router.post('/getProducts', productController.getProducts);
+router.post('/getProducts',verifyAccessJwt, productController.getProducts);
+
+router.get('/getProductVariant',verifyAccessJwt,verifyAdmin, productController.getProductVariant);
 
 module.exports = router;
