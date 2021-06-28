@@ -38,19 +38,19 @@ exports.addBrand = async (req, res, next) => {
     }
 }
 
-exports.getPendingBrand = async(req, res, next) => {
+exports.getBrands = async(req, res, next) => {
     try{
-        const result = await brandService.getPendingBrand();
+        let options = {"status":req.body.status}
+        //console.log("options.........................",options);
+        const result = await brandService.getBrand(options,null, { lean: true });
 
-        var response = { message: "No record found.", error: true, data: {} };
+        var response = { message: "No Record Found.", error: true, data: [] };
         if(result){
             response = { message: "Successfully retrieved products.", error: false, data: result};
         }
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(result);
-
-
+        res.json(response);
 
     }catch (error) {
         console.log(error);

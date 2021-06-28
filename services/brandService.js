@@ -11,8 +11,8 @@ exports.createBrand = async (reqBody = {}) => {
     return await brandModel.create(reqBody);
 }
 
-exports.getPendingBrand = async () => {
-    return await brandModel.find({status:"Pending"});
+exports.getBrand = async (filters = {}, updateQuery={}, options={}) => {
+    return await brandModel.find(filters, updateQuery, options);
 }
 
 exports.changeStatus = async (filters = {}, updateQuery={}, options={}) => {

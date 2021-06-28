@@ -16,7 +16,7 @@ const productBodyValidator = [
 router.post('/register', productBodyValidator, publicFileUpload.single('image'), brandController.addBrand);
 
 //router for admin to get all pending verificattion brands
-router.get('/pending', brandController.getPendingBrand)
+router.post('/getBrands', brandController.getBrands)
 
 //router to change status Pending to Approved
 router.get('/status', brandController.changeStatus)
