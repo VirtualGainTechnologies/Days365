@@ -19,12 +19,9 @@ router.post('/register', productBodyValidator, publicFileUpload.single('image'),
 router.post('/getBrands', brandController.getBrands)
 
 //router to change status Pending to Approved
-router.get('/status', brandController.changeStatus)
-
-//sample file upload router
-router.post('/fileUpload', publicFileUpload.single('image'), brandController.uploadFile)
+router.put('/updateStatus', brandController.changeStatus)
 
 module.exports = router;
-//comment here
+
 
 

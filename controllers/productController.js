@@ -74,8 +74,8 @@ exports.addProduct = async (req, res, next) => {
 
                 condition: data.offer.condition,
                 conditionNote: data.offer.conditionNote,
-                salePrice:data.offer.salePrice,
-                maximumRetailPrice:data.offer.maxRetailPrice,
+                // salePrice:data.offer.salePrice,
+                // maximumRetailPrice:data.offer.maxRetailPrice,
                 handlingPeriod:data.offer.handlingPeriod,
 
                 productDescription:data.description.productDescription,
@@ -244,14 +244,15 @@ exports.getProductSellers = async (req, res, next) => {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
             let options ={};
+            let vendorId = mongoose.Types.ObjectId(req.user.id);
             if(req.body.Type =="seller"){
-                options = {"status":req.body.status,productVariant: { $exists: true, $size:0}};
+                options = {"vendor_id":vendorId,"status":{ $in: req.body.status},productVariant: { $exists: true, $not: {$size: 0}}};
             }else if(req.body.Type =="adminSecond"){
-                options = {"status":req.body.status,productVariant: { $exists: true, $not: {$size: 0} }};
+                options = {"status":{ $in: req.body.status},productVariant: { $exists: true, $not: {$size: 0} }};
             }else{
-                options = {"status":req.body.status};
+                options = {"status":{ $in: req.body.status}};
             }
-           console.log("options...................",options);
+          console.log("options...................",options);
             const result = await productService.getAllProduct(options,null, { lean: true });
             if (result && result.length) {
                 var response = { message: "Successfully getting Product List", error: false, data:result};

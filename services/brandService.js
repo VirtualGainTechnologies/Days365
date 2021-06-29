@@ -12,7 +12,7 @@ exports.createBrand = async (reqBody = {}) => {
 }
 
 exports.getBrand = async (filters = {}, updateQuery={}, options={}) => {
-    return await brandModel.find(filters, updateQuery, options);
+    return await brandModel.find(filters, updateQuery, options).sort({_id:-1});
 }
 
 exports.changeStatus = async (filters = {}, updateQuery={}, options={}) => {
@@ -25,9 +25,4 @@ exports.isBrandExists = async (filters = {}, projection = null, options = {}) =>
 
 exports.getAllCat = async (filters = {}, projection = null, options = {}) => {
     return await categoryModel.find(filters, projection, options)
-}
-
-//uploadFile
-exports.uploadFile = async (reqBody = {}) => {
-    return await mytestmodel.create(reqBody); 
 }

@@ -37,7 +37,7 @@ const brandSchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ['Pending', 'Approved', 'Rejected'],
+        enum: ['Pending', 'Active', 'Rejected'],
         default: "Pending",
         index: true
     }

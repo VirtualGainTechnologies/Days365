@@ -47,8 +47,15 @@ const productVariantSchema = new Schema({
     how_to_use: {
         type: String
     },
-     yourPrice:{
+    yourPrice:{
         type: Number,
+        index: true,
+        default:0
+    },
+   
+    maximumRetailPrice:{
+        type: Number,
+        trim: true,
         index: true,
         default:0
     },
@@ -200,17 +207,17 @@ const productSchema = new Schema({
     //     trim: true,
     //     default:0
     // },
-    salePrice:{
-        type: Number,
-        trim: true,
-        default:0
-    },
+    // salePrice:{
+    //     type: Number,
+    //     trim: true,
+    //     default:0
+    // },
   
-    maximumRetailPrice:{
-        type: Number,
-        trim: true,
-        default:0
-    },
+    // maximumRetailPrice:{
+    //     type: Number,
+    //     trim: true,
+    //     default:0
+    // },
     handlingPeriod:{
         type: Number,
         trim: true,

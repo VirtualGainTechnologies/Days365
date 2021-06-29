@@ -40,8 +40,8 @@ exports.addBrand = async (req, res, next) => {
 
 exports.getBrands = async(req, res, next) => {
     try{
-        let options = {"status":req.body.status}
-        //console.log("options.........................",options);
+        console.log("#################3333",req.body);
+        let options = {"status":{ $in: req.body}}
         const result = await brandService.getBrand(options,null, { lean: true });
 
         var response = { message: "No Record Found.", error: true, data: [] };
@@ -62,11 +62,12 @@ exports.changeStatus = async(req, res, next) => {
     try{
         var id = req.body.id;
         var status = req.body.status;
+
         const result = await brandService.changeStatus({_id: id}, {$set : {status:status}}, {lean: true});
         
         var response = { message: "No record found.", error: true, data: {} };
         if(result){
-            response = { message: "Successfully changed brand status", error: false, data: result};
+            response = { message: "Successfully Changed Brand Status", error: false, data: result};
         }
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -78,47 +79,3 @@ exports.changeStatus = async(req, res, next) => {
         next({});
     }
 }
-
-exports.uploadFile = async(req, res, next) => {
-    try{
-
-        /*let brandFileNames=[];
-        for(let file of req.files)
-        {
-            brandFileNames.push(file.location)
-        }
-        let reqBody = {
-            images: brandFileNames    
-        }
-        */
-        let imageLocation = req.file ? req.file.location : null;
-        let reqBody = {
-            
-        }
-        if (imageLocation) {
-            reqBody['image_URL'] = imageLocation;
-        }
-        
-        console.log(reqBody);
-        /*await categoryService.createCategory(reqBody);
-            var response = {
-                message: 'Root successfully created.',
-                error: false,
-                data: {}
-            };
-            res.statusCode = 201;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(response);   */
-
-        const result = await brandService.uploadFile(reqBody);
-        res.json(result)
-
-        
-
-
-    }catch(error){
-        next({});
-    }
-
-}
-
