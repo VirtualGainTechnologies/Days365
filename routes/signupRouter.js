@@ -36,6 +36,16 @@ const upgradeValidator = [
     body('password').trim().isLength({ min: 6, max: 50 })
 ];
 
+const promoterValidator = [
+    body('Name').trim().notEmpty(),
+    body('userName').trim().notEmpty(),
+    // body('Email').trim().isEmail(),
+    body('mobileNumber').trim().custom(val => /^[6-9]{1}[0-9]{9}$/.test(val)),
+    body('Password').trim().isLength({ min: 6, max: 50 }),
+   
+   
+]
+
 
 //USER && VENDOR
 
@@ -58,6 +68,9 @@ router.post('/superAdmin/9fca617fb050e6f86cbe45fef67cbc37', adminSignupValidator
 router.post('/subAdmin', verifyAccessJwt, verifySuperAdmin, adminSignupValidator, signupController.signupAdmin);
 
 
+//PROMOTER
+
+router.post('/registerPromoter',promoterValidator,signupController.registerPromoter)
 
 
 

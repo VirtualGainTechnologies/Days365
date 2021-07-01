@@ -143,3 +143,45 @@ exports.signinAdmin = async (req, res, next) => {
         next({});
     }
 }
+
+
+//PROMOTER LOGIN
+
+exports.signinPromoter = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Request", errors.array()));
+        }
+        else {
+            var password = req.body.Password;
+            var useragent = req.useragent;
+            var email = req.body.Email.trim().toLowerCase();
+            var filters = { Email: email,isBlocked:false};
+            const promoter = await signinService.getPromoterAccount(filters, null, { lean: true });
+            if (!promoter) {
+               return res.status(200).json({ message: 'Invalid Account.', error: true, data: {} });
+            }
+            else {
+                const flag = await verifyPassword(promoter.Password, password);
+                if (!flag) {
+                    return res.status(200).json({ message: 'Login failed.', error: true, data: {} });
+                }else {
+                    const tokens = await userLogin(promoter._id, useragent);
+                    let response = {
+                        accessToken: tokens.accessToken,
+                        refreshToken: tokens.refreshToken,
+                        name: promoter.Name,
+                        type: "promoter"
+                    }
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Login successful.', error: false, data: response });
+                }
+            }
+        }
+    } catch (error) {
+        console.log("error......................",error);
+        next({});
+    }
+}

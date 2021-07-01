@@ -1,5 +1,6 @@
 const { userRegisterModel } = require('../models/userRegister');
 const { adminRegisterModel } = require('../models/adminRegister');
+const { promoterModel } = require('../models/promoterModel');
 
 
 
@@ -9,9 +10,11 @@ exports.getUserAccount = async (filters = {}, projection = null, options = {}) =
 
 
 exports.getAdminAccount = async (filters = {}, projection = null, options = {}) => {
-    // filters = JSON.parse(JSON.stringify(filters));
-     console.log("filters......................",filters);
     return await adminRegisterModel.findOne(filters, projection, options);
+}
+
+exports.getPromoterAccount = async (filters = {}, projection = null, options = {}) => {
+    return await promoterModel.findOne(filters, projection, options);
 }
 
 

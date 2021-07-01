@@ -7,30 +7,37 @@ const { response } = require('../app');
 
 exports.addBrand = async (req, res, next) => {
     try {
+      
             var data = req.body;
             var brandName = data.brandName;
+            var Percentage = data.Percentage;
             var category = data.category;
             var registrationNo = data.registrationNo;
             var brandWebsite = data.brandWebsite; 
             var imageLocation = req.file ? req.file.location : null;
             const brand = await brandService.isBrandExists({brandName: brandName}, null, { lean: true });
             if (brand) {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json({ message: "Similar brand already exists.", error: true, data: {} });
+                return res.status(200).json({
+                    message: 'Similar brand already exists.',
+                    error: false,
+                    data: brand 
+                });
             }else{
             var reqBody = {
                 brandName: brandName,
                 registrationNo: registrationNo,
                 brandWebsite: brandWebsite,
                 category: category,
+                Percentage:Percentage,
                 image: imageLocation, 
                 status: 'Pending'
             }
             const result = await brandService.createBrand(reqBody);
-            res.statusCode = 201;
-            res.setHeader('Content-Type', 'application/json');
-            res.json({ message: 'Successfully added product', error: false, data: result });
+            res.status(201).json({
+                message: 'Successfully Added Brand',
+                error: false,
+                data: result 
+            });
         }
     } catch (error) {
         console.log(error);

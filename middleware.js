@@ -1,5 +1,6 @@
 const { userRegisterModel } = require('./models/userRegister');
 const { adminRegisterModel } = require('./models/adminRegister');
+const { promoterModel } = require('./models/promoterModel');
 const { verifyAccessToken, verifyRefreshToken } = require('./services/jwtServices');
 const { ErrorBody } = require('./utils/ErrorBody');
 const formidable = require('formidable');
@@ -184,6 +185,28 @@ async function verifySuperAdmin(req, res, next) {
     }
 }
 
+/**
+ * Verify Promoter
+ */
+
+ async function verifyPromoter(req, res, next) {
+    try {
+        var promoterId = req.user.id;
+        await promoterModel.findById(promoterId, async (err, promoter) => {
+            if (err) {
+                return next({});
+            }
+            else if (!promoter || promoter.isBlocked) {
+                return next(new ErrorBody(401, "Unauthorized", []));
+            }
+            else {
+                return next();
+            }
+        });
+    } catch (err) {
+        return next({});
+    }
+}
 
 
 /**
@@ -217,5 +240,6 @@ module.exports = {
     verifyAdmin,
     verifyVendor,
     verifySuperAdmin,
+    verifyPromoter
     // formDataHandler
 };

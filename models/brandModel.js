@@ -30,6 +30,12 @@ const brandSchema = new Schema({
         required: true
     },
 
+    Percentage: {
+        type: Number,
+        required: true,
+        default:0
+    },
+
     image : {
         type: String
     },

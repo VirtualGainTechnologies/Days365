@@ -38,6 +38,7 @@ const categoryRouter = require('./routes/categoryRouter');
 const productRouter = require('./routes/productRouter');
 const uploadRouter = require('./routes/uploadRouter');
 const brandRouter = require('./routes/brandRouter');
+const promoterRouter = require('./routes/promoterRouter');
 
 
 
@@ -93,6 +94,7 @@ app.use('/category', categoryRouter);
 app.use('/product', productRouter);
 app.use('/upload', uploadRouter);
 app.use('/brand',brandRouter);
+app.use('/promoter',promoterRouter);
 
 
 

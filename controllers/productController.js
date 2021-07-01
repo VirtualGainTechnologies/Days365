@@ -246,7 +246,7 @@ exports.getProductSellers = async (req, res, next) => {
             let options ={};
             let vendorId = mongoose.Types.ObjectId(req.user.id);
             if(req.body.Type =="seller"){
-                options = {"vendor_id":vendorId,"status":{ $in: req.body.status},productVariant: { $exists: true, $not: {$size: 0}}};
+                options = {"vendor_id":vendorId,"status":{ $in: req.body.status},productVariant: { $exists: true}};
             }else if(req.body.Type =="adminSecond"){
                 options = {"status":{ $in: req.body.status},productVariant: { $exists: true, $not: {$size: 0} }};
             }else{
@@ -529,7 +529,6 @@ exports.changeProductStatus = async (req, res, next) => {
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
-            //console.log(req.body);
             let diffArray = req.body.urlHistory.filter(o1 => !req.body.productVariant.some(o2 => o1 === o2.expiryDate_Img || o1 === o2.importerMRP_Img || o1 === o2.productSeal_Img || o1 === o2.MainImg || o1 === o2.product_Img1));
            // console.log("resssssssssssss",diffArray);
             if(diffArray && diffArray.length>0){
@@ -642,7 +641,6 @@ exports.getProducts = async(req, res, next)=>{
  */
  exports.getProductVariant = async(req, res, next)=>{
     try{
-        // console.log("reqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req);
     let options = {"_id":req.query.id};
     const result = await productService.getProductWithFilters(options,null, { lean: true });
     if (result) {

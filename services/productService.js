@@ -125,12 +125,14 @@ exports.createCategoryPath = async (ancestors = []) => {
  exports.formatProductVariants = async (variants = [], files = [], fileIndex = []) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // console.log("reqqqqqqqqqqqqqqqqqqqqq",variants);
-            // console.log("req.file.location ............................",files);
-            // return;
+           
             var formattedVariants = [];
             for (let [i, option] of variants.entries()) {
                 var choice = {};
+
+                if (option.title) {
+                    choice['title'] = option.title;
+                }
                 if (option.color) {
                     choice['color'] = option.color;
                 }
@@ -143,9 +145,7 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.productIdType) {
                     choice['productIdType'] = option.productIdType;
                 }
-                // if (option.ISBN) {
-                //     choice['ISBN'] = option.ISBN;
-                // }
+                
                 if (option.SKUId) {
                     choice['SKUId'] = option.SKUId;
                 }
@@ -157,6 +157,9 @@ exports.createCategoryPath = async (ancestors = []) => {
                 }
                 if (option.description) {
                     choice['description'] = option.description;
+                }
+                if (option.maximumRetailPrice) {
+                    choice['maximumRetailPrice'] = option.maximumRetailPrice;
                 }
                 if (option.yourPrice) {
                     choice['yourPrice'] = option.yourPrice;
@@ -186,8 +189,11 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.MainImg) {
                     choice['MainImg'] = option.MainImg;
                 }
-              
 
+                if (option.product_Img1) {
+                    choice['product_Img1'] = option.product_Img1;
+                }
+              
                 var uniqueId = '';
                 do {
                     let id = await generateUniqueProductID(15);

@@ -55,8 +55,6 @@ const productVariantSchema = new Schema({
    
     maximumRetailPrice:{
         type: Number,
-        trim: true,
-        index: true,
         default:0
     },
     offerPrice: {
@@ -176,10 +174,6 @@ const productSchema = new Schema({
         trim: true,
         index: true
     },
-    // color:{
-    //     type: String,
-    //     trim: true
-    // },
     minRecommendedAge:{
         type: Number,
         trim: true,
@@ -197,27 +191,12 @@ const productSchema = new Schema({
         type: String,
         trim: true
     },
-    // quantity:{
-    //     type: Number,
-    //     trim: true,
-    //     default:0
-    // },
-    // maxOrderQuantity:{
-    //     type: Number,
-    //     trim: true,
-    //     default:0
-    // },
     // salePrice:{
     //     type: Number,
     //     trim: true,
     //     default:0
     // },
-  
-    // maximumRetailPrice:{
-    //     type: Number,
-    //     trim: true,
-    //     default:0
-    // },
+
     handlingPeriod:{
         type: Number,
         trim: true,
