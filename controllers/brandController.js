@@ -24,10 +24,11 @@ exports.addBrand = async (req, res, next) => {
                 });
             }else{
             var reqBody = {
+                sellerId: mongoose.Types.ObjectId(req.user.id),
                 brandName: brandName,
                 registrationNo: registrationNo,
                 brandWebsite: brandWebsite,
-                category: category,
+                categoryId: category,
                 Percentage:Percentage,
                 image: imageLocation, 
                 status: 'Pending'
@@ -47,8 +48,13 @@ exports.addBrand = async (req, res, next) => {
 
 exports.getBrands = async(req, res, next) => {
     try{
-        console.log("#################3333",req.body);
-        let options = {"status":{ $in: req.body}}
+        let options = {};
+        if(req.body && req.body.type =="seller"){
+            options = {"status":{ $in: req.body.status},"sellerId": mongoose.Types.ObjectId(req.user.id)}  
+        }else{
+            options = {"status":{ $in: req.body.status}}
+        }
+        console.log("#################3333",options);
         const result = await brandService.getBrand(options,null, { lean: true });
 
         var response = { message: "No Record Found.", error: true, data: [] };

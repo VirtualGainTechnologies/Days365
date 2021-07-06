@@ -15,10 +15,16 @@ router.get('/getPromoterList',verifyAccessJwt,verifyPromoter, promoterController
 
 router.put('/saveBankDetails',verifyAccessJwt,verifyPromoter, promoterController.saveBankDetails);
 
-router.post('/generatePromocode',verifyAccessJwt, promoCodeValidator, promoterController.generatePromocode);
+router.post('/generatePromocode',verifyAccessJwt,verifyAdmin, promoCodeValidator, promoterController.generatePromocode);
 
-router.get('/getPromoCodeList',verifyAccessJwt, promoterController.getPromoCodeList);
+router.get('/getPromoCodeList',verifyAccessJwt,verifyAdmin, promoterController.getPromoCodeList);
+
+router.get('/getPromoCodeListOnPromoter',verifyAccessJwt,verifyPromoter, promoterController.getPromoCodeList);
+
+router.get('/getPromoCodeListOnVendor',verifyAccessJwt,verifyVendor, promoterController.getPromoCodeList);
 
 router.get('/getSellerList',verifyAccessJwt,verifyAdmin, promoterController.getSellerList);
+
+router.get('/getBankDetails',verifyAccessJwt,verifyPromoter, promoterController.getBankDetails);
 
 module.exports = router;

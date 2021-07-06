@@ -8,8 +8,8 @@ const brandSchema = new Schema({
     brandName: {
         type: String,
         trim: true,
-        required: true
-        //index: true
+        required: true,
+        index: true
     },
     
     registrationNo: {
@@ -24,7 +24,13 @@ const brandSchema = new Schema({
         required: true
     },
 
-    category: {
+    categoryId: {
+        type: String,
+        trim: true,
+        required: true
+    },
+
+    sellerId: {
         type: String,
         trim: true,
         required: true

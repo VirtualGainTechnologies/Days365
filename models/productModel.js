@@ -174,6 +174,11 @@ const productSchema = new Schema({
         trim: true,
         index: true
     },
+    percentageOnBrand: {
+        type: Number,
+        required: true,
+        default:0
+    },
     minRecommendedAge:{
         type: Number,
         trim: true,

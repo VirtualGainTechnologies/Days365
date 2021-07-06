@@ -70,10 +70,7 @@ router.get('/getProductSellerWise',verifyAccessJwt, verifyVendor, productControl
 
 router.put('/addProductVarient',verifyAccessJwt,productVarientsValidator,publicFileUpload.array('expiryDate_Img'), productController.addProductVarient);
 
-// router.get('/getFiltersList',productController.getFiltersList);
 router.post('/searchProduct',verifyAccessJwt,verifyVendor, productController.searchProduct);
-
-router.post('/getProducts',verifyAccessJwt, productController.getProducts);
 
 router.get('/getProductVariant',verifyAccessJwt,verifyAdmin, productController.getProductVariant);
 

@@ -429,15 +429,6 @@ exports.getActiveProductRecordById = async (id) => {
     return await productModel.aggregate(pipeline);
 }
 
-
-/**
- * Get All Product List for Approval
- */
-
-exports.getAllProduct = async (filters = {},projection = null, options = {}) => {
-    return await productModel.find(filters, projection, options).sort({_id:-1});
-}
-
 /**
  * This Below's API for change product Status.
  */

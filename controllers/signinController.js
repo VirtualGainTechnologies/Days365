@@ -171,7 +171,7 @@ exports.signinPromoter = async (req, res, next) => {
                     let response = {
                         accessToken: tokens.accessToken,
                         refreshToken: tokens.refreshToken,
-                        name: promoter.Name,
+                        fullname: promoter.Name,
                         type: "promoter"
                     }
                     res.statusCode = 200;

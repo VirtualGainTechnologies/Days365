@@ -27,13 +27,15 @@ const promoCodeSchema = new mongoose.Schema({
     percentageOnBrand: {
         type: String,
         trim: true,
+        default:0
     },
 
     promoCode: {
         type: String,
         trim: true,
         unique: true,
-        index:true
+        index:true,
+       
     },
     isActive: {
         type: Boolean,

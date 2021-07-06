@@ -13,13 +13,13 @@ const productBodyValidator = [
 ];
   
 
-router.post('/register', productBodyValidator, publicFileUpload.single('image'), brandController.addBrand);
+router.post('/register',verifyAccessJwt,verifyVendor, productBodyValidator, publicFileUpload.single('image'), brandController.addBrand);
 
 //router for admin to get all pending verificattion brands
-router.post('/getBrands', brandController.getBrands)
+router.post('/getBrands',verifyAccessJwt, brandController.getBrands)
 
 //router to change status Pending to Approved
-router.put('/updateStatus', brandController.changeStatus)
+router.put('/updateStatus',verifyAccessJwt, brandController.changeStatus)
 
 module.exports = router;
 

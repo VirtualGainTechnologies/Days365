@@ -66,3 +66,5 @@ exports.signoutFromAllDevices = async (req, res, next) => {
         next({});
     }
 }
+
+//signoutPromoter
