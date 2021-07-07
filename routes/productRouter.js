@@ -56,7 +56,7 @@ router.get('/sellers', queryProductValidator, productController.getProductSeller
 
 router.post('/getAllProductList',verifyAccessJwt, verifyAdmin , productController.getAllProductList);
 
-router.post('/getAllProductOnSeller',verifyAccessJwt, verifyVendor , productController.getAllProductList);
+router.post('/getAllProductOnSeller',verifyAccessJwt, verifyVendor, productController.getAllProductList);
 
 router.put('/changeProductStatus', verifyAccessJwt,productController.changeProductStatus);
 

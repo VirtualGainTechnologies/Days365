@@ -459,3 +459,12 @@ exports.checkExistingTaxCode = async (filters = {}, projection = null, options =
 exports.getAllProductTaxCode = async (filters = {},projection = null, options = {}) => {
     return await productTaxModel.find(filters, projection, options);
 }
+
+
+/**
+ * Get product 
+ */
+
+ exports.getAllProduct = async (filters = {}, projection = null, options = {}) => {
+    return await productModel.find(filters, projection, options).sort({_id:-1});
+}
