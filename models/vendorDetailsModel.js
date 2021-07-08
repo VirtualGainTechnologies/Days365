@@ -172,7 +172,8 @@ const VendorDetailSchema = new Schema({
         enum: ['NA', 'Pending', 'Approved'],
         default: "NA",
         index: true
-    }
+    },
+    ProductCategoryId:String
 }, { timestamps: true });
 
 

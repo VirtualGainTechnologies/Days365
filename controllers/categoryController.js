@@ -404,7 +404,8 @@ exports.getCategoriesByName = async (req, res, next) => {
                 is_leaf: 1,
                 is_restricted: 1,
                 image_URL: 1,
-                createdAt: 1
+                createdAt: 1,
+                image_URL:1
             }
             let options = {
                 lean: true
@@ -427,34 +428,6 @@ exports.getCategoriesByName = async (req, res, next) => {
             res.json(response);
 
         }
-        // var parentCategory;
-        // let filters = {
-        //     category_name: 'Departments'
-        // }
-        // parentCategory = await categoryService.getCategoryWithFilters(filters);
-        // if (!parentCategory) {
-        //     return next({});
-        // }
-        // let projection = {
-        //     _id: 1,
-        //     category_name: 1,
-        //     is_leaf: 1,
-        //     is_restricted: 1,
-        //     image_URL: 1,
-        //     createdAt: 1
-        // }
-        // let options = {
-        //     lean: true
-        // }
-        // let result = await parentCategory.getChildrenTree({}, projection, options);
-        // var response = {
-        //     message: 'Successfully Retrieved Categories. and Sub-Categories',
-        //     error: false,
-        //     data: result
-        // };
-        // res.statusCode = 200;
-        // res.setHeader('Content-Type', 'application/json');
-        // res.json(response);
     } catch (error) {
         console.log(error)
         next({});

@@ -15,7 +15,7 @@ exports.addBrand = async (req, res, next) => {
             var registrationNo = data.registrationNo;
             var brandWebsite = data.brandWebsite; 
             var imageLocation = req.file ? req.file.location : null;
-            const brand = await brandService.isBrandExists({brandName: brandName}, null, { lean: true });
+            const brand = await brandService.isBrandExists({brandName: brandName,sellerId: mongoose.Types.ObjectId(req.user.id)}, null, { lean: true });
             if (brand) {
                 return res.status(200).json({
                     message: 'Similar brand already exists.',

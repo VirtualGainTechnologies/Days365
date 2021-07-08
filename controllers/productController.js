@@ -36,19 +36,10 @@ exports.addProduct = async (req, res, next) => {
             var keyWords = data.keyWords;
             var brandName = data.vitalInfo.brandName;
             var tempBrandName = brandName.toLowerCase();
-
-            const flag = await productService.getProductWithFilters({title:title}, null, { lean: true });
-            if (flag) {
-                return res.status(201).json({
-                    message: 'Duplicate Data Founded',
-                    error: false,
-                    data: flag 
-                });
-            }
-           
+ 
             const vendorRecord = await productService.getVendorRecord({ vendor_id: vendorId }, null, { lean: true });
             const categoryRecord = await productService.getCategoryRecord(categoryId); 
-            if ((!vendorRecord) || (!categoryRecord) || (vendorRecord.account_status !== 'Approved') || (vendorRecord.brand_status !== 'Approved')) {
+            if ((!vendorRecord) || (!categoryRecord)) {
                 return next(new ErrorBody(400, 'Bad Inputs', []));
             }
             
@@ -56,9 +47,15 @@ exports.addProduct = async (req, res, next) => {
             var categoryPath = await productService.createCategoryPath(categoryAncestors);
             categoryPath += "/" + categoryRecord.category_name;
           
-           // const dayProductCode = await productService.generateDaysProductCode(null, req.files, fileIndex);
+            const flag = await productService.getProductWithFilters({title:title,vendor_id: vendorId}, null, { lean: true });
+            if (flag) {
+                return res.status(201).json({
+                    message: 'Duplicate Data Founded',
+                    error: false,
+                    data: flag 
+                });
+            }
             var reqBody = {
-                // daysProductCode:dayProductCode,
                 vendor_id: vendorId,
                 venderName:vendorRecord.company_name,
                 category_path: categoryPath,
@@ -531,7 +528,7 @@ exports.changeProductStatus = async (req, res, next) => {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
             let diffArray = req.body.urlHistory.filter(o1 => !req.body.productVariant.some(o2 => o1 === o2.expiryDate_Img || o1 === o2.importerMRP_Img || o1 === o2.productSeal_Img || o1 === o2.MainImg || o1 === o2.product_Img1));
-           // console.log("resssssssssssss",diffArray);
+           console.log("resssssssssssss",diffArray);
             if(diffArray && diffArray.length>0){
                await productService.bulkFilesDelete(diffArray);
             }

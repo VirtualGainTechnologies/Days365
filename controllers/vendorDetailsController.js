@@ -744,4 +744,29 @@ exports.approveVendorBrand = async (req, res, next) => {
     }
 }
 
+exports.updateProductCategory =async(req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }else {
+            var vendorId = mongoose.Types.ObjectId(req.user.id);
+            let filters = { vendor_id: vendorId };
+            let updateQuery = {
+                ProductCategoryId: req.body.ProductCategoryId
+            }
+            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
+            var response = { message: 'No record found.', error: true, data: {} };
+            if (result) {
+                response = { message: 'Successfully Added Product Category', error: false, data: {} };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
 
