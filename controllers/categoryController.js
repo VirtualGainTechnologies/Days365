@@ -7,6 +7,7 @@ const {
 const categoryService = require('../services/categoryService');
 const mongoose = require('mongoose');
 const _ = require("underscore");
+const vendorDetailsService = require('../services/vendorDetailsService');
 
 /**
  *  Add root category
@@ -322,12 +323,21 @@ exports.getCategoriesByName = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return next(new ErrorBody(400, "Bad Inputs", errors.array()));
         } else {
+            const record = await vendorDetailsService.getVendorDetailsRecord({ vendor_id: req.user.id }, null, { lean: true });
             var parentCategory;
+            var parentCategoryArr = [];
             if (req.body.CategoryName) {
                 let regexName = new RegExp(req.body.CategoryName, 'i');
                 let filters = {
                     category_name: regexName
                 }
+               
+                parentCategory = await categoryService.getCategoryWithFilters(filters);
+                if (!parentCategory) {
+                    return next(new ErrorBody(400, "Bad Inputs", []));
+                }
+
+                console.log(parentCategory);
                 let projection = {
                     _id: 1,
                     category_name: 1,
@@ -339,8 +349,20 @@ exports.getCategoriesByName = async (req, res, next) => {
                 let options = {
                     lean: true
                 }
-                parentCategory = await categoryService.getCategories(filters,projection,options);
-                if (parentCategory && parentCategory.length==0) {
+                const result = await parentCategory.getAncestors({},[projection],[options]);
+
+                if(record && record.ProductCategoryId && record.ProductCategoryId.length){
+                    result.map((perm, i) => {
+                        record.ProductCategoryId.map((item, i) => {
+                            if(perm._id == item){
+                                parentCategoryArr.push(parentCategory);
+                                console.log("Matched",item);
+                            }
+                      })
+                    })
+                }
+                
+                if (parentCategoryArr && parentCategoryArr.length==0) {
                     return res.status(201).json({
                         message: 'Category Not exists',
                         error: false,
@@ -350,7 +372,7 @@ exports.getCategoriesByName = async (req, res, next) => {
                     return res.status(201).json({
                         message: 'Successfully Retrieved Category.',
                         error: false,
-                        data: parentCategory 
+                        data: parentCategoryArr 
                     });
                 }
             }
@@ -380,24 +402,51 @@ exports.getCategoriesByName = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return next(new ErrorBody(400, "Bad Inputs", errors.array()));
         } else {
-            var parentCategory;
+            //var parentCategory;
+            var payload ;
             var id = req.query.id;
+            const record = await vendorDetailsService.getVendorDetailsRecord({ vendor_id: req.user.id }, null, { lean: true });
             if (id) {
                 let parentId = mongoose.Types.ObjectId(req.query.id);
-                parentCategory = await categoryService.getCategory(parentId);
-                if (!parentCategory) {
+                let parentCategory1 = await categoryService.getCategory(parentId);
+                if (!parentCategory1) {
                     return next(new ErrorBody(400, "Bad Inputs", []));
+                }
+
+                let projection = {
+                    _id: 1,
+                    category_name: 1,
+                    is_leaf: 1,
+                    is_restricted: 1,
+                    image_URL: 1,
+                    createdAt: 1,
+                    image_URL:1
+                }
+                let options = {
+                    lean: true
+                }
+                let filterObj1={};
+                if(id=="6087df08d80dde18cb1a4036"){
+                    filterObj1 = {"_id":{ $in: record.ProductCategoryId}}
+                }
+                const result = await parentCategory1.getImmediateChildren(filterObj1, projection, options);
+                payload = {
+                    parent: {
+                        id: parentCategory1._id,
+                        name: parentCategory1.category_name
+                    },
+                    categories: result
                 }
 
             } else {
                 let filters = {
                     category_name: 'Departments'
                 }
-                parentCategory = await categoryService.getCategoryWithFilters(filters);
+                let parentCategory = await categoryService.getCategoryWithFilters(filters);
                 if (!parentCategory) {
                     return next({});
                 }
-            }
+            
             let projection = {
                 _id: 1,
                 category_name: 1,
@@ -410,14 +459,20 @@ exports.getCategoriesByName = async (req, res, next) => {
             let options = {
                 lean: true
             }
-            const result = await parentCategory.getImmediateChildren({}, projection, options);
-            let payload = {
+            // const record = await vendorDetailsService.getVendorDetailsRecord({ vendor_id: req.user.id }, null, { lean: true });
+            let filterObj={};
+            if(record){
+                filterObj = {"_id":{ $in: record.ProductCategoryId}}
+            }
+            const result = await parentCategory.getImmediateChildren(filterObj, projection, options);
+            payload = {
                 parent: {
                     id: parentCategory._id,
                     name: parentCategory.category_name
                 },
                 categories: result
             }
+           }
             var response = {
                 message: 'Successfully retrieved sub categories.',
                 error: false,

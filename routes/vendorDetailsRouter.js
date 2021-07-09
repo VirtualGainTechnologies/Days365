@@ -78,7 +78,7 @@ const vendorBrandRequestBodyValidator = [
 ];
 
 const addProductCategoryCheck = [
-    body('ProductCategoryId').trim().notEmpty()
+    body('ProductCategoryId').isArray({ min: 1 })
 ]
 
 

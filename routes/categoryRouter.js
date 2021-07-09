@@ -31,6 +31,6 @@ router.post('/getCategoriesByName',verifyAccessJwt, categoryController.getCatego
 
 router.get('/getCategoriesBrowse',verifyAccessJwt,verifyVendor, categoryController.getCategoriesBrowse);
 
-router.get('/getCategoriesBrowseUser', categoryController.getCategoriesBrowse);
+// router.get('/getCategoriesBrowseUser', categoryController.getCategoriesBrowse);
 
 module.exports = router;

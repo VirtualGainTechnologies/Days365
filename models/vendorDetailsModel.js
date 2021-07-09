@@ -173,7 +173,7 @@ const VendorDetailSchema = new Schema({
         default: "NA",
         index: true
     },
-    ProductCategoryId:String
+    ProductCategoryId:Array
 }, { timestamps: true });
 
 
