@@ -212,7 +212,8 @@ exports.generatePromocode = async(req,res,next) => {
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
-            let options ={"account_status":"Approved"};
+            let options ={};
+            // let options ={"account_status":"Approved"};
             let projection ={};
             const result = await promoterService.getSellerList(options,projection, { lean: true });
             if (result && result.length) {
