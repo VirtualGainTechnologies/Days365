@@ -30,40 +30,40 @@ const productVariantSchema = new Schema({
     color: {
         type: String,
         default: "N/A",
+        trim: true,
         uppercase: true
     },
     size: {
         type: String,
         default: "N/A",
-        uppercase: true
+        uppercase: true,
+        trim: true
     },
  
     SKUId: {
         type: String,
+        trim: true
     },
-    ingredients: {
-        type: String
-    },
-    how_to_use: {
-        type: String
-    },
+   
     yourPrice:{
         type: Number,
         index: true,
-        default:0
+        default:0,
+        trim: true,
     },
    
     maximumRetailPrice:{
         type: Number,
-        default:0
+        default:0,
+        trim: true
     },
-    offerPrice: {
-        type: Number,
-        index: true
-    },
-    offerDescription: {
-        type: String
-    },
+    // offerPrice: {
+    //     type: Number,
+    //     index: true
+    // },
+    // offerDescription: {
+    //     type: String
+    // },
     stock: {
         type: Number,
         default: 0,
@@ -155,7 +155,25 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
-  
+    category_path: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    category_id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'category_documents'
+    },
+    categoryName:{
+        type: String,
+        trim: true
+    },
+    reference_id: {
+        type: Schema.Types.ObjectId
+    },
+
+  // Vital Info Tab
     title: {
         type: String,
         required: true,
@@ -174,11 +192,6 @@ const productSchema = new Schema({
         trim: true,
         index: true
     },
-    percentageOnBrand: {
-        type: Number,
-        required: true,
-        default:0
-    },
     minRecommendedAge:{
         type: Number,
         trim: true,
@@ -188,6 +201,14 @@ const productSchema = new Schema({
         type: String,
         trim: true
     },
+    percentageOnBrand: {
+        type: Number,
+        required: true,
+        default:0
+    },
+
+    // Offer Tab
+
     condition:{
         type: String,
         trim: true
@@ -196,18 +217,30 @@ const productSchema = new Schema({
         type: String,
         trim: true
     },
-    // salePrice:{
-    //     type: Number,
-    //     trim: true,
-    //     default:0
-    // },
-
+    productTaxCode:{
+        type: String,
+       // trim: true
+    },
+    taxCodePercentage:{
+        type: String,
+    },
     handlingPeriod:{
         type: Number,
         trim: true,
         default:0
     },
+
+    // Description Tab
+
     productDescription:{
+        type: String,
+        trim: true
+    },
+    howToUse: {
+        type: String,
+        trim: true,
+    },
+    Ingredients: {
         type: String,
         trim: true
     },
@@ -215,10 +248,18 @@ const productSchema = new Schema({
         type: String,
         trim: true
     },
+    keyFeatures: {
+        type: Array,
+        trim: true,
+    },
     bulletPoint:{
         type: Number,
-        trim: true
+        trim: true,
+        default:0
     },
+
+    //Keywards Tab
+
     searchTermsArr:{
         type: Array,
         trim: true
@@ -236,20 +277,6 @@ const productSchema = new Schema({
         trim: true,
         default:0
     },
-    category_path: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    category_id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: 'category_documents'
-    },
-    categoryName:{
-        type: String,
-        trim: true
-    },
 
     status: {
         type: String,
@@ -259,13 +286,7 @@ const productSchema = new Schema({
         index: true
     },
     
-    reference_id: {
-        type: Schema.Types.ObjectId
-    },
     productVariant : [productVariantSchema]
-    // feature: {
-    //     type: String,
-    // },
     // customer_rating: ratingSchema,
 }, { timestamps: true });
 

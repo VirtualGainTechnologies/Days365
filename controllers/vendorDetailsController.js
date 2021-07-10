@@ -417,9 +417,11 @@ exports.updateProductTaxCode = async (req, res, next) => {
         else {
             var vendorId = req.user.id;
             var productTaxCode = req.body.productTaxCode;
+            var taxCodePercentage = req.body.taxCodePercentage? req.body.taxCodePercentage:"0";
             var filters = { vendor_id: vendorId };
             var updateQuery = {
-                product_tax_code: productTaxCode
+                product_tax_code: productTaxCode,
+                taxCodePercentage:taxCodePercentage,
             };
             const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };

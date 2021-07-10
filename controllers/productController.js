@@ -56,34 +56,39 @@ exports.addProduct = async (req, res, next) => {
                 });
             }
             var reqBody = {
+
                 vendor_id: vendorId,
                 venderName:vendorRecord.company_name,
                 category_path: categoryPath,
                 category_id: categoryRecord._id,
                 categoryName:categoryRecord.category_name,
-
+               
                 title: title,
-                brandName: tempBrandName === 'generic' ? "Generic" : brandName,
                 countryOfOrigin: data.vitalInfo.countryOfOrigin,
                 manuFacturer:data.vitalInfo.manufacturer,
+                brandName: tempBrandName === 'generic' ? "Generic" : brandName,
                 minRecommendedAge:data.vitalInfo.minimumRecommendedAge,
                 isProductExpirable: data.vitalInfo.isProductExpirable,
                 percentageOnBrand:data.vitalInfo.percentageOnBrand,
 
                 condition: data.offer.condition,
                 conditionNote: data.offer.conditionNote,
-                // salePrice:data.offer.salePrice,
-                // maximumRetailPrice:data.offer.maxRetailPrice,
+                productTaxCode:(data.offer && data.offer.productTaxCode) ? data.offer.productTaxCode : vendorRecord.product_tax_code,
+                taxCodePercentage:(data.offer && data.offer.taxCodePercentage) ? data.offer.taxCodePercentage : vendorRecord.taxCodePercentage,
                 handlingPeriod:data.offer.handlingPeriod,
 
                 productDescription:data.description.productDescription,
+                howToUse:data.description.howToUse,
+                Ingredients:data.description.Ingredients,
                 legalClaimer:data.description.legalDisclaimer,
+                keyFeatures:data.description.keyFeatures,
                 bulletPoint: data.description.bulletPoint,
                
                 searchTermsArr: data.keywords.searchTermsArr,
                 targetAudience: data.keywords.targetAudienceArr,
                 shippingCharges:data.keywords.shippingCharges,
                 shippingChargesAmt: (data.keywords.shippingChargesAmt)?data.keywords.shippingChargesAmt:0,
+
                 status: 'Pending',
             
             }
