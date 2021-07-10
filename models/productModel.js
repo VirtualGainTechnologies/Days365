@@ -248,6 +248,7 @@ const productSchema = new Schema({
     },
     categoryName:{
         type: String,
+        trim: true
     },
 
     status: {
