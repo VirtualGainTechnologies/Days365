@@ -249,9 +249,9 @@ exports.getProductSellers = async (req, res, next) => {
             let options ={};
             let vendorId = mongoose.Types.ObjectId(req.user.id);
             if(req.body.Type =="seller"){
-                options = {"vendor_id":vendorId,"status":{ $in: req.body.status},productVariant: { $exists: true}};
+                options = {"vendor_id":vendorId,"status":{ $in: req.body.status}};
             }else if(req.body.Type =="adminSecond"){
-                options = {"status":{ $in: req.body.status},productVariant: { $exists: true, $not: {$size: 0} }};
+                options = {"status":{ $in: req.body.status}};
             }else{
                 options = {"status":{ $in: req.body.status}};
             }
