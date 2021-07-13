@@ -532,19 +532,21 @@ exports.changeProductStatus = async (req, res, next) => {
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
+          
+            // return;
             let diffArray = req.body.urlHistory.filter(o1 => !req.body.productVariant.some(o2 => o1 === o2.expiryDate_Img || o1 === o2.importerMRP_Img || o1 === o2.productSeal_Img || o1 === o2.MainImg || o1 === o2.product_Img1));
-           console.log("resssssssssssss",diffArray);
+           
             if(diffArray && diffArray.length>0){
                await productService.bulkFilesDelete(diffArray);
             }
-            //return;
+           
             const id = mongoose.Types.ObjectId(req.body.id);
             let filters = {_id: id};
             const formattedProductVariants = await productService.formatProductVariants(req.body.productVariant, req.files, null);
             let updateQuery = {
                 productVariant: formattedProductVariants
             }
-
+console.log("formattedProductVariants....................",formattedProductVariants);
             let response ={};
             const result = await productService.updateProduct(filters, updateQuery, { lean: true });
             if (result) {

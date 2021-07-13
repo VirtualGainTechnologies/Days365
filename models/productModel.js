@@ -57,6 +57,14 @@ const productVariantSchema = new Schema({
         default:0,
         trim: true
     },
+    flavour:{
+        type: String,
+        trim: true,
+    },
+    expiryDate:{
+        type: Date,
+        trim: true,
+    },
     // offerPrice: {
     //     type: Number,
     //     index: true

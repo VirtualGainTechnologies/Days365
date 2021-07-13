@@ -149,11 +149,11 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.SKUId) {
                     choice['SKUId'] = option.SKUId;
                 }
-                if (option.ingredients) {
-                    choice['ingredients'] = option.ingredients;
+                if (option.flavour) {
+                    choice['flavour'] = option.flavour;
                 }
-                if (option.howToUse) {
-                    choice['how_to_use'] = option.howToUse;
+                if (option.expiryDate) {
+                    choice['expiryDate'] = option.expiryDate;
                 }
                 if (option.description) {
                     choice['description'] = option.description;
@@ -164,12 +164,12 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.yourPrice) {
                     choice['yourPrice'] = option.yourPrice;
                 }
-                if (option.offerPrice) {
-                    choice['offerPrice'] = option.offerPrice;
-                }
-                if (option.offerDescription) {
-                    choice['offerDescription'] = option.offerDescription;
-                }
+                // if (option.offerPrice) {
+                //     choice['offerPrice'] = option.offerPrice;
+                // }
+                // if (option.offerDescription) {
+                //     choice['offerDescription'] = option.offerDescription;
+                // }
                 if (option.stock > 0) {
                     choice['stock'] = option.stock;
                 }
