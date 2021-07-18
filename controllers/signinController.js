@@ -52,10 +52,10 @@ exports.signinUser = async (req, res, next) => {
             var useragent = req.useragent;
             var filters = {};
             if (type === "EMAIL") {
-                filters = { email: value };
+                filters = { email: value ,is_blocked:false};
             }
             else {
-                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value }] };
+                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value },{is_blocked:false}] };
             }
             const user = await signinService.getUserAccount(filters, null, { lean: true });
             if (!user) {

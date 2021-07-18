@@ -32,11 +32,17 @@ const { verifyPassword, encryptPassword, verifyEmail, sendOTP, isMobileOrEmail, 
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
+
             let options ={};
+            if(req.query && req.query.type =="promoter"){
+                options._id = mongoose.Types.ObjectId(req.user.id);
+            }
+           
             let projection ={
                 "userName":1,"Email":1,"Name":1,"mobileNumber":1,"Address":1,"BankName":1,"AccountNo":1,"IFSCCode":1
             };
-            options = {"isBlocked":false};
+            options.isBlocked =false;
+          
             const result = await promoterService.getPromoterList(options,projection, { lean: true });
             if (result && result.length) {
                 var response = { message: "Successfully getting Product List", error: false, data:result};
@@ -113,8 +119,7 @@ exports.generatePromocode = async(req,res,next) => {
         if (!errors.isEmpty()) {
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         } else {
-            // console.log("REqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",req);
-            // return
+        
             var reqData = req.body;
             let promoterName = reqData.promoterName;
             let promoterId = mongoose.Types.ObjectId(reqData.promoterId);
@@ -212,8 +217,10 @@ exports.generatePromocode = async(req,res,next) => {
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
         }else {
-            let options ={};
-            // let options ={"account_status":"Approved"};
+             let options ={};
+            if(req.query.type =="Approve"){
+                options.account_status = "Approved";
+            }
             let projection ={};
             const result = await promoterService.getSellerList(options,projection, { lean: true });
             if (result && result.length) {
@@ -243,7 +250,6 @@ exports.generatePromocode = async(req,res,next) => {
 
   exports.getBankDetails = async (req, res, next) => {
     try {
-        //req.query;
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             next(new ErrorBody(400, 'Bad Inputs', errors.array()));
@@ -252,7 +258,7 @@ exports.generatePromocode = async(req,res,next) => {
             let projection ={
                 "BankName":1,"AccountNo":1,"IFSCCode":1
             };
-            options = {"isBlocked":false};
+            options = {"isBlocked":false,"_id": mongoose.Types.ObjectId(req.user.id)};
             const result = await promoterService.getPromoterRecord(options,projection, { lean: true });
             if (result) {
                 var response = { message: "Successfully getting Promoter List", error: false, data:result};

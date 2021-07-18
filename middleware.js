@@ -43,7 +43,7 @@ async function verifyAccessJwt(req, res, next) {
                 return next(new ErrorBody(401, "Access-Token expired", []));
             }
             else {
-                // console.log(decoded);
+                //console.log(decoded);
                 req['user'] = { id: decoded.key };
                 return next();
             }

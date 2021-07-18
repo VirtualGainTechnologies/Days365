@@ -437,7 +437,7 @@ exports.changeProductStatus = async (req, res, next) => {
                 //productIdType: productRecord.productIdType,
                 countryOfOrigin: productRecord.countryOfOrigin,
                 manuFacturer:productRecord.manuFacturer,
-                color: productRecord.color,
+                VegNonVegProduct: productRecord.VegNonVegProduct,
                 minRecommendedAge:productRecord.minRecommendedAge,
                 isProductExpirable: productRecord.isProductExpirable,
                 condition: productRecord.condition,
@@ -546,7 +546,8 @@ exports.changeProductStatus = async (req, res, next) => {
             let updateQuery = {
                 productVariant: formattedProductVariants
             }
-console.log("formattedProductVariants....................",formattedProductVariants);
+            console.log("formattedProductVariants....................",formattedProductVariants);
+           // return;
             let response ={};
             const result = await productService.updateProduct(filters, updateQuery, { lean: true });
             if (result) {

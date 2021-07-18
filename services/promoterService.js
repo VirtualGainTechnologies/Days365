@@ -104,27 +104,33 @@ exports.generatePromoCode = async (variants = [], files = [], fileIndex = []) =>
     let pipeline = [];
     pipeline.push({
         $match:filters
-    }, {
+    },{
         $lookup: {
             from: "user_registers",
             localField: "vendor_id",
             foreignField: "_id",
             as: "sellerData"
         }
-    }, {
+    },{
         $unwind: {
             path: "$sellerData",
             preserveNullAndEmptyArrays: true
         }
 
-    }, {
+    },{
         $project: {
-            '_id': 1,
-            'account_status': 1,
-            'vendor_id': 1,
-            'sellerData.fullname': 1,
+            'createdAt': 0,
+            'updatedAt':0,
+            'sellerData.createdAt': 0,
+            'sellerData.updatedAt': 0,
+            'sellerData.hash':0,
+            'sellerData.is_vendor':0,
+            'sellerData.is_blocked':0
 
         }
-    });
+    
+    },{
+        $sort: {"_id": -1},
+    })
     return await vendorDetailsModel.aggregate(pipeline);
 }

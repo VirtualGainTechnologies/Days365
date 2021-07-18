@@ -76,4 +76,8 @@ router.get('/getProductVariant',verifyAccessJwt,verifyAdmin, productController.g
 
 router.get('/getProductVariantOnSeller',verifyAccessJwt,verifyVendor, productController.getProductVariant);
 
+// router.get('/getProductVariantOnUser',verifyAccessJwt,verifyVendor, productController.getProductVariant);
+
+
+
 module.exports = router;

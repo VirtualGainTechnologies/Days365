@@ -27,11 +27,11 @@ const productVariantSchema = new Schema({
         trim: true,
         index: true
     },
-    color: {
+    VegNonVegProduct: {
         type: String,
         default: "N/A",
         trim: true,
-        uppercase: true
+        // uppercase: true
     },
     size: {
         type: String,

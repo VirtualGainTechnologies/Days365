@@ -1,4 +1,5 @@
 const { vendorDetailsModel } = require('../models/vendorDetailsModel');
+const { userRegisterModel } = require('../models/userRegister');
 const { deleteFileFromPrivateSpace } = require('../utils/fileUpload');
 
 
@@ -17,6 +18,9 @@ exports.updateVendorDetails = async (filters = {}, updateQuery = {}, options = {
     return await vendorDetailsModel.findOneAndUpdate(filters, updateQuery, options);
 }
 
+exports.updateUserDetails = async(filters = {}, updateQuery = {}, options = {})=>{
+    return await userRegisterModel.findOneAndUpdate(filters, updateQuery, options);
+}
 
 /**
  * Bulk delete uploded private files

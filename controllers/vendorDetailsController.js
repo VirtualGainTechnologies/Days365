@@ -655,9 +655,15 @@ exports.approveVendor = async (req, res, next) => {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
             let filters = { vendor_id: vendorId };
             let updateQuery = {
-                account_status: 'Approved'
+                account_status: req.body.status
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
+            if(req.body.status && req.body.status == "Rejected"){
+                const result = await vendorDetailsService.updateUserDetails({_id: vendorId},{"is_blocked":true}, { lean: true });  
+            }
+            if(req.body.status && req.body.status == "Approved"){
+                const result = await vendorDetailsService.updateUserDetails({_id: vendorId},{"is_blocked":false}, { lean: true });  
+            }
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Successfully activated vendor account.', error: false, data: {} };
@@ -771,4 +777,25 @@ exports.updateProductCategory =async(req, res, next) => {
     }
 }
 
+
+/**
+ *  Get details of vendor by Id.
+ */
+
+ exports.getSellerData = async (req, res, next) => {
+    try {
+        var vendorId =  mongoose.Types.ObjectId(req.query.id);
+        var filters = { vendor_id: vendorId };
+        const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
+        var response = { message: 'No record found.', error: true, data: {} };
+        if (record) {
+            response = { message: 'Successfully retrieved vendor details.', error: false, data: record };
+        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    } catch (error) {
+        next({});
+    }
+}
 

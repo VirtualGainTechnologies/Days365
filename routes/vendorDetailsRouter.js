@@ -126,5 +126,6 @@ router.put('/approve/brand', verifyAccessJwt, verifyAdmin, approveVendorValidato
 
 router.put('/addProductCategory', verifyAccessJwt, verifyVendor,addProductCategoryCheck, vendorDetailsController.updateProductCategory);
 
+router.get('/getSellerData',verifyAccessJwt,verifyAdmin,vendorDetailsController.getSellerData);
 
 module.exports = router;

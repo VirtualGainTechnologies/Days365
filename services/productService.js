@@ -133,8 +133,8 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.title) {
                     choice['title'] = option.title;
                 }
-                if (option.color) {
-                    choice['color'] = option.color;
+                if (option.VegNonVegProduct) {
+                    choice['VegNonVegProduct'] = option.VegNonVegProduct;
                 }
                 if (option.size) {
                     choice['size'] = option.size;

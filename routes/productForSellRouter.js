@@ -19,5 +19,8 @@ router.post('/getProducts', productForSellController.getProducts);
 
 router.get('/getFiltersList',productForSellController.getFiltersList);
 
+router.post('/getProductVariants', productForSellController.getProductVariants);
+
+router.post('/getProductSizeVariants',productForSellController.getProductSizeVariants);
 
 module.exports = router;

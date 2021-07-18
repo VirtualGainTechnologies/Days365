@@ -172,15 +172,12 @@ const VendorDetailSchema = new Schema({
     account_status: {
         type: String,
         required: true,
-        enum: ['NA', 'Pending', 'Approved'],
-        default: "NA",
+        enum: ['Rejected', 'Pending', 'Approved'],
+        default: "Pending",
         index: true
     },
     ProductCategoryId:Array
 }, { timestamps: true });
-
-
-
 
 
 const vendorDetailsModel = mongoose.model('vendor_details', VendorDetailSchema);
