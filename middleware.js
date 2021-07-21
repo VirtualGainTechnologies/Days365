@@ -217,14 +217,14 @@ console.log(to, subject, message);
         host: 'smtp.gmail.com',
         port: 587,
         auth: {
-            user: 'marutikarad206@gmail.com',
-            pass: 'vrmkptghxxslqbkk'
+            user: '',
+            pass: ''
         }
     }));
 
 
     var mailOptions = {
-        from: "marutikarad206@gmail.com",
+        from: "",
         to: to,
         subject: subject,
         text: message

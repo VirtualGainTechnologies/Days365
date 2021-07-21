@@ -308,11 +308,11 @@ exports.changeProductStatus = async (req, res, next) => {
             }
             const checkEmailExist = await productService.getUserDetails(filters1, null, { lean: true });
     
-            if(checkEmailExist && checkEmailExist.email){
-                let subject = "Product status has changed";
-                let html = "Product Status has changed "+ req.body.status+" To "+ result.status;
-                SendEmail(checkEmailExist.email, subject, html);
-            }
+            // if(checkEmailExist && checkEmailExist.email){
+            //     let subject = "Product status has changed";
+            //     let html = "Product Status has changed "+ result.status +" To "+ req.body.status;
+            //     SendEmail(checkEmailExist.email, subject, html);
+            // }
         
             res.status(200).json(response);
         }
