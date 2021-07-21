@@ -60,7 +60,9 @@ exports.getProductVariants = async(filters = {}, projection = null, options = {}
             manuFacturer:{$first:"$manuFacturer"},
             handlingPeriod:{$first:"$handlingPeriod"},
             percentageOnBrand:{$first:"$percentageOnBrand"},
-            productDescription:{$first:"$productDescription"}
+            productDescription:{$first:"$productDescription"},
+            VegNonVegProduct:{$first:"$productVariant.VegNonVegProduct"},
+            keyFeature:{$first:"$keyFeatures"}
         }
     },{
         $project:{
@@ -81,7 +83,9 @@ exports.getProductVariants = async(filters = {}, projection = null, options = {}
             handlingPeriod:1,
             percentageOnBrand:1,
             manuFacturer:1,
-            productDescription:1 
+            productDescription:1,
+            VegNonVegProduct:1,
+            keyFeature:1
         }
     });
 
@@ -123,6 +127,7 @@ exports.getProductSizeVariants = async(filters = {}, projection = null, options 
             backImg:{$first:"$productVariant.product_Img1"},
             MainImg:{$first:"$productVariant.MainImg"},
             expiryDate:{$first:"$productVariant.expiryDate"},
+            VegNonVegProduct:{$first:"$productVariant.VegNonVegProduct"},
         }
     });
 

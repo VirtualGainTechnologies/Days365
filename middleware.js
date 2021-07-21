@@ -4,6 +4,8 @@ const { promoterModel } = require('./models/promoterModel');
 const { verifyAccessToken, verifyRefreshToken } = require('./services/jwtServices');
 const { ErrorBody } = require('./utils/ErrorBody');
 const formidable = require('formidable');
+const nodemailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
 
 
 
@@ -208,6 +210,36 @@ async function verifySuperAdmin(req, res, next) {
     }
 }
 
+async function SendEmail(to, subject, message) {
+console.log(to, subject, message);
+    var transporter = await nodemailer.createTransport(smtpTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        auth: {
+            user: 'marutikarad206@gmail.com',
+            pass: 'vrmkptghxxslqbkk'
+        }
+    }));
+
+
+    var mailOptions = {
+        from: "marutikarad206@gmail.com",
+        to: to,
+        subject: subject,
+        text: message
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log("QQQQQQQQQQQQQQQQQQ", error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+
+}
+
 
 /**
  * Multi-part form data handler
@@ -240,6 +272,7 @@ module.exports = {
     verifyAdmin,
     verifyVendor,
     verifySuperAdmin,
-    verifyPromoter
+    verifyPromoter,
+    SendEmail
     // formDataHandler
 };

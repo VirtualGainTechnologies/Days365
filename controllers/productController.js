@@ -9,6 +9,7 @@ MODULE PACKAGES
 const productService = require('../services/productService');
 const { validationResult } = require('express-validator');
 const { ErrorBody } = require('../utils/ErrorBody');
+const { SendEmail } = require('../middleware');
 
 /*********************************
 GLOBAL FUNCTIONS
@@ -302,10 +303,22 @@ exports.changeProductStatus = async (req, res, next) => {
             }else{
                 response = { message: 'No Record Found.', error: true, data: {} };
             }
+            let filters1 = {
+              "_id":mongoose.Types.ObjectId(result.vendor_id)
+            }
+            const checkEmailExist = await productService.getUserDetails(filters1, null, { lean: true });
+    
+            if(checkEmailExist && checkEmailExist.email){
+                let subject = "Product status has changed";
+                let html = "Product Status has changed "+ req.body.status+" To "+ result.status;
+                SendEmail(checkEmailExist.email, subject, html);
+            }
+        
             res.status(200).json(response);
         }
         
     } catch (error) {
+        console.log("rrrrrrrrrrrrrrrrrrr",error);
         next({});
     }
 }

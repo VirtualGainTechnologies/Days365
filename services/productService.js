@@ -1,6 +1,7 @@
 const {productModel} = require('../models/productModel');
 const {productTaxModel} = require('../models/productTaxModel');
 const {vendorDetailsModel} = require('../models/vendorDetailsModel');
+const { userRegisterModel } = require('../models/userRegister');
 const {categoryModel} = require('../models/categoryModel');
 const {deleteFileFromPublicSpace} = require('../utils/fileUpload');
 const mongoose = require('mongoose');
@@ -467,4 +468,8 @@ exports.getAllProductTaxCode = async (filters = {},projection = null, options = 
 
  exports.getAllProduct = async (filters = {}, projection = null, options = {}) => {
     return await productModel.find(filters, projection, options).sort({_id:-1});
+}
+
+exports.getUserDetails = async (filters = {}, projection = null, options = {}) => {
+    return await userRegisterModel.findOne(filters, projection, options);
 }
