@@ -10,7 +10,7 @@ var cron = require('node-cron');
 const cronSchedulerService = require('./services/cronSchedulerService');
 
 
-require('dotenv').config();
+
 
 var mongooseOptions = {
     useNewUrlParser: true,
@@ -42,6 +42,7 @@ const productRouter = require('./routes/productRouter');
 
 
 var app = express();
+require('dotenv').config();
 
 //MongoDB connect
 mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
@@ -52,8 +53,9 @@ mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
     });
 
 app.use(cors());
-app.use(bodyParser.json({ limit: '100mb' }));
-app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
+app.use(express.json());
+//app.use(bodyParser.json({ limit: '100mb' }));
+//app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
 app.use(useragent.express());
 
 
