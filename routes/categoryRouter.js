@@ -21,7 +21,6 @@ const getCategoryValidator = [
 ];
 
 // Use for creating root
-<<<<<<< .merge_file_a14420
 // router.post('/root', categoryController.addRootCategory);
 
 router.post(
@@ -57,7 +56,6 @@ router.get(
 );
 
 module.exports = router;
-=======
 router.post('/root', categoryController.addRootCategory); 
 
 router.post('/', verifyAccessJwt, verifySuperAdmin, publicFileUpload.single('categoryImage'), categoryValidator, categoryController.addCategory);
@@ -77,4 +75,3 @@ router.get('/getCategoriesBrowse',verifyAccessJwt,verifyVendor, categoryControll
 // router.get('/getCategoriesBrowseUser', categoryController.getCategoriesBrowse);
 
 module.exports = router;
->>>>>>> .merge_file_a10048
