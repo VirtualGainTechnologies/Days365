@@ -255,7 +255,7 @@ exports.directUpgradeToVendor = async (req, res, next) => {
 
 
 
-//ADMIN
+//ADMIN Start
 
 exports.signupAdmin = async (req, res, next) => {
     try {
@@ -335,3 +335,73 @@ exports.signupSuperAdmin = async (req, res, next) => {
         next({});
     }
 }
+
+//ADMIN End
+
+// Belows Coding for Promoters start.
+exports.registerPromoter = async (req, res, next) => {
+    try {
+      let errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        next(new ErrorBody(400, "Bad Request", errors.array()));
+      } else {
+        let reqData = req.body;
+        let Name = reqData.Name;
+        let userName = reqData.userName;
+        let Email = reqData.Email ? reqData.Email.trim().toLowerCase() : null;
+        let mobileNumber = reqData.mobileNumber;
+        let Address = reqData.Address;
+        let Password = reqData.Password;
+
+        let filters = {};
+        if (Email && !await verifyEmail(Email)) {
+            return res.status(200).json({
+                message: 'Please provide a valid Email.',
+                error: true,
+                data:{}
+            });
+        }
+        if (Email) {
+          filters = {
+            $or: [{Email: Email}, {mobileNumber:mobileNumber}]
+          };
+        } else {
+          filters = {mobileNumber:mobileNumber};
+        }
+       
+        const account = await signupService.isPromoterExists(filters, null, {
+          lean: true
+        });
+        
+        if (account) {
+            return res.status(200).json({
+                message: 'Account already exists.',
+                error: true,
+                data:{}
+            });
+        } else {
+          const pass = await encryptPassword(Password);
+          var promoterObj = {
+            Email: Email,
+            Name:Name,
+            userName:userName,
+            mobileNumber: mobileNumber,
+            Address: Address,
+            Password: pass
+          }
+          const result = await signupService.registerPromoter(promoterObj);
+
+            if(result && result.Password){
+                delete result.Password;
+                return res.status(200).json({
+                    message: 'Successfully Promoter Registered',
+                    error: false,
+                    data:result
+                });
+            } 
+        }
+      }
+    } catch (error) {
+      next({});
+    }
+  }

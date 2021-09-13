@@ -144,6 +144,9 @@ const VendorDetailSchema = new Schema({
         enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
             'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
     },
+    taxCodePercentage:{
+        type: String,
+    },
     signature_file_name: {
         type: String
     },
@@ -169,14 +172,12 @@ const VendorDetailSchema = new Schema({
     account_status: {
         type: String,
         required: true,
-        enum: ['NA', 'Pending', 'Approved'],
-        default: "NA",
+        enum: ['Rejected', 'Pending', 'Approved'],
+        default: "Pending",
         index: true
-    }
+    },
+    ProductCategoryId:Array
 }, { timestamps: true });
-
-
-
 
 
 const vendorDetailsModel = mongoose.model('vendor_details', VendorDetailSchema);

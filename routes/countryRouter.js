@@ -12,7 +12,6 @@ router.route('/')
                 return next(new ErrorBody(400, "Bad Inputs", []));
             }
             else {
-                // console.log(country);
                 const record = await countryModel.findOne({ country: country });
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -76,7 +75,15 @@ router.route('/')
         }
     });
 
-
-
-
 module.exports = router;
+
+module.exports =router.get('/getCountryList',async (req, res, next) => {
+    try {
+        const record = await countryModel.find();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ message: 'Successfully retrieved states.', error: false, data: record }); 
+    } catch (error) {
+        next({});
+    }
+});

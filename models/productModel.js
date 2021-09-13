@@ -3,85 +3,104 @@ const Schema = mongoose.Schema;
 
 
 const productVariantSchema = new Schema({
-    color: {
+
+    title: {
         type: String,
-        default: "N/A",
         required: true,
-        uppercase: true
+        trim: true
     },
-    size: {
-        type: String,
-        default: "N/A",
-        required: true,
-        uppercase: true
-    },
-    UPC: {
-        type: String
-    },
-    EAN: {
-        type: String
-    },
-    ISBN: {
-        type: String
-    },
-    days_product_code: {
+    
+    daysProductCode: {
         type: String,
         uppercase: true,
         index: {
             unique: true
         }
     },
-    SKU_id: {
+    productId:{
         type: String,
-        required: true
-    },
-    ingredients: {
-        type: String
-    },
-    how_to_use: {
-        type: String
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    offer_price: {
-        type: Number,
-        required: true,
+        trim: true,
         index: true
     },
-    offer_description: {
-        type: String
+    productIdType:{
+        type: String,
+        trim: true,
+        index: true
     },
+    VegNonVegProduct: {
+        type: String,
+        default: "N/A",
+        trim: true,
+        // uppercase: true
+    },
+    size: {
+        type: String,
+        default: "N/A",
+        uppercase: true,
+        trim: true
+    },
+ 
+    SKUId: {
+        type: String,
+        trim: true
+    },
+   
+    yourPrice:{
+        type: Number,
+        index: true,
+        default:0,
+        trim: true,
+    },
+   
+    maximumRetailPrice:{
+        type: Number,
+        default:0,
+        trim: true
+    },
+    flavour:{
+        type: String,
+        trim: true,
+    },
+    expiryDate:{
+        type: Date,
+        trim: true,
+    },
+    // offerPrice: {
+    //     type: Number,
+    //     index: true
+    // },
+    // offerDescription: {
+    //     type: String
+    // },
     stock: {
         type: Number,
-        required: true,
         default: 0,
         index: true
     },
-    shipping_fee: {
-        type: Number,
-        required: true,
-        default: 0
-    },
-    tax_code: {
-        type: String,
-        required: true,
-        enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
-            'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
-    },
-    image_URLs: [String],
-    product_bill_image_URL: {
+    MainImg: {
         type: String
     },
-    product_details_image_URL: {
-        type: String,
-        required: true
-    }
+    expiryDate_Img: {
+        type: String  
+    },
+    importerMRP_Img: {
+        type: String
+    },
+    productSeal_Img: {
+        type: String
+    },
+    product_Img1: {
+        type: String
+    },
+    product_Img2: {
+        type: String
+    },
+    product_Img3: {
+        type: String
+    },
+    product_Img4: {
+        type: String
+    },
 }, { timestamps: true, _id: true });
 
 
@@ -140,10 +159,9 @@ const productSchema = new Schema({
         ref: 'user_registers',
         index: true
     },
-    title: {
+    venderName:{
         type: String,
-        required: true,
-        trim: true
+        required: true
     },
     category_path: {
         type: String,
@@ -155,29 +173,129 @@ const productSchema = new Schema({
         required: true,
         ref: 'category_documents'
     },
-    brand_name: {
+    categoryName:{
         type: String,
-        trim: true,
-        required: true,
-        index: true
-    },
-    variants: [productVariantSchema],
-    status: {
-        type: String,
-        required: true,
-        enum: ['Pending', 'Active', 'Blocked'],
-        default: "Pending",
-        index: true
-    },
-    key_words: {
-        type: String,
-        required: true,
-        trim: true,
+        trim: true
     },
     reference_id: {
         type: Schema.Types.ObjectId
     },
-    customer_rating: ratingSchema
+
+  // Vital Info Tab
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    countryOfOrigin:{
+        type: String,
+        trim: true
+    },
+    manuFacturer:{
+        type: String,
+        trim: true
+    },
+    brandName:{
+        type: String,
+        trim: true,
+        index: true
+    },
+    minRecommendedAge:{
+        type: Number,
+        trim: true,
+        default:0
+    },
+    isProductExpirable:{
+        type: String,
+        trim: true
+    },
+    percentageOnBrand: {
+        type: Number,
+        required: true,
+        default:0
+    },
+
+    // Offer Tab
+
+    condition:{
+        type: String,
+        trim: true
+    },
+    conditionNote:{
+        type: String,
+        trim: true
+    },
+    productTaxCode:{
+        type: String,
+       // trim: true
+    },
+    taxCodePercentage:{
+        type: String,
+    },
+    handlingPeriod:{
+        type: Number,
+        trim: true,
+        default:0
+    },
+
+    // Description Tab
+
+    productDescription:{
+        type: String,
+        trim: true
+    },
+    howToUse: {
+        type: String,
+        trim: true,
+    },
+    Ingredients: {
+        type: String,
+        trim: true
+    },
+    legalClaimer:{
+        type: String,
+        trim: true
+    },
+    keyFeatures: {
+        type: Array,
+        trim: true,
+    },
+    bulletPoint:{
+        type: Number,
+        trim: true,
+        default:0
+    },
+
+    //Keywards Tab
+
+    searchTermsArr:{
+        type: Array,
+        trim: true
+    },
+    targetAudience:{
+        type: Array,
+        trim: true
+    },
+    shippingCharges:{
+        type: String,
+        trim: true
+    },
+    shippingChargesAmt:{
+        type: Number,
+        trim: true,
+        default:0
+    },
+
+    status: {
+        type: String,
+        required: true,
+        enum: ['Pending', 'Active','Processing','Rejected'],
+        default: "Pending",
+        index: true
+    },
+    
+    productVariant : [productVariantSchema]
+    // customer_rating: ratingSchema,
 }, { timestamps: true });
 
 

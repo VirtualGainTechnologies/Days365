@@ -417,9 +417,11 @@ exports.updateProductTaxCode = async (req, res, next) => {
         else {
             var vendorId = req.user.id;
             var productTaxCode = req.body.productTaxCode;
+            var taxCodePercentage = req.body.taxCodePercentage? req.body.taxCodePercentage:"0";
             var filters = { vendor_id: vendorId };
             var updateQuery = {
-                product_tax_code: productTaxCode
+                product_tax_code: productTaxCode,
+                taxCodePercentage:taxCodePercentage,
             };
             const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
@@ -653,9 +655,15 @@ exports.approveVendor = async (req, res, next) => {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
             let filters = { vendor_id: vendorId };
             let updateQuery = {
-                account_status: 'Approved'
+                account_status: req.body.status
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
+            if(req.body.status && req.body.status == "Rejected"){
+                const result = await vendorDetailsService.updateUserDetails({_id: vendorId},{"is_blocked":true}, { lean: true });  
+            }
+            if(req.body.status && req.body.status == "Approved"){
+                const result = await vendorDetailsService.updateUserDetails({_id: vendorId},{"is_blocked":false}, { lean: true });  
+            }
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
                 response = { message: 'Successfully activated vendor account.', error: false, data: {} };
@@ -744,4 +752,50 @@ exports.approveVendorBrand = async (req, res, next) => {
     }
 }
 
+exports.updateProductCategory =async(req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }else {
+            var vendorId = mongoose.Types.ObjectId(req.user.id);
+            let filters = { vendor_id: vendorId };
+            let updateQuery = {
+                ProductCategoryId: req.body.ProductCategoryId
+            }
+            const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
+            var response = { message: 'No record found.', error: true, data: {} };
+            if (result) {
+                response = { message: 'Successfully Added Product Category', error: false, data: {} };
+            }
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+/**
+ *  Get details of vendor by Id.
+ */
+
+ exports.getSellerData = async (req, res, next) => {
+    try {
+        var vendorId =  mongoose.Types.ObjectId(req.query.id);
+        var filters = { vendor_id: vendorId };
+        const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
+        var response = { message: 'No record found.', error: true, data: {} };
+        if (record) {
+            response = { message: 'Successfully retrieved vendor details.', error: false, data: record };
+        }
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+    } catch (error) {
+        next({});
+    }
+}
 

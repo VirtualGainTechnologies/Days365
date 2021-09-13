@@ -77,6 +77,10 @@ const vendorBrandRequestBodyValidator = [
     body('brandName').trim().notEmpty()
 ];
 
+const addProductCategoryCheck = [
+    body('ProductCategoryId').isArray({ min: 1 })
+]
+
 
 
 
@@ -120,6 +124,8 @@ router.put('/request/approveBrand', verifyAccessJwt, verifyVendor, privateFileUp
 
 router.put('/approve/brand', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendorBrand);
 
+router.put('/addProductCategory', verifyAccessJwt, verifyVendor,addProductCategoryCheck, vendorDetailsController.updateProductCategory);
 
+router.get('/getSellerData',verifyAccessJwt,verifyAdmin,vendorDetailsController.getSellerData);
 
 module.exports = router;

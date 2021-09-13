@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const signoutController = require('../controllers/signoutController');
 const { body } = require('express-validator');
-const { verifyAccessJwt, verifyRefreshJwt, verifyUser, verifyAdmin, verifyVendor } = require('../middleware');
+const { verifyAccessJwt, verifyRefreshJwt, verifyUser, verifyAdmin, verifyVendor,verifyPromoter } = require('../middleware');
 
 
 const signoutValidator = [
@@ -15,7 +15,9 @@ router.post('/user', verifyRefreshJwt, verifyUser, signoutValidator, signoutCont
 
 router.post('/admin', verifyRefreshJwt, verifyAdmin, signoutValidator, signoutController.signoutUser);
 
+//promoter signout from a single device
 
+router.post('/promoter', verifyRefreshJwt, verifyPromoter, signoutValidator, signoutController.signoutUser);
 
 
 

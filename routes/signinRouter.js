@@ -16,13 +16,18 @@ const adminSigninValidator = [
     body('password').trim().isLength({ min: 6, max: 50 })
 ];
 
+const promoterValidator = [
+    body('Email').trim().isEmail(),
+    body('Password').trim().isLength({ min: 6, max: 50 })
+];
+
 
 // USER & VENDOR
 
 
 router.get('/user/:loginCredential', signinController.preSigninUser);
 
-router.post('/user', signinValidator, signinController.signinUser);
+router.post('/user', signinController.signinUser);
 
 
 
@@ -30,6 +35,8 @@ router.post('/user', signinValidator, signinController.signinUser);
 
 router.post('/admin', adminSigninValidator, signinController.signinAdmin);
 
+//PROMOTER
 
+router.post('/signinPromoter', promoterValidator, signinController.signinPromoter);
 
 module.exports = router;

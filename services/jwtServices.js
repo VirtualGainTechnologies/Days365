@@ -85,9 +85,11 @@ async function verifyAccessToken(token, options, callback) {
         const jwtSecret = process.env.JWT_ACCESS_TOKEN_SECRET;
         jwt.verify(token, jwtSecret, options, async (err, decoded) => {
             if (err) {
+                console.log("errrrrrr",err);
                 return callback ? callback(err) : reject(err);
             }
             else {
+                console.log("decoded",decoded);
                 return callback ? callback(null, decoded) : resolve(decoded);
             }
         });

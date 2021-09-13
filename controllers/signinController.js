@@ -52,10 +52,10 @@ exports.signinUser = async (req, res, next) => {
             var useragent = req.useragent;
             var filters = {};
             if (type === "EMAIL") {
-                filters = { email: value };
+                filters = { email: value ,is_blocked:false};
             }
             else {
-                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value }] };
+                filters = { $and: [{ 'mobile_number.country_code': "+91" }, { 'mobile_number.number': value },{is_blocked:false}] };
             }
             const user = await signinService.getUserAccount(filters, null, { lean: true });
             if (!user) {
@@ -90,7 +90,7 @@ exports.signinUser = async (req, res, next) => {
             }
         }
     } catch (error) {
-        // console.log(error);
+        console.log(error);
         next({});
     }
 }
@@ -139,6 +139,49 @@ exports.signinAdmin = async (req, res, next) => {
             }
         }
     } catch (error) {
+        console.log("error......................",error);
+        next({});
+    }
+}
+
+
+//PROMOTER LOGIN
+
+exports.signinPromoter = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            next(new ErrorBody(400, "Bad Request", errors.array()));
+        }
+        else {
+            var password = req.body.Password;
+            var useragent = req.useragent;
+            var email = req.body.Email.trim().toLowerCase();
+            var filters = { Email: email,isBlocked:false};
+            const promoter = await signinService.getPromoterAccount(filters, null, { lean: true });
+            if (!promoter) {
+               return res.status(200).json({ message: 'Invalid Account.', error: true, data: {} });
+            }
+            else {
+                const flag = await verifyPassword(promoter.Password, password);
+                if (!flag) {
+                    return res.status(200).json({ message: 'Login failed.', error: true, data: {} });
+                }else {
+                    const tokens = await userLogin(promoter._id, useragent);
+                    let response = {
+                        accessToken: tokens.accessToken,
+                        refreshToken: tokens.refreshToken,
+                        fullname: promoter.Name,
+                        type: "promoter"
+                    }
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({ message: 'Login successful.', error: false, data: response });
+                }
+            }
+        }
+    } catch (error) {
+        console.log("error......................",error);
         next({});
     }
 }

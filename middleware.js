@@ -1,8 +1,11 @@
 const { userRegisterModel } = require('./models/userRegister');
 const { adminRegisterModel } = require('./models/adminRegister');
+const { promoterModel } = require('./models/promoterModel');
 const { verifyAccessToken, verifyRefreshToken } = require('./services/jwtServices');
 const { ErrorBody } = require('./utils/ErrorBody');
 const formidable = require('formidable');
+const nodemailer = require('nodemailer');
+const smtpTransport = require('nodemailer-smtp-transport');
 
 
 
@@ -42,7 +45,7 @@ async function verifyAccessJwt(req, res, next) {
                 return next(new ErrorBody(401, "Access-Token expired", []));
             }
             else {
-                // console.log(decoded);
+                //console.log(decoded);
                 req['user'] = { id: decoded.key };
                 return next();
             }
@@ -184,6 +187,58 @@ async function verifySuperAdmin(req, res, next) {
     }
 }
 
+/**
+ * Verify Promoter
+ */
+
+ async function verifyPromoter(req, res, next) {
+    try {
+        var promoterId = req.user.id;
+        await promoterModel.findById(promoterId, async (err, promoter) => {
+            if (err) {
+                return next({});
+            }
+            else if (!promoter || promoter.isBlocked) {
+                return next(new ErrorBody(401, "Unauthorized", []));
+            }
+            else {
+                return next();
+            }
+        });
+    } catch (err) {
+        return next({});
+    }
+}
+
+async function SendEmail(to, subject, message) {
+console.log(to, subject, message);
+    var transporter = await nodemailer.createTransport(smtpTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        auth: {
+            user: '',
+            pass: ''
+        }
+    }));
+
+
+    var mailOptions = {
+        from: "",
+        to: to,
+        subject: subject,
+        text: message
+    };
+
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log("QQQQQQQQQQQQQQQQQQ", error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+
+}
 
 
 /**
@@ -217,5 +272,7 @@ module.exports = {
     verifyAdmin,
     verifyVendor,
     verifySuperAdmin,
+    verifyPromoter,
+    SendEmail
     // formDataHandler
 };

@@ -1,6 +1,7 @@
 const { userRegisterModel } = require('../models/userRegister');
 const { adminRegisterModel } = require('../models/adminRegister');
 const { preSignUpModel } = require('../models/preSignUPModel');
+const { promoterModel } = require('../models/promoterModel');
 
 
 exports.createPreSignupRecord = async (record = {}) => {
@@ -34,3 +35,11 @@ exports.isAdminExists = async (filters = {}, projection = null, options = {}) =>
 exports.registerAdmin = async (record = {}) => {
     return await adminRegisterModel.create(record);
 }
+
+exports.isPromoterExists = async (filters = {}, projection = null, options = {}) => {
+    return await promoterModel.findOne(filters, projection, options);
+}
+exports.registerPromoter = async (record = {}) => {
+    return await promoterModel.create(record);
+}
+
