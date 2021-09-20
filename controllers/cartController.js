@@ -52,27 +52,26 @@ const mongoose = require('mongoose');
 
 exports.createCart = async (req,res,next) =>{
     try {
-      
+        console.log("this is variantId")
        const proudctID = mongoose.Types.ObjectId(req.body.productId);
        const customerID = mongoose.Types.ObjectId(req.user.id);
        var condition = {_id:proudctID};
-      
        var product=   await productService.getProduct(condition)
-       console.log("this is product for cart", product);
        var option  ={ cusotmerId: customerID}
        if(req.body.saveType == 'cart'){
                option.saveType = 'cart'
          }else{
                option.saveType = 'wislist'
         }
-       var cartResult =  await cartService.getCart(option);
+       var cartResult =  await cartService.getCart(condition);
        if(product && cartResult == null ) {
            
            var cartObj ={
                productId:proudctID,
                cusotmerId:customerID,
                quantity: 1,
-               cartPrice:product.price
+               cartPrice:product.price,
+               varientId:req.body.variantId
            }
        
            if(req.body.saveType == 'cart'){

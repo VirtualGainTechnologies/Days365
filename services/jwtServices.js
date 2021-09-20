@@ -11,7 +11,7 @@ require('dotenv').config();
 async function generateAccessToken(key, callback) {
     return new Promise(async (resolve, reject) => {
         const jwtSecret = process.env.JWT_ACCESS_TOKEN_SECRET;
-        jwt.sign({ key: key }, jwtSecret, { expiresIn: 1800 }, async (err, accessToken) => {
+        jwt.sign({ key: key }, jwtSecret, { expiresIn: "1d" }, async (err, accessToken) => {
             if (err || !accessToken) {
                 return callback ? callback(new Error("Error.")) : reject(new Error("Error"));
             }

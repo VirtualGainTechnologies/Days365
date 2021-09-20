@@ -41,7 +41,7 @@ const brandRouter = require('./routes/brandRouter');
 const promoterRouter = require('./routes/promoterRouter');
 const productForSellRouter = require('./routes/productForSellRouter');
 const cartRouter = require('./routes/cartRouter');
-
+const checkOutRouter = require('./routes/checkoutOderRouter');
 
 
 
@@ -100,7 +100,7 @@ app.use('/brand',brandRouter);
 app.use('/promoter',promoterRouter);
 app.use('/productForSell',productForSellRouter);
 app.use("/cart",cartRouter);
-
+app.use('/checkout',checkOutRouter)
 
 
 

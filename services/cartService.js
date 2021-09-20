@@ -14,6 +14,18 @@ exports.getCart = async (filters = {}, projection = null, options = {}) => {
     return await cartModel.findOne(filters, projection, options);
 }
 
+
+/**
+ * 
+ this is find all cart data
+ */
+
+
+ exports.getAllCartProduct = async (filters = {}, projection = null, options = {}) => {
+    return await cartModel.find(filters, projection, options);
+}
+
+
 /**
  * Update a record
  */

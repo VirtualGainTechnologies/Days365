@@ -14,6 +14,9 @@ const cartSchema = new Schema({
         ref: 'user_registers',
         index: true
       },
+      varientId:{
+         type:String
+      },
       saveType:{
           type:String,
           require:true,

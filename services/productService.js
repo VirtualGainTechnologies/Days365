@@ -90,6 +90,12 @@ exports.getVendorRecord = async (filters = {}, projection = null, options = {}) 
     return await vendorDetailsModel.findOne(filters, projection, options);
 }
 
+/**
+ *  this  is  product get function
+ */
+ exports.getProduct = async (condition) => {
+    return await productModel.find(condition);
+}
 
 /**
  * Get category record
