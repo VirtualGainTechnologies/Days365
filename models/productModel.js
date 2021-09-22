@@ -101,6 +101,29 @@ const productVariantSchema = new Schema({
     product_Img4: {
         type: String
     },
+    length: {
+        type: String,
+        required: true
+    },
+    breadth: {
+        type: String,
+        required: true
+    },
+    height: {
+        type: String,
+        required: true
+    },
+    weight: {
+        type: String,
+        required: true
+    },
+    source_pin: {
+        type: String,
+        required: true
+    }
+    
+
+
 }, { timestamps: true, _id: true });
 
 

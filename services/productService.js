@@ -200,6 +200,17 @@ exports.createCategoryPath = async (ancestors = []) => {
                 if (option.product_Img1) {
                     choice['product_Img1'] = option.product_Img1;
                 }
+
+    
+    
+                choice['length'] = option.length;
+                choice['breadth'] = option.breadth;
+                choice['height'] = option.height;
+                choice['weight'] = option.weight;
+                choice['source_pin'] = option.source_pin;
+
+
+
               
                 var uniqueId = '';
                 do {
