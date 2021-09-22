@@ -1,5 +1,4 @@
 const {productModel} = require('../models/productModel');
-
 /**
  *  get the product data
  */

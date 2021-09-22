@@ -28,6 +28,7 @@
     "nodemailer": "^6.6.3",
     "nodemailer-smtp-transport": "^2.7.4",
     "otp-generator": "^2.0.0",
-    "prettier": "^2.3.2"
+    "prettier": "^2.3.2",
+    "request": "^2.88.2"
   }
 }

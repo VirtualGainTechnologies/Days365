@@ -1,5 +1,5 @@
 const { cartModel } = require('../models/cartModel');
-
+const {productModel} = require('../models/productModel');
 /**
  * Create cart 
  */
@@ -60,3 +60,11 @@ exports.getCartWithPopultate = async(condition) => {
        )
 }
   
+exports.getCartFind = async(ids) =>{
+    //  return await productModel.find({ "productVariant._id": { $in: ids } });
+    return await productModel.aggregate([
+        // Get just the docs that contain a shapes element where color is 'red'
+        {$match: {'productVariant._id': ids}},
+        
+    ])
+}

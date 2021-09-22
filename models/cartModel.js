@@ -15,7 +15,10 @@ const cartSchema = new Schema({
         index: true
       },
       varientId:{
-         type:String
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'product_documents',
+        index: true
       },
       saveType:{
           type:String,
