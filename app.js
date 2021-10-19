@@ -8,6 +8,11 @@ var bodyParser = require('body-parser');
 var useragent = require('express-useragent');
 var cron = require('node-cron');
 const cronSchedulerService = require('./services/cronSchedulerService');
+var http = require("http"),
+  fs = require("fs"),
+  ccav = require("./ccavutil.js"),
+  qs = require("querystring"),
+ccavResHandler = require("./ccavResponseHandler.js");
 
 
 
@@ -60,8 +65,8 @@ mongoose.connect(process.env.DB_CONNECTION, mongooseOptions)
 
 app.use(cors());
 app.use(express.json());
-//app.use(bodyParser.json({ limit: '100mb' }));
-//app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 1000 }));
 app.use(useragent.express());
 
 app.use(function(req, res, next) {
@@ -135,7 +140,6 @@ app.use(function(req, res, next) {
     next(createError(404));
 });
 
-
 // error handler
 app.use(function(err, req, res, next) {
     console.log("ERROR========================>", chalk.red(err.message));
@@ -144,5 +148,7 @@ app.use(function(err, req, res, next) {
     res.setHeader('Content-Type', 'application/json');
     res.json({ message: err.message || "Internal Server Error.", error: true, errors: err || [] });
 });
+
+// app.use(bodyParser.json());
 
 module.exports = app;

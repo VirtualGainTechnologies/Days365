@@ -35,6 +35,10 @@ exports.updateCartData = async (id, updateQuery = {}, options = {}) => {
 }
 
 
+exports.updatallCartData = async ( updateQuery = {}, options = {}) => {
+    return await cartModel.updateMany( updateQuery, options);
+}
+
 exports.getCartWithPopultate = async(condition) => {
        return await cartModel.aggregate(
            [

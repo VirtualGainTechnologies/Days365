@@ -2,31 +2,30 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
-    productId:{
         productId:{
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'product_documents',
-            index: true
+            
           },
           cusotmerId:{
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'user_registers',
-            index: true
+            
           },
           varientId:{
             type: Schema.Types.ObjectId,
             required: true,
             ref: 'product_documents',
-            index: true
+            
           },
           quantity:{
             type: Number,
             required: true,
             default:1
-        },
-        price:{
+         },
+         price:{
             type:Number,
             default:0
          },
@@ -45,11 +44,17 @@ const orderSchema = new Schema({
              type:Number
          },
          city:{
-             type:Number
+             type:String
          },
          state:{
              type:String
          }
 
-    }
+    },{
+        timestamps: true, _id: true   
 })
+
+const orderModel = mongoose.model('order_document',orderSchema);
+module.exports = {
+    orderModel
+}

@@ -4,5 +4,6 @@ const { verifyAccessJwt, verifyAdmin, verifyUser,verifyVendor } = require('../mi
 
 router.post('/create-cart', verifyAccessJwt,verifyUser,  cartController.createCart);
 
-router.post('/get-cart', verifyAccessJwt,verifyUser, cartController.getCartData)
+router.post('/get-cart', verifyAccessJwt,verifyUser, cartController.getCartData);
+router.post('/clear-cart', verifyAccessJwt,verifyUser, cartController.clearCartData);
 module.exports = router;

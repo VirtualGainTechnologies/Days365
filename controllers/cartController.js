@@ -121,13 +121,13 @@ exports.createCart = async (req,res,next) =>{
 
 exports.getCartData = async (req,res,next) =>{
     const customerID = mongoose.Types.ObjectId(req.user.id);
-    var condition ={ cusotmerId: customerID,saveType: req.body.saveType};
+    var condition ={ cusotmerId: customerID,saveType: req.body.saveType,isDeleted: false};
 
     var cartList = await cartService.getCartWithPopultate(condition);
     if(req.body.saveType == 'cart'){
-        var response = { message: "Cart is empty.",error: true, data: {} };
+        var response = { message: "Cart is empty.",error: false, data: {} };
     }else{
-        var response = { message: "Wishlist is empty.",error: true, data: {} };
+        var response = { message: "Wishlist is empty.",error: false, data: {} };
     }
    
     if(cartList){
@@ -143,4 +143,16 @@ exports.getCartData = async (req,res,next) =>{
     res.json(response); 
 }
 
+exports.clearCartData = async (req,res,next) =>{
+    console.log("this is rea.body",req.body,req.user.id)
+    const customerID = mongoose.Types.ObjectId(req.user.id);  
+    var condition ={ cusotmerId: customerID,saveType: req.body.saveType};
+    var updateData = { isDeleted: true };
 
+    var updateCart = await cartService.updatallCartData(condition,updateData);
+    console.log("this is cart data",updateCart)
+    var response = { message: "Cart is empty.",error: true, data: {} };
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(response); 
+}
