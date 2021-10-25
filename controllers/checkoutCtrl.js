@@ -17,8 +17,8 @@ workingKey = "49A91DFE5E7F1E9633631C7CFB6CFF99", //Put in the 32-Bit key shared 
      accessCode = "AVPA17II14AH62APHA",
      merchant_id = 459896,
      currency = "INR",
-     redirect_url = "http://192.168.1.2:3001/checkout/ccavResponseHandler";
-cancel_url = 'http://192.168.1.2:3001/checkout/ccavResponseHandler';
+     redirect_url = "http://localhost:3002/checkout/ccavResponseHandler";
+cancel_url = 'http://localhost:3002/checkout/ccavResponseHandler';
 axios = require('axios');
 exports.checkout = async (req, res) => {
      try {
