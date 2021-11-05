@@ -89,7 +89,7 @@ async function verifyAccessToken(token, options, callback) {
                 return callback ? callback(err) : reject(err);
             }
             else {
-                console.log("decoded",decoded);
+                // console.log("decoded",decoded);
                 return callback ? callback(null, decoded) : resolve(decoded);
             }
         });

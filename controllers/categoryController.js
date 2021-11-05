@@ -64,13 +64,13 @@ exports.addCategory = async (req, res, next) => {
                 reqBody['image_URL'] = imageLocation;
             }
             if (await categoryService.getCategoryWithFilters({
-                    category_name: categoryName
-                }, null, {
-                    collation: {
-                        locale: 'en',
-                        strength: 2
-                    }
-                })) {
+                category_name: categoryName
+            }, null, {
+                collation: {
+                    locale: 'en',
+                    strength: 2
+                }
+            })) {
                 let response = {
                     message: 'Category already exists.',
                     error: true,
@@ -331,7 +331,7 @@ exports.getCategoriesByName = async (req, res, next) => {
                 let filters = {
                     category_name: regexName
                 }
-               
+
                 parentCategory = await categoryService.getCategoryWithFilters(filters);
                 if (!parentCategory) {
                     return next(new ErrorBody(400, "Bad Inputs", []));
@@ -349,30 +349,30 @@ exports.getCategoriesByName = async (req, res, next) => {
                 let options = {
                     lean: true
                 }
-                const result = await parentCategory.getAncestors({},[projection],[options]);
+                const result = await parentCategory.getAncestors({}, [projection], [options]);
 
-                if(record && record.ProductCategoryId && record.ProductCategoryId.length){
+                if (record && record.ProductCategoryId && record.ProductCategoryId.length) {
                     result.map((perm, i) => {
                         record.ProductCategoryId.map((item, i) => {
-                            if(perm._id == item){
+                            if (perm._id == item) {
                                 parentCategoryArr.push(parentCategory);
-                                console.log("Matched",item);
+                                console.log("Matched", item);
                             }
-                      })
+                        })
                     })
                 }
-                
-                if (parentCategoryArr && parentCategoryArr.length==0) {
+
+                if (parentCategoryArr && parentCategoryArr.length == 0) {
                     return res.status(201).json({
                         message: 'Category Not exists',
                         error: false,
                         data: []
                     });
-                }else{
+                } else {
                     return res.status(201).json({
                         message: 'Successfully Retrieved Category.',
                         error: false,
-                        data: parentCategoryArr 
+                        data: parentCategoryArr
                     });
                 }
             }
@@ -395,7 +395,7 @@ exports.getCategoriesByName = async (req, res, next) => {
  * @version : 1
  */
 
- exports.getCategoriesBrowse = async (req, res, next) => {
+exports.getCategoriesBrowse = async (req, res, next) => {
     try {
         let errors = validationResult(req);
 
@@ -403,7 +403,7 @@ exports.getCategoriesByName = async (req, res, next) => {
             return next(new ErrorBody(400, "Bad Inputs", errors.array()));
         } else {
             //var parentCategory;
-            var payload ;
+            var payload;
             var id = req.query.id;
             const record = await vendorDetailsService.getVendorDetailsRecord({ vendor_id: req.user.id }, null, { lean: true });
             if (id) {
@@ -420,14 +420,14 @@ exports.getCategoriesByName = async (req, res, next) => {
                     is_restricted: 1,
                     image_URL: 1,
                     createdAt: 1,
-                    image_URL:1
+                    image_URL: 1
                 }
                 let options = {
                     lean: true
                 }
-                let filterObj1={};
-                if(id=="6087df08d80dde18cb1a4036"){
-                    filterObj1 = {"_id":{ $in: record.ProductCategoryId}}
+                let filterObj1 = {};
+                if (id == "6087df08d80dde18cb1a4036") {
+                    filterObj1 = { "_id": { $in: record.ProductCategoryId } }
                 }
                 const result = await parentCategory1.getImmediateChildren(filterObj1, projection, options);
                 payload = {
@@ -446,33 +446,33 @@ exports.getCategoriesByName = async (req, res, next) => {
                 if (!parentCategory) {
                     return next({});
                 }
-            
-            let projection = {
-                _id: 1,
-                category_name: 1,
-                is_leaf: 1,
-                is_restricted: 1,
-                image_URL: 1,
-                createdAt: 1,
-                image_URL:1
+
+                let projection = {
+                    _id: 1,
+                    category_name: 1,
+                    is_leaf: 1,
+                    is_restricted: 1,
+                    image_URL: 1,
+                    createdAt: 1,
+                    image_URL: 1
+                }
+                let options = {
+                    lean: true
+                }
+                // const record = await vendorDetailsService.getVendorDetailsRecord({ vendor_id: req.user.id }, null, { lean: true });
+                let filterObj = {};
+                if (record) {
+                    filterObj = { "_id": { $in: record.ProductCategoryId } }
+                }
+                const result = await parentCategory.getImmediateChildren(filterObj, projection, options);
+                payload = {
+                    parent: {
+                        id: parentCategory._id,
+                        name: parentCategory.category_name
+                    },
+                    categories: result
+                }
             }
-            let options = {
-                lean: true
-            }
-            // const record = await vendorDetailsService.getVendorDetailsRecord({ vendor_id: req.user.id }, null, { lean: true });
-            let filterObj={};
-            if(record){
-                filterObj = {"_id":{ $in: record.ProductCategoryId}}
-            }
-            const result = await parentCategory.getImmediateChildren(filterObj, projection, options);
-            payload = {
-                parent: {
-                    id: parentCategory._id,
-                    name: parentCategory.category_name
-                },
-                categories: result
-            }
-           }
             var response = {
                 message: 'Successfully retrieved sub categories.',
                 error: false,
@@ -485,6 +485,83 @@ exports.getCategoriesByName = async (req, res, next) => {
         }
     } catch (error) {
         console.log(error)
+        next({});
+    }
+}
+
+
+
+
+//####################################### UKEH #####################################################
+
+
+/**
+ * Get cat and its subcats
+ */
+
+exports.get2LevelSubcats = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, "Bad Inputs", errors.array()));
+        } else {
+            var parentCategory;
+            var id = req.query.id;
+            if (id) {
+                let parentId = mongoose.Types.ObjectId(req.query.id);
+                parentCategory = await categoryService.getCategory(parentId);
+                if (!parentCategory) {
+                    return next(new ErrorBody(400, "Bad Inputs", []));
+                }
+
+            } else {
+                let filters = {
+                    category_name: 'Departments'
+                }
+                parentCategory = await categoryService.getCategoryWithFilters(filters);
+                if (!parentCategory) {
+                    return next({});
+                }
+            }
+            let projection = {
+                _id: 1,
+                category_name: 1,
+                is_leaf: 1,
+                is_restricted: 1,
+                image_URL: 1,
+                createdAt: 1
+            }
+            let options = {
+                lean: true
+            }
+            const finalResult = [];
+            const result = await parentCategory.getImmediateChildren({}, projection);
+            const result2 = await Promise.all(result.map(async (cat) => {
+                let subCat = await cat.getImmediateChildren({}, projection, options);
+                finalResult.push({
+                    parent: cat,
+                    subCats: subCat
+                })
+            }));
+            let payload = {
+                parent: {
+                    id: parentCategory._id,
+                    name: parentCategory.category_name
+                },
+                categories: finalResult
+            }
+            var response = {
+                message: 'Successfully retrieved sub categories.',
+                error: false,
+                data: payload
+            };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+
+        }
+    } catch (error) {
         next({});
     }
 }

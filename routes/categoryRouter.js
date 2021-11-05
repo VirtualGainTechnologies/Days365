@@ -23,37 +23,37 @@ const getCategoryValidator = [
 // Use for creating root
 // router.post('/root', categoryController.addRootCategory);
 
-router.post(
-  "/",
-  verifyAccessJwt,
-  verifySuperAdmin,
-  publicFileUpload.single("categoryImage"),
-  categoryValidator,
-  categoryController.addCategory
-);
+// router.post(
+//   "/",
+//   verifyAccessJwt,
+//   verifySuperAdmin,
+//   publicFileUpload.single("categoryImage"),
+//   categoryValidator,
+//   categoryController.addCategory
+// );
 
-router.get(
-  "/",
-  verifyAccessJwt,
-  verifyAdmin,
-  getCategoryValidator,
-  categoryController.getCategory
-);
+// router.get(
+//   "/",
+//   verifyAccessJwt,
+//   verifyAdmin,
+//   getCategoryValidator,
+//   categoryController.getCategory
+// );
 
-router.get(
-  "/all",
-  verifyAccessJwt,
-  verifyAdmin,
-  categoryController.getCategories
-);
+// router.get(
+//   "/all",
+//   verifyAccessJwt,
+//   verifyAdmin,
+//   categoryController.getCategories
+// );
 
-router.get("/main", categoryController.getMainCategories);
+// router.get("/main", categoryController.getMainCategories);
 
-router.get(
-  "/subCategories",
-  getCategoryValidator,
-  categoryController.getSubCategories
-);
+// router.get(
+//   "/subCategories",
+//   getCategoryValidator,
+//   categoryController.getSubCategories
+// );
 
 module.exports = router;
 router.post('/root', categoryController.addRootCategory); 
@@ -68,10 +68,40 @@ router.get('/main', categoryController.getMainCategories);
 
 router.get('/subCategories', getCategoryValidator, categoryController.getSubCategories);
 
+router.get('/subCategories/2level', getCategoryValidator, categoryController.get2LevelSubcats);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///// VINAy ////////////////////////////////////////
+
+
+
 router.post('/getCategoriesByName',verifyAccessJwt, categoryController.getCategoriesByName);
 
 router.get('/getCategoriesBrowse',verifyAccessJwt,verifyVendor, categoryController.getCategoriesBrowse);
 
 // router.get('/getCategoriesBrowseUser', categoryController.getCategoriesBrowse);
+
+
+
+
+
 
 module.exports = router;
