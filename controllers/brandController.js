@@ -54,7 +54,7 @@ exports.getBrands = async(req, res, next) => {
         }else{
             options = {"status":{ $in: req.body.status}}
         }
-        console.log("#################3333",options);
+        // console.log("#################3333",options);
         const result = await brandService.getBrand(options,null, { lean: true });
 
         var response = { message: "No Record Found.", error: true, data: [] };
@@ -90,5 +90,47 @@ exports.changeStatus = async(req, res, next) => {
     }catch(error){
         console.log(error)
         next({});
+    }
+}
+
+
+
+exports.getDistinctActiveBrands = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            throw new ErrorBody(400, "Bad Inputs", errors.array());
+        }
+        else {
+            const brands = await brandService.getDistinctActiveBrands();
+            let response = { message: "Successfully retrieved all brands", error: false, data: { brands: brands } };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        console.log(error)
+        next(([400].includes(error.status)) ? error : {});
+    }
+}
+
+
+
+exports.getSellerBrands = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            throw new ErrorBody(400, "Bad Inputs", errors.array());
+        }
+        else {
+            let sellerId = mongoose.Types.ObjectId(req.user.id).toString();
+            const brands = await brandService.getSellerBrands(sellerId);
+            let response = { message: "Successfully retrieved seller brands", error: false, data: { brands: brands || [] } };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next(([400].includes(error.status)) ? error : {});
     }
 }

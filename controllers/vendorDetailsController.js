@@ -752,6 +752,48 @@ exports.approveVendorBrand = async (req, res, next) => {
     }
 }
 
+
+
+exports.getPrivateFileURL = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        }
+        else {
+            let fileName = req.query.fileName;
+            let type = fileName.split('.').pop();
+            let contentType = '';
+            switch (type) {
+                case 'gif': contentType = 'image/gif'; break;
+                case 'png': contentType = 'image/png'; break;
+                case 'svg': contentType = 'image/svg+hml'; break;
+                case 'pdf': contentType = 'application/pdf'; break;
+                default: contentType = 'image/jpeg';
+            }
+            let fileUrl = await createSignedURL(fileName, contentType);
+            response = { message: 'Successfully retrieved File URL.', error: false, data: { fileUrl: fileUrl } };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.updateProductCategory = async (req, res, next) => {
     try {
         let errors = validationResult(req);
@@ -801,35 +843,3 @@ exports.getSellerData = async (req, res, next) => {
 
 
 
-
-
-//// UNNI ////
-
-
-exports.getPrivateFileURL = async (req, res, next) => {
-    try {
-        let errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }
-        else {
-            let fileName = req.query.fileName;
-            let type = fileName.split('.').pop();
-            let contentType = '';
-            switch (type) {
-                case 'gif': contentType = 'image/gif'; break;
-                case 'png': contentType = 'image/png'; break;
-                case 'svg': contentType = 'image/svg+hml'; break;
-                case 'pdf': contentType = 'application/pdf'; break;
-                default: contentType = 'image/jpeg';
-            }
-            let fileUrl = await createSignedURL(fileName, contentType);
-            response = { message: 'Successfully retrieved File URL.', error: false, data: { fileUrl: fileUrl } };
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.json(response);
-        }
-    } catch (error) {
-        next({});
-    }
-}

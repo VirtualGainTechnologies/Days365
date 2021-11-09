@@ -47,7 +47,6 @@ const productVariantSchema = new Schema({
    
     yourPrice:{
         type: Number,
-        index: true,
         default:0,
         trim: true,
     },
@@ -74,8 +73,7 @@ const productVariantSchema = new Schema({
     // },
     stock: {
         type: Number,
-        default: 0,
-        index: true
+        default: 0
     },
     MainImg: {
         type: String
@@ -320,6 +318,9 @@ const productSchema = new Schema({
     productVariant : [productVariantSchema]
     // customer_rating: ratingSchema,
 }, { timestamps: true });
+
+productSchema.index({'productVariant.0.yourPrice':1});
+productSchema.index({'productVariant.0.createdAt':1});
 
 
 

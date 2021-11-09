@@ -21,6 +21,15 @@ router.post('/getBrands',verifyAccessJwt, brandController.getBrands)
 //router to change status Pending to Approved
 router.put('/updateStatus',verifyAccessJwt, brandController.changeStatus)
 
+
+
+router.get('/distinct', brandController.getDistinctActiveBrands);
+
+router.get('/user/all',verifyAccessJwt, verifyVendor, brandController.getSellerBrands);
+
+
+
+
 module.exports = router;
 
 

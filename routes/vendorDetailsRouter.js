@@ -129,6 +129,15 @@ router.put('/request/approveBrand', verifyAccessJwt, verifyVendor, privateFileUp
 
 router.put('/approve/brand', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendorBrand);
 
+router.get('/admin/signedURL', verifyAccessJwt, verifyAdmin, fileSignedURLValidator, vendorDetailsController.getPrivateFileURL);
+
+
+
+
+
+// Vinay //
+
+
 router.put('/addProductCategory', verifyAccessJwt, verifyVendor, addProductCategoryCheck, vendorDetailsController.updateProductCategory);
 
 router.get('/getSellerData', verifyAccessJwt, verifyAdmin, vendorDetailsController.getSellerData);
@@ -136,9 +145,7 @@ router.get('/getSellerData', verifyAccessJwt, verifyAdmin, vendorDetailsControll
 
 
 
-// UNNI //
 
-router.get('/admin/signedURL', verifyAccessJwt, verifyAdmin, fileSignedURLValidator, vendorDetailsController.getPrivateFileURL);
 
 
 module.exports = router;

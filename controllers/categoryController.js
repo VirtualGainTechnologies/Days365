@@ -533,21 +533,36 @@ exports.get2LevelSubcats = async (req, res, next) => {
                 createdAt: 1
             }
             let options = {
+                sort: {
+                    category_name: 1
+                },
+                collation: {
+                    locale: 'en',
+                    strength: 2
+                },
                 lean: true
             }
-            const finalResult = [];
-            const result = await parentCategory.getImmediateChildren({}, projection);
-            const result2 = await Promise.all(result.map(async (cat) => {
+            const result = await parentCategory.getImmediateChildren({}, projection, {
+                sort: {
+                    category_name: 1
+                },
+                collation: {
+                    locale: 'en',
+                    strength: 2
+                }
+            });
+            const finalResult = await Promise.all(result.map(async (cat) => {
                 let subCat = await cat.getImmediateChildren({}, projection, options);
-                finalResult.push({
+                return {
                     parent: cat,
                     subCats: subCat
-                })
+                };
             }));
             let payload = {
                 parent: {
                     id: parentCategory._id,
-                    name: parentCategory.category_name
+                    name: parentCategory.category_name,
+                    is_leaf: parentCategory.is_leaf,
                 },
                 categories: finalResult
             }

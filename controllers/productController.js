@@ -633,3 +633,59 @@ exports.changeProductStatus = async (req, res, next) => {
         next();
     }
 }
+
+
+
+/**
+* Get product list for home page
+* @createdBy : Unnikrishnan
+* @createdOn : 08/11/2021
+* @usedIn : All
+* @apiType : GET
+* @lastModified : 08/11/2021
+* @modifiedBy : Unnikrishnan
+* @parameters : 
+* @version : 1
+*/
+
+
+
+
+exports.getAllActiveProducts = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            throw new ErrorBody(400, "Bad Inputs", errors.array());
+        }
+        else {
+            let page = parseInt(req.query.page);
+            let size = parseInt(req.query.size);
+            page = isNaN(page) ? 0 : page;
+            size = isNaN(size) ? 10 : size;
+            let title = req.query.title || null;
+            let category = req.query.category || null;
+            let brand = req.query.brand || null;
+            let sort = req.query.sort ? JSON.parse(req.query.sort) : {};
+            let options = {
+                page, size, title, category, brand, sort
+            };
+            const result = await productService.getAllProductsWithFilters(options);
+            let responsePayload={
+                maxRecords:0,
+                products:[]
+            }
+            if(result && result.length){
+                responsePayload.maxRecords= result[0].maxRecords || 0;
+                responsePayload.products= result[0].records || [];
+            }
+            let response = { message: "successfully retrieved products", error: false, data: responsePayload };
+            res.status(200);
+            res.setHeader('Content-Type','application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        console.log(error)
+        next([400].includes(error.status) ? error : {});
+    }
+}
+

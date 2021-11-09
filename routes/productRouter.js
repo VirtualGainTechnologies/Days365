@@ -80,4 +80,20 @@ router.get('/getProductVariantOnSeller',verifyAccessJwt,verifyVendor, productCon
 
 
 
+
+
+router.get('/active/all', productController.getAllActiveProducts);
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = router;
