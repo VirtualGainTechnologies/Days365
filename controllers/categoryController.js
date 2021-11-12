@@ -148,6 +148,13 @@ exports.getMainCategories = async (req, res, next) => {
             createdAt: 1
         }
         let options = {
+            sort: {
+                category_name: 1
+            },
+            collation: {
+                locale: 'en',
+                strength: 2
+            },
             lean: true
         }
         const result = await root.getImmediateChildren({}, projection, options);

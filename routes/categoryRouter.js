@@ -20,42 +20,7 @@ const getCategoryValidator = [
   query("id").trim().optional({ checkFalsy: true }),
 ];
 
-// Use for creating root
-// router.post('/root', categoryController.addRootCategory);
 
-// router.post(
-//   "/",
-//   verifyAccessJwt,
-//   verifySuperAdmin,
-//   publicFileUpload.single("categoryImage"),
-//   categoryValidator,
-//   categoryController.addCategory
-// );
-
-// router.get(
-//   "/",
-//   verifyAccessJwt,
-//   verifyAdmin,
-//   getCategoryValidator,
-//   categoryController.getCategory
-// );
-
-// router.get(
-//   "/all",
-//   verifyAccessJwt,
-//   verifyAdmin,
-//   categoryController.getCategories
-// );
-
-// router.get("/main", categoryController.getMainCategories);
-
-// router.get(
-//   "/subCategories",
-//   getCategoryValidator,
-//   categoryController.getSubCategories
-// );
-
-module.exports = router;
 router.post('/root', categoryController.addRootCategory); 
 
 router.post('/', verifyAccessJwt, verifySuperAdmin, publicFileUpload.single('categoryImage'), categoryValidator, categoryController.addCategory);
@@ -104,4 +69,4 @@ router.get('/getCategoriesBrowse',verifyAccessJwt,verifyVendor, categoryControll
 
 
 
-module.exports = router;
+module.exports= router;
