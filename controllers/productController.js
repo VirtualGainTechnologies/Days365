@@ -557,7 +557,8 @@ exports.changeProductStatus = async (req, res, next) => {
             let filters = {_id: id};
             const formattedProductVariants = await productService.formatProductVariants(req.body.productVariant, req.files, null);
             let updateQuery = {
-                productVariant: formattedProductVariants
+                productVariant: formattedProductVariants,
+                status:"Processing"
             }
             console.log("formattedProductVariants....................",formattedProductVariants);
            // return;

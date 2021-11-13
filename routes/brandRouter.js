@@ -25,7 +25,7 @@ router.put('/updateStatus',verifyAccessJwt, brandController.changeStatus)
 
 router.get('/distinct', brandController.getDistinctActiveBrands);
 
-router.get('/user/all',verifyAccessJwt, verifyVendor, brandController.getSellerBrands);
+router.get('/vendor/all',verifyAccessJwt, verifyVendor, brandController.getSellerBrands);
 
 
 

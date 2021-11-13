@@ -536,7 +536,7 @@ exports.getAllProductsWithFilters = async (options = {}) => {
             sortOptions['productVariant.0.createdAt'] = options.sort.date;
         }
     }
-    sortOptions["_id"] = 1;
+    sortOptions["_id"] = -1;
     pipeline.push(
         {
             $match: filters
