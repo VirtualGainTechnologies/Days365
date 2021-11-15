@@ -198,13 +198,14 @@ exports.updateTaxDetails = async (req, res, next) => {
             var panNumber = req.body.panNumber;
             var sellerName = req.body.sellerName;
             var vendorId = req.user.id;
-            var filters = { vendor_id: vendorId };
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             var updateQuery = {
                 tax_details: {
                     state: state,
                     seller_name: sellerName,
                     GST_number: gstNumber,
-                    PAN_number: panNumber
+                    PAN_number: panNumber,
+                    is_GST_exempted: false
                 },
                 'status_list.is_tax_details_collected': true
             };
@@ -236,7 +237,7 @@ exports.updateGstExemptedStatus = async (req, res, next) => {
         else {
             var isGstExempted = req.body.isGstExempted;
             var vendorId = req.user.id;
-            var filters = { vendor_id: vendorId };
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             var updateQuery = {
                 'tax_details.is_GST_exempted': isGstExempted,
                 'status_list.is_tax_details_collected': true
@@ -263,10 +264,10 @@ exports.updateGstExemptedStatus = async (req, res, next) => {
 exports.getStatus = async (req, res, next) => {
     try {
         var vendorId = mongoose.Types.ObjectId(req.user.id);
-        const record = await vendorDetailsService.getVendorDetailsRecord({ _id: vendorId }, null, { lean: true });
+        const record = await vendorDetailsService.getVendorDetailsRecord({ _id: vendorId }, '-_id statusList account_status', { lean: true });
         var response = { message: 'No record found.', error: true, data: {} };
         if (record) {
-            response = { message: 'Successfully retrieved status.', error: false, data: { statusList: record.status_list } };
+            response = { message: 'Successfully retrieved status.', error: false, data: { statusList: record.status_list, accountStatus: record.account_status } };
         }
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -342,7 +343,7 @@ exports.updateShippingFee = async (req, res, next) => {
         else {
             var shippingFee = req.body.shippingFee;
             var vendorId = req.user.id;
-            var filters = { vendor_id: vendorId };
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             var updateQuery = {
                 shipping_fee: shippingFee
             };
@@ -385,7 +386,7 @@ exports.updateBankDetails = async (req, res, next) => {
             if (ifscCode) {
                 bankAccountDetails["IFSC_code"] = ifscCode;
             }
-            var filters = { vendor_id: vendorId };
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             var updateQuery = {
                 bank_account_details: bankAccountDetails
             };
@@ -417,11 +418,11 @@ exports.updateProductTaxCode = async (req, res, next) => {
         else {
             var vendorId = req.user.id;
             var productTaxCode = req.body.productTaxCode;
-            var taxCodePercentage = req.body.taxCodePercentage? req.body.taxCodePercentage:"0";
-            var filters = { vendor_id: vendorId };
+            var taxCodePercentage = req.body.taxCodePercentage ? req.body.taxCodePercentage : "0";
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             var updateQuery = {
                 product_tax_code: productTaxCode,
-                taxCodePercentage:taxCodePercentage,
+                taxCodePercentage: taxCodePercentage
             };
             const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
@@ -450,7 +451,7 @@ exports.updateSignature = async (req, res, next) => {
         }
         else {
             var vendorId = req.user.id;
-            var filters = { vendor_id: vendorId };
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             var updateQuery = {
                 signature_file_name: image.key
             };
@@ -542,8 +543,9 @@ exports.updateSellerFile = async (req, res, next) => {
                     case 'blankCheque': uploadedDocType = 'blank_cheque_file_name'; break;
                     default: uploadedDocType = '';
                 }
-                var filters = { vendor_id: vendorId };
-                var updateQuery = (uploadedDocType !== '') ? { [uploadedDocType]: image.key } : {};
+                var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
+                var updateQuery = (uploadedDocType !== '') ?
+                    { [uploadedDocType]: image.key } : {};
                 const record = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
                 // findOneAndUpdate() will return original record unless passsed option {new : true}
                 var response = { message: 'No record found.', error: true, data: {} };
@@ -623,9 +625,10 @@ exports.getMyFile = async (req, res, next) => {
 exports.requestAdminApproval = async (req, res, next) => {
     try {
         var vendorId = req.user.id;
-        let filters = { vendor_id: vendorId };
+        let filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
         let updateQuery = {
-            account_status: 'Pending'
+            account_status: 'Requested',
+            account_verification_remark: ''
         }
         const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
         var response = { message: 'No record found.', error: true, data: {} };
@@ -653,20 +656,15 @@ exports.approveVendor = async (req, res, next) => {
         }
         else {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
-            let filters = { vendor_id: vendorId };
+            let filters = { vendor_id: vendorId, account_status: { $in: ["Requested"] } };
             let updateQuery = {
-                account_status: req.body.status
+                account_status: req.body.status,
+                account_verification_remark: req.body.remark || ""
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
-            if(req.body.status && req.body.status == "Rejected"){
-                const result = await vendorDetailsService.updateUserDetails({_id: vendorId},{"is_blocked":true}, { lean: true });  
-            }
-            if(req.body.status && req.body.status == "Approved"){
-                const result = await vendorDetailsService.updateUserDetails({_id: vendorId},{"is_blocked":false}, { lean: true });  
-            }
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
-                response = { message: 'Successfully activated vendor account.', error: false, data: {} };
+                response = { message: `Successfully ${req.body.status} vendor details`, error: false, data: {} };
             }
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -698,11 +696,12 @@ exports.requestBrandApproval = async (req, res, next) => {
             for (let file of req.files) {
                 brandFileNames.push(file.key);
             }
-            let filters = { vendor_id: vendorId };
+            let filters = { vendor_id: vendorId, brand_status: { $in: ["Pending", "Rejected"] } };
             let updateQuery = {
                 'brand_details.brand_file_name': brandFileNames,
                 'brand_details.brand_name': brandName,
-                'brand_status': 'Pending'
+                'brand_status': 'Requested',
+                'brand_verification_remark': ''
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
@@ -734,14 +733,15 @@ exports.approveVendorBrand = async (req, res, next) => {
         }
         else {
             var vendorId = mongoose.Types.ObjectId(req.body.vendorId);
-            let filters = { vendor_id: vendorId };
+            let filters = { vendor_id: vendorId, brand_status: { $in: ["Requested"] } };
             let updateQuery = {
-                brand_status: 'Approved'
+                brand_status: req.body.status,
+                brand_verification_remark: req.body.remark || ""
             }
             const result = await vendorDetailsService.updateVendorDetails(filters, updateQuery, { lean: true });
             var response = { message: 'No record found.', error: true, data: {} };
             if (result) {
-                response = { message: 'Successfully approved vendor brand.', error: false, data: {} };
+                response = { message: `Successfully ${req.body.status} Brand details`, error: false, data: {} };
             }
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -752,14 +752,56 @@ exports.approveVendorBrand = async (req, res, next) => {
     }
 }
 
-exports.updateProductCategory =async(req, res, next) => {
+
+
+exports.getPrivateFileURL = async (req, res, next) => {
     try {
         let errors = validationResult(req);
         if (!errors.isEmpty()) {
             return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
-        }else {
+        }
+        else {
+            let fileName = req.query.fileName;
+            let type = fileName.split('.').pop();
+            let contentType = '';
+            switch (type) {
+                case 'gif': contentType = 'image/gif'; break;
+                case 'png': contentType = 'image/png'; break;
+                case 'svg': contentType = 'image/svg+hml'; break;
+                case 'pdf': contentType = 'application/pdf'; break;
+                default: contentType = 'image/jpeg';
+            }
+            let fileUrl = await createSignedURL(fileName, contentType);
+            response = { message: 'Successfully retrieved File URL.', error: false, data: { fileUrl: fileUrl } };
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        }
+    } catch (error) {
+        next({});
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.updateProductCategory = async (req, res, next) => {
+    try {
+        let errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return next(new ErrorBody(400, 'Bad Inputs', errors.array()));
+        } else {
             var vendorId = mongoose.Types.ObjectId(req.user.id);
-            let filters = { vendor_id: vendorId };
+            var filters = { vendor_id: vendorId, account_status: { $in: ["Pending", "Rejected"] } };
             let updateQuery = {
                 ProductCategoryId: req.body.ProductCategoryId
             }
@@ -782,9 +824,9 @@ exports.updateProductCategory =async(req, res, next) => {
  *  Get details of vendor by Id.
  */
 
- exports.getSellerData = async (req, res, next) => {
+exports.getSellerData = async (req, res, next) => {
     try {
-        var vendorId =  mongoose.Types.ObjectId(req.query.id);
+        var vendorId = mongoose.Types.ObjectId(req.query.id);
         var filters = { vendor_id: vendorId };
         const record = await vendorDetailsService.getVendorDetailsRecord(filters, null, { lean: true });
         var response = { message: 'No record found.', error: true, data: {} };
@@ -798,4 +840,6 @@ exports.updateProductCategory =async(req, res, next) => {
         next({});
     }
 }
+
+
 

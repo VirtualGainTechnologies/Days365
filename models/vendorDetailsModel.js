@@ -144,7 +144,7 @@ const VendorDetailSchema = new Schema({
         enum: ['A_GEN_EXEMPT', 'A_GEN_MINIMUM', 'A_GEN_SUPERREDUCED', 'A_GEN_REDUCED',
             'A_GEN_STANDARD', 'A_GEN_PEAK', 'A_GEN_PEAK_CESS12', 'A_GEN_PEAK_CESS60', 'A_GEN_JEWELLERY']
     },
-    taxCodePercentage:{
+    taxCodePercentage: {
         type: String,
     },
     signature_file_name: {
@@ -166,17 +166,20 @@ const VendorDetailSchema = new Schema({
     brand_status: {
         type: String,
         required: true,
-        enum: ['NA', 'Pending', 'Approved'],
-        default: "NA"
+        enum: ['Requested', 'Pending', 'Approved', 'Rejected'],
+        default: "Pending"
     },
     account_status: {
         type: String,
         required: true,
-        enum: ['Rejected', 'Pending', 'Approved'],
+        enum: ['Rejected', 'Pending', 'Approved', 'Requested'],
         default: "Pending",
         index: true
     },
-    ProductCategoryId:Array
+    ProductCategoryId: Array,
+    brand_verification_remark: String,
+    account_verification_remark: String
+
 }, { timestamps: true });
 
 

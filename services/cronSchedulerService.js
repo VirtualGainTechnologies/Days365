@@ -15,6 +15,7 @@ exports.deleteExpiredOtpRecords = async () => {
         date.setHours(date.getHours() - 2);
         var filters = { time_stamp: { $lt: date } };
         await otpModel.deleteMany(filters);
+        console.log("EXPIRED OTP DOCUMENTS DELETION COMPLETED");
     } catch (error) {
         //Everything is fine.
     }
@@ -31,6 +32,7 @@ exports.deleteExpiredPreSignupRecords = async () => {
         date.setDate(date.getDate() - 1);
         var filters = { date: { $lt: date } };
         await preSignUpModel.deleteMany(filters);
+        console.log("EXPIRED PRESIGNUP DOCUMENTS DELETION COMPLETED");
     } catch (error) {
         //Everything is fine.
     }

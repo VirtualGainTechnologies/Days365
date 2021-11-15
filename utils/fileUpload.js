@@ -132,12 +132,15 @@ function readFileFromPrivateSpace(fileName) {
  *  Create signed url for private images
  */
 
-function createSignedURL(fileName) {
+function createSignedURL(fileName,contentType = null) {
     let signedUrlExpireSeconds = 60 * 10;
     var params = {
         Bucket: privateSpace,
         Key: fileName,
         Expires: signedUrlExpireSeconds
+    }
+    if (contentType) {
+        params['ResponseContentType'] = contentType;
     }
     return new Promise((resolve, reject) => {
         privateS3.getSignedUrl('getObject', params, (err, url) => {

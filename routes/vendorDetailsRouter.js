@@ -70,7 +70,9 @@ const sellerFileQueryValidator = [
 ];
 
 const approveVendorValidator = [
-    body('vendorId').trim().notEmpty()
+    body('vendorId').trim().notEmpty(),
+    body('status').trim().isIn(["Rejected", "Approved"]),
+    body('remark').trim().optional({ checkFalsy: true })
 ];
 
 const vendorBrandRequestBodyValidator = [
@@ -82,6 +84,9 @@ const addProductCategoryCheck = [
 ]
 
 
+const fileSignedURLValidator = [
+    query('fileName').trim().notEmpty()
+];
 
 
 router.get('/', verifyAccessJwt, verifyVendor, vendorDetailsController.getVendorDetails);
@@ -124,8 +129,23 @@ router.put('/request/approveBrand', verifyAccessJwt, verifyVendor, privateFileUp
 
 router.put('/approve/brand', verifyAccessJwt, verifyAdmin, approveVendorValidator, vendorDetailsController.approveVendorBrand);
 
-router.put('/addProductCategory', verifyAccessJwt, verifyVendor,addProductCategoryCheck, vendorDetailsController.updateProductCategory);
+router.get('/admin/signedURL', verifyAccessJwt, verifyAdmin, fileSignedURLValidator, vendorDetailsController.getPrivateFileURL);
 
-router.get('/getSellerData',verifyAccessJwt,verifyAdmin,vendorDetailsController.getSellerData);
+
+
+
+
+// Vinay //
+
+
+router.put('/addProductCategory', verifyAccessJwt, verifyVendor, addProductCategoryCheck, vendorDetailsController.updateProductCategory);
+
+router.get('/getSellerData', verifyAccessJwt, verifyAdmin, vendorDetailsController.getSellerData);
+
+
+
+
+
+
 
 module.exports = router;
